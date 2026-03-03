@@ -1,0 +1,52 @@
+<mat-sidenav-container class="d-flex w-100 h-100">
+  <mat-sidenav #snav [mode]="isMobile() ? 'over' : 'side'"
+               [fixedInViewport]="isMobile()" [opened]="true">
+    <mat-nav-list>
+
+      <div class="d-flex w-100 m-4">
+        <div class="d-flex w-100 gap-2">
+          <span class="logo" style="width: fit-content">
+            <mat-icon>home</mat-icon>
+          </span>
+
+          <div class="d-flex flex-column w-auto">
+            <span class="org-name">
+              FachschaftERP
+            </span>
+            <sub>
+              Inventory & Sales
+            </sub>
+          </div>
+
+        </div>
+      </div>
+
+      @for (item of navbarItems(); track item;) {
+        <a mat-list-item [routerLink]="item.route" (click)="isMobile() && snav.close()">
+          <div class="d-flex w-100 gap-2 justify-content-center">
+            <mat-icon inline="true">{{item.icon}}</mat-icon>
+
+            <span>
+              {{ item.label }}
+            </span>
+
+          </div>
+
+        </a>
+      }
+    </mat-nav-list>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <div class="d-flex w-100 h-100 flex-column">
+      <mat-toolbar class="example-toolbar">
+        <button matIconButton (click)="snav.toggle()">
+          <mat-icon>menu</mat-icon>
+        </button>
+      </mat-toolbar>
+
+      <ng-content></ng-content>
+
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>
