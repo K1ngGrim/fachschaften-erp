@@ -1,0 +1,20 @@
+<mat-card appearance="outlined" class="h-100">
+  <mat-card-content class="p-4">
+    <div class="d-flex justify-content-between align-items-start">
+      <div class="d-flex flex-column">
+        <span class="text-muted small fw-medium">{{ title() }}</span>
+        <h2 class="display-6 fs-3 fw-bold my-1">{{ value() }}</h2>
+
+        @if (subtitle()) {
+          <p class="small m-0" [ngClass]="getTrendClass()">
+            {{ subtitle() }}
+          </p>
+        }
+      </div>
+
+      <div class="metric-icon-container">
+        <mat-icon class="text-secondary">{{ icon() }}</mat-icon>
+      </div>
+    </div>
+  </mat-card-content>
+</mat-card>

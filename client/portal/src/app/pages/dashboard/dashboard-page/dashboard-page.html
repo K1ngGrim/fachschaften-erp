@@ -1,1 +1,143 @@
-<p>dashboard-page works!</p>
+<div class="container-fluid p-4">
+  <header class="mb-4">
+    <h1 class="display-6 fw-bold m-0">Dashboard</h1>
+    <p class="text-muted">Overview of your operations</p>
+  </header>
+
+  <div class="row g-4 mb-4">
+    <div class="col-12 col-sm-6 col-lg-3">
+      <app-metric-card
+        title="Revenue (Month)"
+        [value]="formatCurrency(currentMonth.revenue)"
+        subtitle="March 2026"
+        icon="payments"
+        color="primary">
+      </app-metric-card>
+    </div>
+    <div class="col-12 col-sm-6 col-lg-3">
+      <app-metric-card
+        title="Expenses (Month)"
+        [value]="formatCurrency(currentMonth.expenses)"
+        subtitle="March 2026"
+        icon="trending_up"
+        color="warn">
+      </app-metric-card>
+    </div>
+    <div class="col-12 col-sm-6 col-lg-3">
+      <app-metric-card
+        title="Profit (Total)"
+        [value]="formatCurrency(totalRevenue - totalExpenses)"
+        [subtitle]="'Revenue: ' + formatCurrency(totalRevenue)"
+        icon="account_balance_wallet"
+        color="accent">
+      </app-metric-card>
+    </div>
+    <div class="col-12 col-sm-6 col-lg-3">
+      <app-metric-card
+        title="Inventory Value"
+        [value]="formatCurrency(inventoryValue)"
+        [subtitle]="totalStockUnits + ' units in stock'"
+        icon="inventory_2">
+      </app-metric-card>
+    </div>
+  </div>
+
+  <div class="row g-4 mb-4">
+    <div class="col-12 col-lg-6">
+      <mat-card appearance="outlined" class="h-100">
+        <mat-card-header>
+          <mat-card-title>Revenue vs Expenses</mat-card-title>
+        </mat-card-header>
+        <mat-card-content class="pt-4">
+          <div class="bg-light rounded d-flex align-items-center justify-content-center" style="height: 260px;">
+            <p class="text-muted">Bar Chart Placeholder</p>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <div class="col-12 col-lg-6">
+      <mat-card appearance="outlined" class="h-100">
+        <mat-card-header>
+          <mat-card-title>Profit Trend</mat-card-title>
+        </mat-card-header>
+        <mat-card-content class="pt-4">
+          <div class="bg-light rounded d-flex align-items-center justify-content-center" style="height: 260px;">
+            <p class="text-muted">Line Chart Placeholder</p>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-12 col-lg-6">
+      <mat-card appearance="outlined">
+        <mat-card-header class="mb-2">
+          <div mat-card-avatar class="d-flex align-items-center">
+            <mat-icon color="accent">emoji_events</mat-icon>
+          </div>
+          <mat-card-title>Top Selling Items</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="list-group list-group-flush">
+            @for (item of topSelling; track item.id; let i = $index) {
+              <div class="list-group-item d-flex justify-content-between align-items-center border-0 px-0">
+                <div class="d-flex align-items-center">
+                  <span class="badge rounded-pill bg-light text-dark me-3 border">{{ i + 1 }}</span>
+                  <div>
+                    <div class="fw-bold">{{ item.name }}</div>
+                    <small class="text-muted">{{ item.quantity }} units sold</small>
+                  </div>
+                </div>
+                <div class="fw-bold text-primary">{{ formatCurrency(item.revenue) }}</div>
+              </div>
+            }
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <div class="col-12 col-lg-6">
+      <mat-card appearance="outlined">
+        <mat-card-header class="mb-2">
+          <div mat-card-avatar class="d-flex align-items-center">
+            <mat-icon color="warn">warning</mat-icon>
+          </div>
+          <mat-card-title>
+            Low Stock Warnings
+            @if (lowStockProducts.length > 0) {
+              <span class="badge bg-danger ms-2 fs-6">{{ lowStockProducts.length }}</span>
+            }
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          @if (lowStockProducts.length === 0) {
+            <p class="text-center text-muted py-5">All items are well stocked.</p>
+          } @else {
+            <div class="row g-2">
+              @for (p of lowStockProducts; track p.id) {
+                <div class="col-12">
+                  <div class="border rounded p-3 d-flex justify-content-between align-items-center">
+                    <div>
+                      <div class="fw-bold">{{ p.name }}</div>
+                      <small class="text-muted">{{ p.supplier }}</small>
+                    </div>
+                    <div class="text-end">
+                      <mat-chip-set>
+                        <mat-chip [color]="p.stock <= p.lowStockThreshold / 2 ? 'warn' : ''" selected>
+                          {{ p.stock }} left
+                        </mat-chip>
+                      </mat-chip-set>
+                      <div class="small text-muted mt-1">Min: {{ p.lowStockThreshold }}</div>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</div>
