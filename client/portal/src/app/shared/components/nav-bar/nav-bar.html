@@ -21,23 +21,24 @@
         </div>
       </div>
 
-      @for (item of navbarItems(); track item;) {
-        <a mat-list-item [routerLink]="item.route" (click)="isMobile() && snav.close()">
-          <div class="d-flex w-100 gap-2 justify-content-center">
-            <mat-icon inline="true">{{item.icon}}</mat-icon>
-
-            <span>
+      <div class="d-flex px-2 flex-column gap-1">
+        @for (item of navbarItems(); track item;) {
+          <a mat-list-item [routerLink]="item.route" (click)="isMobile() && snav.close()" class="rounded-3">
+            <div class="d-flex w-100 gap-3 justify-content-start">
+              <mat-icon inline="false">{{item.icon}}</mat-icon>
+              <span>
               {{ item.label }}
             </span>
 
-          </div>
+            </div>
 
-        </a>
-      }
+          </a>
+        }
+      </div>
     </mat-nav-list>
   </mat-sidenav>
 
-  <mat-sidenav-content>
+  <mat-sidenav-content class="flex-grow-1">
     <div class="d-flex w-100 h-100 flex-column">
       <mat-toolbar class="example-toolbar">
         <button matIconButton (click)="snav.toggle()">
