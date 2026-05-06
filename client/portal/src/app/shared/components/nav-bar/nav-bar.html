@@ -1,6 +1,7 @@
 <mat-sidenav-container class="sidenav-container">
   <mat-sidenav #snav [mode]="isMobile() ? 'over' : 'side'"
                [fixedInViewport]="isMobile()" [opened]="true"
+               [style.width]="collapsed() ? '56px' : '260px'"
                [class.collapsed]="collapsed()"
                class="sidenav">
 
@@ -67,7 +68,11 @@
     </mat-nav-list>
   </mat-sidenav>
 
-  <mat-sidenav-content class="sidenav-content">
+  <mat-sidenav-content
+    #content
+    class="sidenav-content"
+    [class.collapsed]="collapsed()"
+  >
     <div class="content-wrapper">
       @if (isMobile()) {
         <mat-toolbar class="toolbar">

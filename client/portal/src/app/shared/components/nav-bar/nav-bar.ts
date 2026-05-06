@@ -1,4 +1,5 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, OnInit, OnDestroy, viewChild, ElementRef } from '@angular/core';
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { MatToolbar } from '@angular/material/toolbar';
 import { MatIconButton } from '@angular/material/button';
 import { MatSidenav, MatSidenavContainer, MatSidenavContent } from '@angular/material/sidenav';
@@ -7,6 +8,7 @@ import { MatIcon } from '@angular/material/icon';
 import { MatTooltip } from '@angular/material/tooltip';
 import { Navigation } from '../../services/navigation';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-nav-bar',
@@ -26,15 +28,31 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
   templateUrl: './nav-bar.html',
   styleUrl: './nav-bar.scss',
 })
-export class NavBar {
+export class NavBar implements OnInit, OnDestroy {
+  navContent = viewChild.required<ElementRef<HTMLElement>>('content');
+
   private readonly navigation = inject(Navigation);
+  private readonly breakpointObserver = inject(BreakpointObserver);
+  private sub?: Subscription;
 
   readonly isMobile = signal(false);
   readonly collapsed = signal(false);
   readonly navItems = this.navigation.navItems;
   readonly configItems = this.navigation.configItems;
 
+  ngOnInit() {
+    this.sub = this.breakpointObserver
+      .observe([Breakpoints.XSmall, Breakpoints.Small])
+      .subscribe((result) => this.isMobile.set(result.matches));
+  }
+
+  ngOnDestroy() {
+    this.sub?.unsubscribe();
+  }
+
   toggleCollapse() {
-    this.collapsed.update(v => !v);
+    this.collapsed.update((v) => !v);
+
+    this.navContent()!.nativeElement.style.marginLeft = this.collapsed() ? '56px' : '260px';
   }
 }
