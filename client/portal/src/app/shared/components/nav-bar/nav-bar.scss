@@ -12,15 +12,12 @@ $sidenav-collapsed-width: 56px;
 }
 
 .sidenav {
-  width: $sidenav-width;
   background-color: $sidenav-bg;
   border-right: none;
-  transition: width 0.25s ease;
+  transition: width 0.5s ease;
   overflow: hidden;
 
   &.collapsed {
-    width: $sidenav-collapsed-width;
-
     .sidenav-header {
       padding: 16px 8px;
       justify-content: center;
@@ -162,6 +159,13 @@ $sidenav-collapsed-width: 56px;
 
 .sidenav-content {
   background-color: #f5f6fa;
+
+  margin-left: $sidenav-width !important;
+  transition: margin-left 0.5s ease;
+
+  &.collapsed {
+    margin-left: $sidenav-collapsed-width !important;
+  }
 }
 
 .content-wrapper {

@@ -1,0 +1,147 @@
+<div class="container-fluid p-4">
+
+  @if (!product()) {
+    <div class="d-flex flex-column gap-3">
+      <button mat-button (click)="goBack()"><mat-icon>arrow_back</mat-icon> Back to Items</button>
+      <p class="text-muted">Item not found.</p>
+    </div>
+  } @else {
+    <div class="d-flex align-items-center gap-3 mb-4">
+      <button mat-icon-button (click)="goBack()"><mat-icon>arrow_back</mat-icon></button>
+      <div class="flex-grow-1">
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <h1 class="display-6 fw-bold m-0">{{ product()!.name }}</h1>
+          @if (isLowStock()) {
+            <span class="badge bg-danger d-flex align-items-center gap-1">
+              <mat-icon style="font-size:14px;width:14px;height:14px">warning</mat-icon> Low Stock
+            </span>
+          }
+        </div>
+        <p class="text-muted mb-0">{{ itemType()?.icon }} {{ itemType()?.name }}</p>
+      </div>
+      <button mat-stroked-button (click)="goBack()">Back to Items</button>
+    </div>
+
+    <div class="row g-4">
+      <!-- Basic Info -->
+      <div class="col-12 col-lg-8">
+        <mat-card appearance="outlined" class="h-100">
+          <mat-card-header><mat-card-title>Basic Information</mat-card-title></mat-card-header>
+          <mat-card-content>
+            <dl class="row g-4">
+              <div class="col-6 col-sm-3">
+                <dt class="text-muted small">Purchase Price</dt>
+                <dd class="fw-semibold fs-5">{{ formatCurrency(product()!.purchasePrice) }}</dd>
+              </div>
+              <div class="col-6 col-sm-3">
+                <dt class="text-muted small">Selling Price</dt>
+                <dd class="fw-semibold fs-5">{{ formatCurrency(product()!.sellingPrice) }}</dd>
+              </div>
+              <div class="col-6 col-sm-3">
+                <dt class="text-muted small">Margin</dt>
+                <dd class="fw-semibold fs-5 text-success">{{ margin() }}</dd>
+              </div>
+              <div class="col-6 col-sm-3">
+                <dt class="text-muted small">Supplier</dt>
+                <dd class="fw-medium fs-5">{{ product()!.supplier }}</dd>
+              </div>
+            </dl>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <!-- Stock -->
+      <div class="col-12 col-lg-4">
+        <mat-card appearance="outlined" class="h-100">
+          <mat-card-header>
+            <mat-card-title class="d-flex align-items-center gap-2">
+              <mat-icon>inventory_2</mat-icon> Stock
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content class="d-flex flex-column gap-3">
+            <div>
+              <p class="display-5 fw-bold m-0" [class.text-danger]="isLowStock()">{{ product()!.stock }}</p>
+              <p class="text-muted small">units in stock</p>
+            </div>
+            <div class="d-flex flex-column gap-1 small">
+              <div class="d-flex justify-content-between">
+                <span class="text-muted">Low stock threshold</span>
+                <span class="fw-medium">{{ product()!.lowStockThreshold }}</span>
+              </div>
+              <div class="d-flex justify-content-between">
+                <span class="text-muted">Stock value</span>
+                <span class="fw-medium">{{ formatCurrency(product()!.stock * product()!.purchasePrice) }}</span>
+              </div>
+            </div>
+            <div class="border-top pt-3">
+              <mat-slide-toggle [checked]="product()!.trackStock" [disabled]="true">Track stock</mat-slide-toggle>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <!-- Custom Attributes -->
+      @if (typeFields().length > 0) {
+        <div class="col-12">
+          <mat-card appearance="outlined">
+            <mat-card-header><mat-card-title>Custom Attributes</mat-card-title></mat-card-header>
+            <mat-card-content>
+              <dl class="row g-4">
+                @for (f of typeFields(); track f.id) {
+                  <div class="col-6 col-sm-4 col-lg-3">
+                    <dt class="text-muted small">{{ f.label }}</dt>
+                    <dd class="fw-medium">{{ getCustomValueDisplay(f.name, f.type) }}</dd>
+                  </div>
+                }
+              </dl>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      }
+
+      <!-- Stock Movements -->
+      <div class="col-12">
+        <mat-card appearance="outlined">
+          <mat-card-header><mat-card-title>Stock Movement History</mat-card-title></mat-card-header>
+          <mat-card-content class="p-0">
+            @if (movements().length === 0) {
+              <p class="text-muted text-center py-4">No stock movements recorded yet.</p>
+            } @else {
+              <div class="table-responsive">
+                <table mat-table [dataSource]="movements()" class="w-100">
+                  <ng-container matColumnDef="date">
+                    <th mat-header-cell *matHeaderCellDef>Date</th>
+                    <td mat-cell *matCellDef="let m">{{ m.date }}</td>
+                  </ng-container>
+                  <ng-container matColumnDef="type">
+                    <th mat-header-cell *matHeaderCellDef>Type</th>
+                    <td mat-cell *matCellDef="let m">
+                      <mat-chip-set>
+                        <mat-chip [color]="m.type === 'purchase' ? 'primary' : m.type === 'sale' ? '' : 'accent'" selected>
+                          {{ m.type }}
+                        </mat-chip>
+                      </mat-chip-set>
+                    </td>
+                  </ng-container>
+                  <ng-container matColumnDef="quantity">
+                    <th mat-header-cell *matHeaderCellDef class="text-end">Quantity</th>
+                    <td mat-cell *matCellDef="let m" class="text-end fw-medium"
+                        [class.text-success]="m.quantity > 0" [class.text-danger]="m.quantity < 0">
+                      {{ m.quantity > 0 ? '+' : '' }}{{ m.quantity }}
+                    </td>
+                  </ng-container>
+                  <ng-container matColumnDef="reason">
+                    <th mat-header-cell *matHeaderCellDef>Reason</th>
+                    <td mat-cell *matCellDef="let m" class="text-muted">{{ m.reason || '—' }}</td>
+                  </ng-container>
+                  <tr mat-header-row *matHeaderRowDef="movementColumns"></tr>
+                  <tr mat-row *matRowDef="let row; columns: movementColumns;"></tr>
+                </table>
+              </div>
+            }
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+  }
+</div>

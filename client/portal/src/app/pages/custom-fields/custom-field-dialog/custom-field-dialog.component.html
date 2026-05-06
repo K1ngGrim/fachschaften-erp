@@ -1,0 +1,75 @@
+<h2 mat-dialog-title>{{ isEdit ? 'Edit Custom Field' : 'Create Custom Field' }}</h2>
+
+<mat-dialog-content class="pt-2">
+  <div class="d-flex flex-column gap-3">
+    <div class="row g-3">
+      <div class="col-12 col-sm-6">
+        <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
+          <mat-label>Label</mat-label>
+          <input matInput [(ngModel)]="label" required />
+        </mat-form-field>
+      </div>
+      <div class="col-12 col-sm-6">
+        <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
+          <mat-label>Field Key</mat-label>
+          <input matInput [(ngModel)]="name" placeholder="e.g. volume_ml" required />
+        </mat-form-field>
+      </div>
+    </div>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>Field Type</mat-label>
+      <mat-select [ngModel]="fieldType()" (ngModelChange)="fieldType.set($event)">
+        @for (ft of fieldTypes; track ft) {
+          <mat-option [value]="ft">{{ ft | titlecase }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    @if (fieldType() === 'select') {
+      <div>
+        <p class="small fw-medium mb-2">Options</p>
+        <mat-chip-set class="mb-2">
+          @for (opt of selectOptions(); track opt) {
+            <mat-chip (removed)="removeOption(opt)">
+              {{ opt }}
+              <button matChipRemove><mat-icon>cancel</mat-icon></button>
+            </mat-chip>
+          }
+        </mat-chip-set>
+        <div class="d-flex gap-2">
+          <mat-form-field appearance="outline" class="flex-grow-1" subscriptSizing="dynamic">
+            <mat-label>Add option…</mat-label>
+            <input matInput [(ngModel)]="newOption" (keydown.enter)="$event.preventDefault(); addOption()" />
+          </mat-form-field>
+          <button mat-stroked-button type="button" (click)="addOption()">Add</button>
+        </div>
+      </div>
+    }
+
+    <mat-divider />
+
+    <div>
+      <p class="small fw-medium mb-2">Assign to Item Types</p>
+      <div class="row g-2">
+        @for (t of activeTypes(); track t.id) {
+          <div class="col-6">
+            <label class="d-flex align-items-center gap-2 border rounded p-2 cursor-pointer">
+              <mat-checkbox [checked]="selectedTypeIds().includes(t.id)" (change)="toggleTypeId(t.id)" />
+              <span class="small">{{ t.icon }} {{ t.name }}</span>
+            </label>
+          </div>
+        }
+      </div>
+    </div>
+
+    <mat-checkbox [(ngModel)]="required">Required field</mat-checkbox>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()">Cancel</button>
+  <button mat-raised-button color="primary" (click)="save()" [disabled]="!label || !name">
+    {{ isEdit ? 'Save' : 'Create' }}
+  </button>
+</mat-dialog-actions>
