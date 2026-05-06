@@ -5,15 +5,19 @@ import { Injectable, signal } from '@angular/core';
 })
 export class Navigation {
 
-  readonly items = signal(
-    [
-      { label: 'Dashboard', route: '/', icon: 'menu' },
-      { label: 'Items', route: '/items', icon: 'info' },
-      { label: 'Purchases', route: '/purchases', icon: 'contact_mail' },
-      { label: 'Sales', route: '/sales', icon: 'contact_mail' },
-      { label: 'Finances', route: '/finances', icon: 'contact_mail' },
-    ]
-  );
+  readonly navItems = signal<NavigationItem[]>([
+    { label: 'Dashboard', route: '/', icon: 'grid_view' },
+    { label: 'Items', route: '/items', icon: 'inventory_2' },
+    { label: 'Purchases', route: '/purchases', icon: 'shopping_cart' },
+    { label: 'Sales', route: '/sales', icon: 'point_of_sale' },
+    { label: 'Finances', route: '/finances', icon: 'bar_chart' },
+    { label: 'Reports', route: '/reports', icon: 'description' },
+  ]);
+
+  readonly configItems = signal<NavigationItem[]>([
+    { label: 'Item Types', route: '/item-types', icon: 'layers' },
+    { label: 'Custom Fields', route: '/custom-fields', icon: 'tune' },
+  ]);
 
 
 
