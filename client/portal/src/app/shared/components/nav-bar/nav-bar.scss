@@ -88,7 +88,6 @@ $sidenav-collapsed-width: 56px;
 .collapse-btn {
   color: #6b6f85 !important;
   flex-shrink: 0;
-  margin-left: auto;
   padding: 0 !important;
   width: 32px;
   height: 32px;
@@ -168,6 +167,7 @@ $sidenav-collapsed-width: 56px;
 }
 
 .toolbar {
+  min-height: var(--mat-toolbar-standard-height);
   background-color: #ffffff;
   border-bottom: 1px solid #e8eaf0;
   color: #1a1d2e;

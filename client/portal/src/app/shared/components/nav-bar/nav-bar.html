@@ -15,11 +15,6 @@
           <span class="org-subtitle">Inventory &amp; Sales</span>
         </div>
       }
-      <button mat-icon-button class="collapse-btn" (click)="toggleCollapse()"
-              [matTooltip]="collapsed() ? 'Expand' : 'Collapse'"
-              matTooltipPosition="right">
-        <mat-icon>{{ collapsed() ? 'last_page' : 'first_page' }}</mat-icon>
-      </button>
     </div>
 
     <mat-nav-list class="nav-list">
@@ -56,13 +51,15 @@
     [class.collapsed]="collapsed()"
   >
     <div class="content-wrapper">
-      @if (isMobile()) {
-        <mat-toolbar class="toolbar">
-          <button mat-icon-button (click)="snav.toggle()">
-            <mat-icon>menu</mat-icon>
+      <mat-toolbar class="toolbar">
+        <div class="d-flex w-100 h-100 align-items-center">
+          <button mat-icon-button class="collapse-btn" (click)="toggleCollapse()"
+                  [matTooltip]="collapsed() ? 'Expand' : 'Collapse'"
+                  matTooltipPosition="right">
+            <mat-icon>{{ collapsed() ? 'last_page' : 'first_page' }}</mat-icon>
           </button>
-        </mat-toolbar>
-      }
+        </div>
+      </mat-toolbar>
 
       <ng-content></ng-content>
     </div>

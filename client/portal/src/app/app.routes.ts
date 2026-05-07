@@ -23,7 +23,7 @@ export const routes: Routes = [
   },
   {
     path: 'finances',
-    loadComponent: () => import('./pages/finances/finances-page/finances-page').then(m => m.FinancesPage),
+    loadComponent: () => import('./pages/finances/finance-page/finance-page').then(m => m.FinancePage),
   },
   {
     path: 'reports',
