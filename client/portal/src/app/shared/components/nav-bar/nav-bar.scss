@@ -12,6 +12,7 @@ $sidenav-collapsed-width: 56px;
 }
 
 .sidenav {
+  border-radius: 0 !important;
   background-color: $sidenav-bg;
   border-right: none;
   transition: width 0.5s ease;
@@ -27,16 +28,6 @@ $sidenav-collapsed-width: 56px;
 
     .collapse-btn {
       margin-left: 0;
-    }
-
-    .nav-item {
-      margin: 2px 4px;
-      padding: 0;
-      justify-content: center;
-
-      mat-icon {
-        margin: 0 auto;
-      }
     }
 
     .nav-section {
@@ -98,6 +89,7 @@ $sidenav-collapsed-width: 56px;
   color: #6b6f85 !important;
   flex-shrink: 0;
   margin-left: auto;
+  padding: 0 !important;
   width: 32px;
   height: 32px;
 
@@ -126,12 +118,12 @@ $sidenav-collapsed-width: 56px;
 }
 
 .nav-item {
-  margin: 2px 8px;
-  border-radius: 8px;
+  border-radius: 0 !important;
   color: #c0c4d8 !important;
   transition: margin 0.25s ease;
 
   mat-icon {
+    overflow: visible;
     color: #8b8fa8 !important;
     font-size: 20px;
     width: 20px;

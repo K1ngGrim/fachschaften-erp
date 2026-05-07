@@ -38,7 +38,6 @@ export class NavBar implements OnInit, OnDestroy {
   readonly isMobile = signal(false);
   readonly collapsed = signal(false);
   readonly navItems = this.navigation.navItems;
-  readonly configItems = this.navigation.configItems;
 
   ngOnInit() {
     this.sub = this.breakpointObserver
@@ -52,7 +51,5 @@ export class NavBar implements OnInit, OnDestroy {
 
   toggleCollapse() {
     this.collapsed.update((v) => !v);
-
-    this.navContent()!.nativeElement.style.marginLeft = this.collapsed() ? '56px' : '260px';
   }
 }

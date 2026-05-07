@@ -24,46 +24,28 @@
 
     <mat-nav-list class="nav-list">
 
-      <div class="nav-section">
-        @if (!collapsed()) {
-          <span class="section-label">Navigation</span>
-        }
-        @for (item of navItems(); track item.route) {
-          <a mat-list-item
-             [routerLink]="item.route"
-             routerLinkActive="active"
-             [routerLinkActiveOptions]="{ exact: item.route === '/' }"
-             (click)="isMobile() && snav.close()"
-             class="nav-item"
-             [matTooltip]="collapsed() ? item.label : ''"
-             matTooltipPosition="right">
-            <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
-            @if (!collapsed()) {
-              <span matListItemTitle>{{ item.label }}</span>
-            }
-          </a>
-        }
-      </div>
-
-      <div class="nav-section">
-        @if (!collapsed()) {
-          <span class="section-label">Configuration</span>
-        }
-        @for (item of configItems(); track item.route) {
-          <a mat-list-item
-             [routerLink]="item.route"
-             routerLinkActive="active"
-             (click)="isMobile() && snav.close()"
-             class="nav-item"
-             [matTooltip]="collapsed() ? item.label : ''"
-             matTooltipPosition="right">
-            <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
-            @if (!collapsed()) {
-              <span matListItemTitle>{{ item.label }}</span>
-            }
-          </a>
-        }
-      </div>
+      @for (group of navItems(); track group) {
+        <div class="nav-section">
+          @if (!collapsed()) {
+            <span class="section-label">Navigation</span>
+          }
+          @for (item of group.items; track item.route) {
+            <a mat-list-item
+               [routerLink]="item.route"
+               routerLinkActive="active"
+               [routerLinkActiveOptions]="{ exact: item.route === '/' }"
+               (click)="isMobile() && snav.close()"
+               class="nav-item gap-2 align-items-center"
+               [matTooltip]="collapsed() ? item.label : ''"
+               matTooltipPosition="right">
+              <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+              @if (!collapsed()) {
+                <span matListItemTitle>{{ item.label }}</span>
+              }
+            </a>
+          }
+        </div>
+      }
 
     </mat-nav-list>
   </mat-sidenav>
