@@ -5,18 +5,43 @@ import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatChip, MatChipSet } from '@angular/material/chips';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
-import { MatTable, MatColumnDef, MatHeaderCell, MatCell, MatHeaderRow, MatRow, MatHeaderCellDef, MatCellDef, MatHeaderRowDef, MatRowDef } from '@angular/material/table';
+import {
+  MatCell,
+  MatCellDef,
+  MatColumnDef,
+  MatHeaderCell,
+  MatHeaderCellDef,
+  MatHeaderRow,
+  MatHeaderRowDef,
+  MatRow,
+  MatRowDef,
+  MatTable,
+} from '@angular/material/table';
 import { DataService } from '../../../shared/services/data.service';
 
 @Component({
   selector: 'app-item-detail',
   imports: [
-    MatCard, MatCardContent, MatCardHeader, MatCardTitle,
-    MatButton, MatIconButton, MatIcon,
-    MatChip, MatChipSet,
+    MatCard,
+    MatCardContent,
+    MatCardHeader,
+    MatCardTitle,
+    MatButton,
+    MatIconButton,
+    MatIcon,
+    MatChip,
+    MatChipSet,
     MatSlideToggle,
-    MatTable, MatColumnDef, MatHeaderCell, MatCell, MatHeaderRow, MatRow,
-    MatHeaderCellDef, MatCellDef, MatHeaderRowDef, MatRowDef,
+    MatTable,
+    MatColumnDef,
+    MatHeaderCell,
+    MatCell,
+    MatHeaderRow,
+    MatRow,
+    MatHeaderCellDef,
+    MatCellDef,
+    MatHeaderRowDef,
+    MatRowDef,
   ],
   templateUrl: './item-detail.html',
   styleUrl: './item-detail.scss',
@@ -28,12 +53,18 @@ export class ItemDetail {
 
   readonly id = this.route.snapshot.paramMap.get('id') ?? '';
 
-  readonly product = computed(() => this.data.products().find(p => p.id === this.id));
-  readonly itemType = computed(() => this.data.itemTypes().find(t => t.id === this.product()?.itemTypeId));
-  readonly typeFields = computed(() =>
-    this.data.customFields().filter(f => f.active && f.itemTypeIds.includes(this.product()?.itemTypeId ?? ''))
+  readonly product = computed(() => this.data.products().find((p) => p.id === this.id));
+  readonly itemType = computed(() =>
+    this.data.itemTypes().find((t) => t.id === this.product()?.itemTypeId),
   );
-  readonly movements = computed(() => this.data.stockMovements().filter(m => m.productId === this.id));
+  readonly typeFields = computed(() =>
+    this.data
+      .customFields()
+      .filter((f) => f.active && f.itemTypeIds.includes(this.product()?.itemTypeId ?? '')),
+  );
+  readonly movements = computed(() =>
+    this.data.stockMovements().filter((m) => m.productId === this.id),
+  );
   readonly isLowStock = computed(() => {
     const p = this.product();
     return p ? p.trackStock && p.stock <= p.lowStockThreshold : false;
@@ -58,5 +89,7 @@ export class ItemDetail {
     return `${this.formatCurrency(m)} (${pct}%)`;
   }
 
-  goBack() { this.router.navigate(['/items']); }
+  goBack() {
+    this.router.navigate(['/items']);
+  }
 }

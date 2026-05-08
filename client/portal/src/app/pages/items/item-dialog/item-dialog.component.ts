@@ -1,6 +1,12 @@
-import { Component, computed, inject, signal, OnInit } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogRef, MatDialogTitle, MatDialogContent, MatDialogActions } from '@angular/material/dialog';
+import {
+  MAT_DIALOG_DATA,
+  MatDialogActions,
+  MatDialogContent,
+  MatDialogRef,
+  MatDialogTitle,
+} from '@angular/material/dialog';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { MatSelect } from '@angular/material/select';
@@ -10,16 +16,24 @@ import { MatSlideToggle } from '@angular/material/slide-toggle';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { MatDivider } from '@angular/material/divider';
 import { DataService } from '../../../shared/services/data.service';
-import type { Product, CustomField } from '../../../shared/models';
+import type { CustomField, Product } from '../../../shared/models';
 
 @Component({
   selector: 'app-item-dialog',
   imports: [
     FormsModule,
-    MatDialogTitle, MatDialogContent, MatDialogActions,
-    MatFormField, MatLabel,
-    MatInput, MatSelect, MatOption,
-    MatButton, MatSlideToggle, MatCheckbox, MatDivider,
+    MatDialogTitle,
+    MatDialogContent,
+    MatDialogActions,
+    MatFormField,
+    MatLabel,
+    MatInput,
+    MatSelect,
+    MatOption,
+    MatButton,
+    MatSlideToggle,
+    MatCheckbox,
+    MatDivider,
   ],
   templateUrl: './item-dialog.component.html',
 })
@@ -29,12 +43,14 @@ export class ItemDialogComponent implements OnInit {
   readonly dialogData = inject<{ product: Product | null }>(MAT_DIALOG_DATA);
 
   readonly isEdit = !!this.dialogData.product;
-  readonly activeTypes = computed(() => this.data.itemTypes().filter(t => t.active));
+  readonly activeTypes = computed(() => this.data.itemTypes().filter((t) => t.active));
 
   selectedTypeId = signal(this.dialogData.product?.itemTypeId ?? '');
   trackStock = signal(this.dialogData.product?.trackStock ?? true);
   customValues = signal<Record<string, string | number | boolean>>(
-    this.dialogData.product?.customFieldValues ? { ...this.dialogData.product.customFieldValues } : {}
+    this.dialogData.product?.customFieldValues
+      ? { ...this.dialogData.product.customFieldValues }
+      : {},
   );
 
   name = this.dialogData.product?.name ?? '';
@@ -45,7 +61,9 @@ export class ItemDialogComponent implements OnInit {
   threshold = this.dialogData.product?.lowStockThreshold ?? 12;
 
   readonly typeCustomFields = computed<CustomField[]>(() =>
-    this.data.customFields().filter(f => f.active && f.itemTypeIds.includes(this.selectedTypeId()))
+    this.data
+      .customFields()
+      .filter((f) => f.active && f.itemTypeIds.includes(this.selectedTypeId())),
   );
 
   ngOnInit() {
@@ -59,7 +77,7 @@ export class ItemDialogComponent implements OnInit {
   }
 
   setCustomValue(name: string, value: string | number | boolean) {
-    this.customValues.update(v => ({ ...v, [name]: value }));
+    this.customValues.update((v) => ({ ...v, [name]: value }));
   }
 
   save() {
@@ -78,5 +96,7 @@ export class ItemDialogComponent implements OnInit {
     this.dialogRef.close(product);
   }
 
-  cancel() { this.dialogRef.close(); }
+  cancel() {
+    this.dialogRef.close();
+  }
 }

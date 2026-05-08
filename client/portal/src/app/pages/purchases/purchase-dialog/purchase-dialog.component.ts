@@ -1,6 +1,11 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogRef, MatDialogTitle, MatDialogContent, MatDialogActions } from '@angular/material/dialog';
+import {
+  MatDialogActions,
+  MatDialogContent,
+  MatDialogRef,
+  MatDialogTitle,
+} from '@angular/material/dialog';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { MatSelect } from '@angular/material/select';
@@ -13,8 +18,15 @@ import type { Purchase } from '../../../shared/models';
   selector: 'app-purchase-dialog',
   imports: [
     FormsModule,
-    MatDialogTitle, MatDialogContent, MatDialogActions,
-    MatFormField, MatLabel, MatInput, MatSelect, MatOption, MatButton,
+    MatDialogTitle,
+    MatDialogContent,
+    MatDialogActions,
+    MatFormField,
+    MatLabel,
+    MatInput,
+    MatSelect,
+    MatOption,
+    MatButton,
   ],
   templateUrl: './purchase-dialog.component.html',
 })
@@ -31,7 +43,7 @@ export class PurchaseDialogComponent {
   totalPrice = 0;
 
   get selectedProduct() {
-    return this.products().find(p => p.id === this.selectedProductId);
+    return this.products().find((p) => p.id === this.selectedProductId);
   }
 
   onProductChange() {
@@ -62,5 +74,7 @@ export class PurchaseDialogComponent {
     this.dialogRef.close(purchase);
   }
 
-  cancel() { this.dialogRef.close(); }
+  cancel() {
+    this.dialogRef.close();
+  }
 }

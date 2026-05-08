@@ -20,14 +20,33 @@ $dark-theme: mat.define-theme((
   )
 ));
 
-:root {
+$light-theme: mat.define-theme((
+  color: (theme-type: light, primary: mat.$azure-palette)
+));
+
+@mixin create-dark-theme() {
   @include mat.all-component-themes($dark-theme);
 }
 
+@mixin create-light-theme() {
+  @include mat.all-component-themes($light-theme);
+}
+
+html.dark {
+  color-scheme: dark;
+  @include create-dark-theme();
+}
+
 html {
+  @include create-light-theme();
+}
+
+html {
+  color-scheme: light;
   height: 100%;
   @include mat.theme(
     (
+
       color: (
         primary: mat.$azure-palette,
         tertiary: mat.$blue-palette,
@@ -39,10 +58,6 @@ html {
 }
 
 body {
-  // Default the application to a light color theme. This can be changed to
-  // `dark` to enable the dark color theme, or to `light dark` to defer to the
-  // user's system settings.
-  color-scheme: light;
 
   // Set a default background, font and text colors for the application using
   // Angular Material's system-level CSS variables. Learn more about these
@@ -55,4 +70,14 @@ body {
   margin: 0;
   height: 100%;
 }
-/* You can add global styles to this file, and also import other style files */
+
+.text-on-surface { color: var(--mat-sys-on-surface); }
+.text-hint { color: var(--mat-sys-inverse-surface); }
+
+.toolbar {
+  background: var(--mat-sys-surface-container) !important;
+}
+
+.content {
+  background: var(--mat-sys-surface);
+}

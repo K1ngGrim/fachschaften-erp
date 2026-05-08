@@ -168,10 +168,11 @@ $sidenav-collapsed-width: 56px;
 
 .toolbar {
   min-height: var(--mat-toolbar-standard-height);
-  background-color: #ffffff;
-  border-bottom: 1px solid #e8eaf0;
-  color: #1a1d2e;
   position: sticky;
   top: 0;
   z-index: 10;
+}
+
+.content-container {
+  background-color: var(--mat-sys-surface-container-low);
 }

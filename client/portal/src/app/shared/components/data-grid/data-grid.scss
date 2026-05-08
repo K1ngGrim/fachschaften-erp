@@ -1,0 +1,24 @@
+.data-grid-container {
+  background: var(--mat-sys-surface-container) !important;
+}
+
+::ng-deep {
+  .mat-mdc-table {
+    background: var(--mat-sys-surface-container) !important;
+  }
+}
+
+.search-field {
+  width: 30%;
+  padding: 1.5rem 1.5rem 0;
+}
+
+
+.mat-mdc-cell,
+.mat-mdc-header-cell {
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+
+.table-row-hover:hover { background: var(--mat-sys-surface-container-high); cursor: pointer; }
+.text-center { text-align: center; }

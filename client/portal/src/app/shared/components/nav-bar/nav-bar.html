@@ -22,7 +22,7 @@
       @for (group of navItems(); track group) {
         <div class="nav-section">
           @if (!collapsed()) {
-            <span class="section-label">Navigation</span>
+            <span class="section-label">{{ group.label }}</span>
           }
           @for (item of group.items; track item.route) {
             <a mat-list-item
@@ -50,13 +50,21 @@
     class="sidenav-content"
     [class.collapsed]="collapsed()"
   >
-    <div class="content-wrapper">
-      <mat-toolbar class="toolbar">
+    <div class="content-wrapper content">
+      <mat-toolbar class="toolbar ">
         <div class="d-flex w-100 h-100 align-items-center">
           <button mat-icon-button class="collapse-btn" (click)="toggleCollapse()"
                   [matTooltip]="collapsed() ? 'Expand' : 'Collapse'"
                   matTooltipPosition="right">
             <mat-icon>{{ collapsed() ? 'last_page' : 'first_page' }}</mat-icon>
+          </button>
+
+          <button matMiniFab class="ms-auto" (click)="switchTheme()">
+            @if (isDarkMode()) {
+              <mat-icon>light_mode</mat-icon>
+            } @else {
+              <mat-icon>dark_mode</mat-icon>
+            }
           </button>
         </div>
       </mat-toolbar>

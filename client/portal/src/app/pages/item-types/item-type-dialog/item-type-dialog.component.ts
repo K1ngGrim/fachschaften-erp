@@ -1,6 +1,12 @@
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogRef, MatDialogTitle, MatDialogContent, MatDialogActions } from '@angular/material/dialog';
+import {
+  MAT_DIALOG_DATA,
+  MatDialogActions,
+  MatDialogContent,
+  MatDialogRef,
+  MatDialogTitle,
+} from '@angular/material/dialog';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { MatButton } from '@angular/material/button';
@@ -8,7 +14,16 @@ import type { ItemType } from '../../../shared/models';
 
 @Component({
   selector: 'app-item-type-dialog',
-  imports: [FormsModule, MatDialogTitle, MatDialogContent, MatDialogActions, MatFormField, MatLabel, MatInput, MatButton],
+  imports: [
+    FormsModule,
+    MatDialogTitle,
+    MatDialogContent,
+    MatDialogActions,
+    MatFormField,
+    MatLabel,
+    MatInput,
+    MatButton,
+  ],
   template: `
     <h2 mat-dialog-title>{{ isEdit ? 'Edit Item Type' : 'Create Item Type' }}</h2>
     <mat-dialog-content class="pt-2">
@@ -55,5 +70,7 @@ export class ItemTypeDialogComponent {
     this.dialogRef.close(t);
   }
 
-  cancel() { this.dialogRef.close(); }
+  cancel() {
+    this.dialogRef.close();
+  }
 }

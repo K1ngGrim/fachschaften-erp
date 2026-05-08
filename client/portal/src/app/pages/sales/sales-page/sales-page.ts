@@ -3,20 +3,49 @@ import { MatCard, MatCardContent, MatCardHeader, MatCardTitle } from '@angular/m
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatDivider } from '@angular/material/divider';
-import { MatTable, MatColumnDef, MatHeaderCell, MatCell, MatHeaderRow, MatRow, MatHeaderCellDef, MatCellDef, MatHeaderRowDef, MatRowDef } from '@angular/material/table';
+import {
+  MatCell,
+  MatCellDef,
+  MatColumnDef,
+  MatHeaderCell,
+  MatHeaderCellDef,
+  MatHeaderRow,
+  MatHeaderRowDef,
+  MatRow,
+  MatRowDef,
+  MatTable,
+} from '@angular/material/table';
 import { DataService } from '../../../shared/services/data.service';
-import type { Sale, SaleItem, Product } from '../../../shared/models';
+import type { Product, Sale, SaleItem } from '../../../shared/models';
 
-interface CartItem { productId: string; productName: string; quantity: number; unitPrice: number; }
+interface CartItem {
+  productId: string;
+  productName: string;
+  quantity: number;
+  unitPrice: number;
+}
 
 @Component({
   selector: 'app-sales-page',
   imports: [
-    MatCard, MatCardContent, MatCardHeader, MatCardTitle,
-    MatButton, MatIconButton, MatIcon,
+    MatCard,
+    MatCardContent,
+    MatCardHeader,
+    MatCardTitle,
+    MatButton,
+    MatIconButton,
+    MatIcon,
     MatDivider,
-    MatTable, MatColumnDef, MatHeaderCell, MatCell, MatHeaderRow, MatRow,
-    MatHeaderCellDef, MatCellDef, MatHeaderRowDef, MatRowDef,
+    MatTable,
+    MatColumnDef,
+    MatHeaderCell,
+    MatCell,
+    MatHeaderRow,
+    MatRow,
+    MatHeaderCellDef,
+    MatCellDef,
+    MatHeaderRowDef,
+    MatRowDef,
   ],
   templateUrl: './sales-page.html',
   styleUrl: './sales-page.scss',
@@ -31,13 +60,15 @@ export class SalesPage {
   readonly itemTypes = this.data.itemTypes;
   readonly sales = this.data.sales;
 
-  readonly cartTotal = computed(() => this.cart().reduce((s, i) => s + i.quantity * i.unitPrice, 0));
+  readonly cartTotal = computed(() =>
+    this.cart().reduce((s, i) => s + i.quantity * i.unitPrice, 0),
+  );
   readonly historyColumns = ['date', 'seller', 'items', 'total'];
 
   formatCurrency = (v: number) => this.data.formatCurrency(v);
 
   getType(itemTypeId: string) {
-    return this.itemTypes().find(t => t.id === itemTypeId);
+    return this.itemTypes().find((t) => t.id === itemTypeId);
   }
 
   isOutOfStock(p: Product) {
@@ -50,22 +81,36 @@ export class SalesPage {
 
   addToCart(product: Product) {
     if (this.isOutOfStock(product)) return;
-    this.cart.update(cart => {
-      const existing = cart.find(i => i.productId === product.id);
-      if (existing) return cart.map(i => i.productId === product.id ? { ...i, quantity: i.quantity + 1 } : i);
-      return [...cart, { productId: product.id, productName: product.name, quantity: 1, unitPrice: product.sellingPrice }];
+    this.cart.update((cart) => {
+      const existing = cart.find((i) => i.productId === product.id);
+      if (existing)
+        return cart.map((i) =>
+          i.productId === product.id ? { ...i, quantity: i.quantity + 1 } : i,
+        );
+      return [
+        ...cart,
+        {
+          productId: product.id,
+          productName: product.name,
+          quantity: 1,
+          unitPrice: product.sellingPrice,
+        },
+      ];
     });
   }
 
   updateQty(productId: string, delta: number) {
-    this.cart.update(cart =>
-      cart.map(i => i.productId === productId ? { ...i, quantity: Math.max(0, i.quantity + delta) } : i)
-          .filter(i => i.quantity > 0)
+    this.cart.update((cart) =>
+      cart
+        .map((i) =>
+          i.productId === productId ? { ...i, quantity: Math.max(0, i.quantity + delta) } : i,
+        )
+        .filter((i) => i.quantity > 0),
     );
   }
 
   removeFromCart(productId: string) {
-    this.cart.update(cart => cart.filter(i => i.productId !== productId));
+    this.cart.update((cart) => cart.filter((i) => i.productId !== productId));
   }
 
   completeSale() {
@@ -82,6 +127,6 @@ export class SalesPage {
   }
 
   formatSaleItems(items: SaleItem[]): string {
-    return items.map(i => `${i.quantity}× ${i.productName}`).join(', ');
+    return items.map((i) => `${i.quantity}× ${i.productName}`).join(', ');
   }
 }

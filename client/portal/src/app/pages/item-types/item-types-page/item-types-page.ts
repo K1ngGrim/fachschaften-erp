@@ -22,12 +22,16 @@ export class ItemTypesPage {
 
   openAdd() {
     const ref = this.dialog.open(ItemTypeDialogComponent, { width: '420px', data: { type: null } });
-    ref.afterClosed().subscribe((t: ItemType | undefined) => { if (t) this.data.addItemType(t); });
+    ref.afterClosed().subscribe((t: ItemType | undefined) => {
+      if (t) this.data.addItemType(t);
+    });
   }
 
   openEdit(t: ItemType) {
     const ref = this.dialog.open(ItemTypeDialogComponent, { width: '420px', data: { type: t } });
-    ref.afterClosed().subscribe((updated: ItemType | undefined) => { if (updated) this.data.updateItemType(updated); });
+    ref.afterClosed().subscribe((updated: ItemType | undefined) => {
+      if (updated) this.data.updateItemType(updated);
+    });
   }
 
   toggleActive(t: ItemType) {

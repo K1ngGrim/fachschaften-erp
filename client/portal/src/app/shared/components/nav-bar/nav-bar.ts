@@ -1,7 +1,7 @@
-import { Component, inject, signal, OnInit, OnDestroy, viewChild, ElementRef } from '@angular/core';
+import { Component, ElementRef, inject, OnDestroy, OnInit, signal, viewChild } from '@angular/core';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { MatToolbar } from '@angular/material/toolbar';
-import { MatIconButton } from '@angular/material/button';
+import { MatIconButton, MatMiniFabButton } from '@angular/material/button';
 import { MatSidenav, MatSidenavContainer, MatSidenavContent } from '@angular/material/sidenav';
 import { MatListItem, MatNavList } from '@angular/material/list';
 import { MatIcon } from '@angular/material/icon';
@@ -24,6 +24,7 @@ import { Subscription } from 'rxjs';
     MatTooltip,
     RouterLink,
     RouterLinkActive,
+    MatMiniFabButton,
   ],
   templateUrl: './nav-bar.html',
   styleUrl: './nav-bar.scss',
@@ -38,6 +39,12 @@ export class NavBar implements OnInit, OnDestroy {
   readonly isMobile = signal(false);
   readonly collapsed = signal(false);
   readonly navItems = this.navigation.navItems;
+
+  public isDarkMode = signal<boolean>(false);
+
+  public switchTheme() {
+    this.isDarkMode.set(document.documentElement.classList.toggle('dark'));
+  }
 
   ngOnInit() {
     this.sub = this.breakpointObserver

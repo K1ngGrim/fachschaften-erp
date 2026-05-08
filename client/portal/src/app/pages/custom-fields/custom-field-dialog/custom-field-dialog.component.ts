@@ -1,7 +1,13 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TitleCasePipe } from '@angular/common';
-import { MAT_DIALOG_DATA, MatDialogRef, MatDialogTitle, MatDialogContent, MatDialogActions } from '@angular/material/dialog';
+import {
+  MAT_DIALOG_DATA,
+  MatDialogActions,
+  MatDialogContent,
+  MatDialogRef,
+  MatDialogTitle,
+} from '@angular/material/dialog';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { MatSelect } from '@angular/material/select';
@@ -17,10 +23,22 @@ import type { CustomField, FieldType } from '../../../shared/models';
 @Component({
   selector: 'app-custom-field-dialog',
   imports: [
-    FormsModule, TitleCasePipe,
-    MatDialogTitle, MatDialogContent, MatDialogActions,
-    MatFormField, MatLabel, MatInput, MatSelect, MatOption,
-    MatButton, MatCheckbox, MatChip, MatChipSet, MatIcon, MatDivider,
+    FormsModule,
+    TitleCasePipe,
+    MatDialogTitle,
+    MatDialogContent,
+    MatDialogActions,
+    MatFormField,
+    MatLabel,
+    MatInput,
+    MatSelect,
+    MatOption,
+    MatButton,
+    MatCheckbox,
+    MatChip,
+    MatChipSet,
+    MatIcon,
+    MatDivider,
   ],
   templateUrl: './custom-field-dialog.component.html',
 })
@@ -30,7 +48,7 @@ export class CustomFieldDialogComponent {
   readonly dialogData = inject<{ field: CustomField | null }>(MAT_DIALOG_DATA);
 
   readonly isEdit = !!this.dialogData.field;
-  readonly activeTypes = computed(() => this.data.itemTypes().filter(t => t.active));
+  readonly activeTypes = computed(() => this.data.itemTypes().filter((t) => t.active));
   readonly fieldTypes: FieldType[] = ['text', 'number', 'boolean', 'select', 'date'];
 
   label = this.dialogData.field?.label ?? '';
@@ -42,19 +60,21 @@ export class CustomFieldDialogComponent {
   newOption = '';
 
   toggleTypeId(id: string) {
-    this.selectedTypeIds.update(ids => ids.includes(id) ? ids.filter(x => x !== id) : [...ids, id]);
+    this.selectedTypeIds.update((ids) =>
+      ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id],
+    );
   }
 
   addOption() {
     const opt = this.newOption.trim();
     if (opt && !this.selectOptions().includes(opt)) {
-      this.selectOptions.update(opts => [...opts, opt]);
+      this.selectOptions.update((opts) => [...opts, opt]);
       this.newOption = '';
     }
   }
 
   removeOption(opt: string) {
-    this.selectOptions.update(opts => opts.filter(o => o !== opt));
+    this.selectOptions.update((opts) => opts.filter((o) => o !== opt));
   }
 
   save() {
@@ -72,5 +92,7 @@ export class CustomFieldDialogComponent {
     this.dialogRef.close(field);
   }
 
-  cancel() { this.dialogRef.close(); }
+  cancel() {
+    this.dialogRef.close();
+  }
 }
