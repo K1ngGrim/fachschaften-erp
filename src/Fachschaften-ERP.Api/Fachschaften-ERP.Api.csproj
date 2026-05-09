@@ -9,13 +9,25 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.7" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.7"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.7">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.1" />
+        <PackageReference Include="SwaggerUI.AspNetCore" Version="5.32.5" />
+        <PackageReference Include="SwaggerUI.OpenApi" Version="2.5.0" />
     </ItemGroup>
 
     <ItemGroup>
       <Content Include="..\.dockerignore">
         <Link>.dockerignore</Link>
       </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Fachschaften-ERP.Models\Fachschaften-ERP.Models.csproj" />
     </ItemGroup>
 
 </Project>

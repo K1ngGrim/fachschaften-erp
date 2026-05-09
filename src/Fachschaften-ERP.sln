@@ -10,6 +10,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fachschaften-ERP.Models", "Fachschaften-ERP.Models\Fachschaften-ERP.Models.csproj", "{7C31F941-9365-44D2-9163-695F4D9B1001}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docker", "docker", "{6970F3A7-7CEA-4ECA-ACAA-BE3FC172B9AD}"
+	ProjectSection(SolutionItems) = preProject
+		..\docker\docker-compose.yml = ..\docker\docker-compose.yml
+		..\docker\.env = ..\docker\.env
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +30,8 @@ Global
 		{7C31F941-9365-44D2-9163-695F4D9B1001}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7C31F941-9365-44D2-9163-695F4D9B1001}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7C31F941-9365-44D2-9163-695F4D9B1001}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{6970F3A7-7CEA-4ECA-ACAA-BE3FC172B9AD} = {E63CF8F3-2633-449D-977F-79DF433E25C7}
 	EndGlobalSection
 EndGlobal
