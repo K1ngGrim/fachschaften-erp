@@ -1,0 +1,7 @@
+﻿services:
+  fachschaften-erp.api:
+    image: fachschaften-erp.api
+    build:
+      context: .
+      dockerfile: Fachschaften-ERP.Api/Dockerfile
+
