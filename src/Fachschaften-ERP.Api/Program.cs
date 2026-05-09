@@ -34,7 +34,8 @@ builder.Services
     .AddEntityFrameworkStores<CoreContext>()
     .AddSignInManager<SignInManager<IdentityUserEntity>>()
     .AddRoleManager<RoleManager<IdentityRoleEntity>>()
-    .AddDefaultTokenProviders();
+    .AddDefaultTokenProviders()
+    .AddClaimsPrincipalFactory<RoleClaimsUserClaimsPrincipalFactory>();
 
 builder.Services.AddAuthentication(options =>
     {

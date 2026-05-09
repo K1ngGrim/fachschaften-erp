@@ -11,6 +11,10 @@ public class PermissionHandler(IHttpContextAccessor httpContextAccessor)
         AuthorizationHandlerContext context,
         PermissionRequirement requirement)
     {
+
+        var permissions = context.User.Claims
+            .Where(c => c.Type == requirement.Permission);
+
         var hasClaim = context.User.Claims
             .Any(c => c.Type == "permission" && c.Value == requirement.Permission);
 

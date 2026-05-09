@@ -1,7 +1,11 @@
+using System.Security.Claims;
+using Fachschaften_ERP.Api.Models;
+using Fachschaften_ERP.Api.Services;
 using Fachschaften_ERP.Models.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Fachschaften_ERP.Api.Controller.Identity;
 
@@ -77,16 +81,19 @@ public class UsersController(
         return Ok(await userManager.GetRolesAsync(user));
     }
 
-    [HttpPost("{id:guid}/roles/{role}")]
-    public async Task<IActionResult> AddRole(Guid id, string role)
+    [HttpPost("{id:guid}/roles/{roleId:guid}")]
+    public async Task<IActionResult> AddRole(Guid id, Guid roleId)
     {
         var user = await userManager.FindByIdAsync(id.ToString());
         if (user is null) return NotFound();
 
-        if (!await roleManager.RoleExistsAsync(role))
-            return BadRequest($"Role '{role}' does not exist.");
+        var role = await roleManager.Roles.Where(x => x.Id == roleId && x.IsActive).SingleAsync();
 
-        var result = await userManager.AddToRoleAsync(user, role);
+        if (role is null)
+            return BadRequest($"Role '{roleId}' does not exist.");
+
+
+        var result = await userManager.AddToRoleAsync(user, role?.Name);
         if (!result.Succeeded) return BadRequest(result.Errors);
 
         return NoContent();
@@ -99,6 +106,49 @@ public class UsersController(
         if (user is null) return NotFound();
 
         var result = await userManager.RemoveFromRoleAsync(user, role);
+        if (!result.Succeeded) return BadRequest(result.Errors);
+
+        return NoContent();
+    }
+
+    [RequirePermission(Permissions.PermissionsRead)]
+    [HttpGet("{id:guid}/permissions")]
+    public async Task<IActionResult> GetPermissions(Guid id)
+    {
+        var user = await userManager.FindByIdAsync(id.ToString());
+        if (user is null) return NotFound();
+
+        var claims = await userManager.GetClaimsAsync(user);
+        return Ok(claims
+            .Where(c => c.Type == "permission")
+            .Select(c => c.Value));
+    }
+
+    [RequirePermission(Permissions.PermissionsWrite)]
+    [HttpPost("{id:guid}/permissions/{permission}")]
+    public async Task<IActionResult> AddPermission(Guid id, string permission)
+    {
+        var user = await userManager.FindByIdAsync(id.ToString());
+        if (user is null) return NotFound();
+
+        var claims = await userManager.GetClaimsAsync(user);
+        if (claims.Any(c => c.Type == "permission" && c.Value == permission))
+            return Conflict("Permission already assigned.");
+
+        var result = await userManager.AddClaimAsync(user, new Claim("permission", permission));
+        if (!result.Succeeded) return BadRequest(result.Errors);
+
+        return NoContent();
+    }
+
+    [RequirePermission(Permissions.PermissionsWrite)]
+    [HttpDelete("{id:guid}/permissions/{permission}")]
+    public async Task<IActionResult> RemovePermission(Guid id, string permission)
+    {
+        var user = await userManager.FindByIdAsync(id.ToString());
+        if (user is null) return NotFound();
+
+        var result = await userManager.RemoveClaimAsync(user, new Claim("permission", permission));
         if (!result.Succeeded) return BadRequest(result.Errors);
 
         return NoContent();

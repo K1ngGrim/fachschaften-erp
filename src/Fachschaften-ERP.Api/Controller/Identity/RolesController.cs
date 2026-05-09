@@ -1,4 +1,6 @@
 using System.Security.Claims;
+using Fachschaften_ERP.Api.Models;
+using Fachschaften_ERP.Api.Services;
 using Fachschaften_ERP.Models.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -82,6 +84,20 @@ public class RolesController(RoleManager<IdentityRoleEntity> roleManager) : Cont
         if (!result.Succeeded) return BadRequest(result.Errors);
 
         return NoContent();
+    }
+}
+
+[ApiController]
+[Route("api/permissions")]
+[Authorize]
+public class PermissionsController : ControllerBase
+{
+
+    [RequirePermission(Permissions.PermissionsRead)]
+    [HttpGet]
+    public IActionResult GetAll()
+    {
+        return Ok(Permissions.All);
     }
 }
 
