@@ -1,6 +1,8 @@
+using Fachschaften_ERP.Api.Services;
 using Fachschaften_ERP.Models;
 using Fachschaften_ERP.Models.Identity;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -85,15 +87,12 @@ builder.Services.ConfigureApplicationCookie(options =>
 });
 
 
+builder.Services.AddSingleton<IAuthorizationHandler, PermissionHandler>();
+builder.Services.AddHttpContextAccessor();
+
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-}
 
 app.UseHttpsRedirection();
 
@@ -103,6 +102,8 @@ app.UseAuthorization();
 using var scope = app.Services.CreateScope();
 var dbContext = scope.ServiceProvider.GetRequiredService<CoreContext>();
 dbContext.Database.Migrate();
+
+await DatabaseSeeder.SeedAsync(scope.ServiceProvider);
 
 app.MapOpenApi();
 app.MapSwaggerUI();
