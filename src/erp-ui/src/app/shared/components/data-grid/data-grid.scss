@@ -1,24 +1,41 @@
-.data-grid-container {
-  background: var(--mat-sys-surface-container) !important;
-}
-
-::ng-deep {
-  .mat-mdc-table {
-    background: var(--mat-sys-surface-container) !important;
-  }
-}
-
 .search-field {
-  width: 30%;
-  padding: 1.5rem 1.5rem 0;
+  align-self: end;
+  width: 15%;
+  padding-top: 1rem;
+  flex-shrink: 0;
 }
 
+.data-grid-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+table {
+  border: 1px solid var(--data-grid-border);
+}
+
+.mat-mdc-header-cel {
+
+}
+
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  --mat-form-field-container-vertical-padding: 0.5rem;
+  --mat-form-field-container-height: 2.5rem;
+  --mat-table-row-item-outline-color: #e0e0e0;
+}
 
 .mat-mdc-cell,
 .mat-mdc-header-cell {
-  padding-top: 12px;
-  padding-bottom: 12px;
+  border-top: 1px solid var(--mat-table-row-item-outline-color); // add it to the header row instead
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
 }
 
-.table-row-hover:hover { background: var(--mat-sys-surface-container-high); cursor: pointer; }
+.table-row-hover:hover { background: var(--data-grid-background); cursor: pointer; }
 .text-center { text-align: center; }
