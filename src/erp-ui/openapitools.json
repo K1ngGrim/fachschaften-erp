@@ -6,7 +6,7 @@
     "generators": {
       "fs-erp-api": {
         "generatorName": "typescript-angular",
-        "glob": "swagger.json",
+        "glob": "./swagger.json",
         "output": "projects/api/src/lib",
         "additionalProperties": {
           "apiModulePrefix": "FS-ERP",
