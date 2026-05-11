@@ -108,6 +108,7 @@ export interface GridColumn<T = any> {
   key: string;
   label: string;
   align?: 'start' | 'end' | 'center';
+  width?: string; // e.g. '200px', '20%'
   cellTemplate?: TemplateRef<{ $implicit: T }>;
   value?: (row: T) => any;
 }

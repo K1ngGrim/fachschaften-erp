@@ -5,40 +5,34 @@
   >
   </app-page-header>
 
-  <mat-card appearance="outlined">
-    <mat-card-content class="p-0">
+  <app-data-grid
+    [columns]="columns"
+    [data]="data.products()"
+    [searchable]="true"
+    [searchKeys]="['name', 'supplier']"
+  >
+    <!-- Action Column via Directive -->
+    <ng-template gridActionCell let-p>
+      <div class="d-flex gap-1 justify-content-end">
+        <button mat-icon-button matTooltip="View" (click)="viewDetail(p.id)">
+          <mat-icon>visibility</mat-icon>
+        </button>
+        <button mat-icon-button matTooltip="Edit" (click)="openEdit(p)">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button matTooltip="Delete" color="warn" (click)="delete(p.id)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+    </ng-template>
+  </app-data-grid>
 
-      <app-data-grid
-        [columns]="columns"
-        [data]="data.products()"
-        [searchable]="true"
-        [searchKeys]="['name', 'supplier']"
-      >
-        <!-- Action Column via Directive -->
-        <ng-template gridActionCell let-p>
-          <div class="d-flex gap-1 justify-content-end">
-            <button mat-icon-button matTooltip="View" (click)="viewDetail(p.id)">
-              <mat-icon>visibility</mat-icon>
-            </button>
-            <button mat-icon-button matTooltip="Edit" (click)="openEdit(p)">
-              <mat-icon>edit</mat-icon>
-            </button>
-            <button mat-icon-button matTooltip="Delete" color="warn" (click)="delete(p.id)">
-              <mat-icon>delete</mat-icon>
-            </button>
-          </div>
-        </ng-template>
-      </app-data-grid>
-
-      <!-- Custom Cell Template (z.B. für Stock mit Badge) -->
-      <ng-template #stockTpl let-p>
-        <span [class.text-danger]="isLowStock(p)">{{ p.stock }}</span>
-        @if (isLowStock(p)) {
-          <span class="badge bg-danger ms-2">Low</span>
-        }
-      </ng-template>
-
-    </mat-card-content>
-  </mat-card>
+  <!-- Custom Cell Template (z.B. für Stock mit Badge) -->
+  <ng-template #stockTpl let-p>
+    <span [class.text-danger]="isLowStock(p)">{{ p.stock }}</span>
+    @if (isLowStock(p)) {
+      <span class="badge bg-danger ms-2">Low</span>
+    }
+  </ng-template>
 
 </div>

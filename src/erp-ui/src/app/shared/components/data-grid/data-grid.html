@@ -1,42 +1,87 @@
-<div class="table-responsive data-grid-container">
+<div class="data-grid">
 
   @if (searchable()) {
-    <mat-form-field appearance="outline" class="search-field">
-      <mat-icon matPrefix>search</mat-icon>
-      <input matInput [(ngModel)]="searchQuery" placeholder="Search...">
-      @if (searchQuery()) {
-        <button matSuffix mat-icon-button (click)="searchQuery.set('')">
-          <mat-icon>close</mat-icon>
-        </button>
-      }
-    </mat-form-field>
+    <div class="data-grid__toolbar">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-icon matPrefix>search</mat-icon>
+        <input matInput [(ngModel)]="searchQuery" placeholder="Search...">
+        @if (searchQuery()) {
+          <button matSuffix mat-icon-button (click)="searchQuery.set('')">
+            <mat-icon>close</mat-icon>
+          </button>
+        }
+      </mat-form-field>
+    </div>
   }
 
-  <table mat-table [dataSource]="filteredData()" class="w-100">
+  <div class="data-grid__wrapper">
 
-    @for (col of columns(); track col.key) {
-      <ng-container [matColumnDef]="col.key">
-        <th mat-header-cell *matHeaderCellDef [class]="headerClass(col)">{{ col.label }}</th>
-        <td mat-cell *matCellDef="let row" [class]="cellClass(col) + 'py-2'">
-          @if (col.cellTemplate) {
-            <ng-container *ngTemplateOutlet="col.cellTemplate; context: { $implicit: row }"/>
-          } @else {
-            {{ col.value ? col.value(row) : row[col.key] }}
+    <!-- Header Table -->
+    <div class="data-grid__header">
+      <table class="grid-table">
+        <colgroup>
+          @for (col of columns(); track col.key) {
+            <col [style.width]="col.width ?? 'auto'">
           }
-        </td>
-      </ng-container>
-    }
+          @if (actionCellDirective) {
+            <col class="col-actions">
+          }
+        </colgroup>
+        <thead>
+        <tr>
+          @for (col of columns(); track col.key) {
+            <th [class]="'grid-th ' + headerClass(col)">{{ col.label }}</th>
+          }
+          @if (actionCellDirective) {
+            <th class="grid-th col-actions"></th>
+          }
+        </tr>
+        </thead>
+      </table>
+    </div>
 
-    @if (actionCellDirective) {
-      <ng-container matColumnDef="__actions">
-        <th mat-header-cell *matHeaderCellDef></th>
-        <td mat-cell *matCellDef="let row">
-          <ng-container *ngTemplateOutlet="actionCellDirective.templateRef; context: { $implicit: row }"/>
-        </td>
-      </ng-container>
-    }
+    <!-- Body Table -->
+    <div class="data-grid__body">
+      <table class="grid-table">
+        <colgroup>
+          @for (col of columns(); track col.key) {
+            <col [style.width]="col.width ?? 'auto'">
+          }
+          @if (actionCellDirective) {
+            <col class="col-actions">
+          }
+        </colgroup>
+        <tbody>
+          @for (row of filteredData(); track row) {
+            <tr class="grid-row">
+              @for (col of columns(); track col.key) {
+                <td [class]="'grid-td ' + cellClass(col)">
+                  @if (col.cellTemplate) {
+                    <ng-container *ngTemplateOutlet="col.cellTemplate; context: { $implicit: row }"/>
+                  } @else {
+                    {{ col.value ? col.value(row) : row[col.key] }}
+                  }
+                </td>
+              }
+              @if (actionCellDirective) {
+                <td class="grid-td col-actions">
+                  <ng-container *ngTemplateOutlet="actionCellDirective.templateRef; context: { $implicit: row }"/>
+                </td>
+              }
+            </tr>
+          }
 
-    <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns();" class="table-row-hover data-row"></tr>
-  </table>
+          @if (filteredData().length === 0) {
+            <tr>
+              <td [attr.colspan]="displayedColumns().length" class="grid-td grid-empty">
+                <mat-icon>inbox</mat-icon>
+                <span>No data</span>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+  </div>
 </div>

@@ -28,6 +28,13 @@ export class Navigation {
         { label: 'Custom Fields', route: '/custom-fields', icon: 'tune' },
       ],
     },
+    {
+      label: 'Administration',
+      items: [
+        { label: 'Benutzer Verwaltung', route: '/catalog', icon: 'catalog' },
+        { label: 'Rollen Verwaltung', route: '/item-types', icon: 'layers' },
+      ],
+    },
   ]);
 }
 

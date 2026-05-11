@@ -35,13 +35,20 @@ $light-theme: mat.define-theme((
 html.dark {
   color-scheme: dark;
   @include create-dark-theme();
+
+  --data-grid-background: #292929;
+  --data-grid-border: #616161;
 }
 
 html {
   @include create-light-theme();
+
+  --data-grid-background: #fff;
+  --data-grid-border: #e0e0e0;
 }
 
 html {
+
   color-scheme: light;
   height: 100%;
   @include mat.theme(
