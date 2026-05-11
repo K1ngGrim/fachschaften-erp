@@ -3,11 +3,12 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
+    "start": "ng serve --proxy-config proxy.conf.json",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "serve:ssr:portal": "node dist/portal/server/server.mjs"
+    "serve:ssr:portal": "node dist/portal/server/server.mjs",
+    "gen-api": "./generate-api.sh"
   },
   "private": true,
   "packageManager": "npm@10.9.3",
@@ -35,9 +36,11 @@
     "@angular/compiler-cli": "^21.2.0",
     "@angular/material": "^21.2.0",
     "@mdi/angular-material": "^7.2.96",
+    "@openapitools/openapi-generator-cli": "^2.25.0",
     "@types/express": "^5.0.1",
     "@types/node": "^20.17.19",
     "jsdom": "^28.0.0",
+    "ng-packagr": "^21.2.0",
     "prettier": "^3.8.1",
     "typescript": "~5.9.2",
     "vitest": "^4.0.8"
