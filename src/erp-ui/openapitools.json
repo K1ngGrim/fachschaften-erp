@@ -2,14 +2,15 @@
   "$schema": "./node_modules/@openapitools/openapi-generator-cli/config.schema.json",
   "spaces": 2,
   "generator-cli": {
-    "version": "7.4.0",
+    "useDocker": true,
+    "version": "7.3.0",
     "generators": {
       "fs-erp-api": {
         "generatorName": "typescript-angular",
-        "glob": "./swagger.json",
+        "glob": "file:///C:/Users/flolu/Documents/Workspace/Privat/fachschaften-erp/src/erp-ui/swagger.json",
         "output": "projects/api/src/lib",
         "additionalProperties": {
-          "apiModulePrefix": "FS-ERP",
+          "apiModulePrefix": "erp",
           "withInterfaces": "true",
           "fileNaming": "kebab-case",
           "useSingleRequestParameter": "true",
