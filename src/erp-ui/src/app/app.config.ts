@@ -7,6 +7,7 @@ import { provideHttpClient, withFetch } from '@angular/common/http';
 
 import { registerLocaleData } from '@angular/common';
 import localeDe from '@angular/common/locales/de';
+import { BASE_PATH } from '../../projects/api/src/lib';
 
 registerLocaleData(localeDe);
 
@@ -17,5 +18,6 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideClientHydration(withEventReplay()),
     provideHttpClient(withFetch()),
+    { provide: BASE_PATH, useValue: '' },
   ],
 };

@@ -31,7 +31,7 @@ export class Navigation {
     {
       label: 'Administration',
       items: [
-        { label: 'Benutzer Verwaltung', route: '/catalog', icon: 'catalog' },
+        { label: 'Benutzer Verwaltung', route: '/users', icon: 'user' },
         { label: 'Rollen Verwaltung', route: '/item-types', icon: 'layers' },
       ],
     },

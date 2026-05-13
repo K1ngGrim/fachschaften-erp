@@ -11,17 +11,25 @@ namespace Fachschaften_ERP.Api.Controller.Identity;
 
 [ApiController]
 [Route("/api/users")]
-[Authorize]
 public class UsersController(
     UserManager<IdentityUserEntity> userManager,
     RoleManager<IdentityRoleEntity> roleManager) : ControllerBase
 {
     [HttpGet]
-    public IActionResult GetAll() =>
-        Ok(userManager.Users.Select(u => new
-        {
-            u.Id, u.UserName, u.Email, u.LockoutEnd
-        }).ToList());
+    public async Task<ActionResult<IList<UserDto>>> GetAll()
+    {
+        var users = await userManager.Users
+            .Where(x => x.IsActive)
+            .Select(x => new UserDto(
+                x.Id, 
+                x.UserName, 
+                x.Email,
+                new List<string>()
+                ))
+            .ToListAsync();
+        
+        return Ok(users);
+    }
 
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> Get(Guid id)
@@ -161,5 +169,6 @@ public class UsersController(
 "password": "string!1234"
 }*/
 
+public record UserDto(Guid Id, string? UserName, string? Email, IList<string> Roles);
 public record UpdateUserRequest(string? UserName, string? Email);
 public record ChangePasswordRequest(string CurrentPassword, string NewPassword);

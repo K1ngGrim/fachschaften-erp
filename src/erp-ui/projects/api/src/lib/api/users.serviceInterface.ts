@@ -15,6 +15,7 @@ import { Observable }                                        from 'rxjs';
 
 import { ChangePasswordRequest } from '../model/models';
 import { UpdateUserRequest } from '../model/models';
+import { UserDto } from '../model/models';
 
 
 import { Configuration }                                     from '../configuration';
@@ -75,7 +76,7 @@ export interface UsersServiceInterface {
      * 
      * 
 */
-    apiUsersGet(extraHttpRequestParams?: any): Observable<{}>;
+    apiUsersGet(extraHttpRequestParams?: any): Observable<Array<UserDto>>;
 
     /**
      * 

@@ -7,7 +7,7 @@
     "generators": {
       "fs-erp-api": {
         "generatorName": "typescript-angular",
-        "glob": "file:///C:/Users/flolu/Documents/Workspace/Privat/fachschaften-erp/src/erp-ui/swagger.json",
+        "glob": "./swagger.json",
         "output": "projects/api/src/lib",
         "additionalProperties": {
           "apiModulePrefix": "erp",

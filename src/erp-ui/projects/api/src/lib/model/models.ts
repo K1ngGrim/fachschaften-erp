@@ -6,3 +6,4 @@ export * from './update-user-request';
 export * from './upsert-item-type-request';
 export * from './upsert-product-request';
 export * from './upsert-supplier-request';
+export * from './user-dto';

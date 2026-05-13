@@ -30,5 +30,6 @@ model/update-user-request.ts
 model/upsert-item-type-request.ts
 model/upsert-product-request.ts
 model/upsert-supplier-request.ts
+model/user-dto.ts
 param.ts
 variables.ts

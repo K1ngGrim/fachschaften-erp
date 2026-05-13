@@ -1,0 +1,34 @@
+<div class="container-fluid p-4">
+  <app-page-header
+    [title]="'User'"
+    [subtitle]="'Manage your users here'"
+  >
+  </app-page-header>
+
+  <app-data-grid
+    [columns]="columns"
+    [data]="users()"
+    [searchable]="true"
+    [searchKeys]="['name', 'email']"
+  >
+    <!-- Action Column via Directive -->
+    <ng-template gridActionCell let-p>
+      <div class="d-flex gap-1 justify-content-end">
+        <button mat-icon-button matTooltip="View">
+          <mat-icon>visibility</mat-icon>
+        </button>
+        <button mat-icon-button matTooltip="Edit">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button matTooltip="Delete" color="warn">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+    </ng-template>
+  </app-data-grid>
+
+  <!-- Custom Cell Template (z.B. für Stock mit Badge) -->
+  <ng-template #stockTpl let-p>
+  </ng-template>
+
+</div>
