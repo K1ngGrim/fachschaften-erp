@@ -9,12 +9,10 @@
       <div class="logo-icon">
         <mat-icon>grid_view</mat-icon>
       </div>
-      @if (!collapsed()) {
-        <div class="org-info">
-          <span class="org-name">FachschaftERP</span>
-          <span class="org-subtitle">Inventory &amp; Sales</span>
-        </div>
-      }
+      <div class="org-info" [class.collapsed]="collapsed()">
+        <span class="org-name">FachschaftERP</span>
+        <span class="org-subtitle">Inventory &amp; Sales</span>
+      </div>
     </div>
 
     <mat-nav-list class="nav-list">

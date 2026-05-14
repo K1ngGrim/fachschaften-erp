@@ -68,6 +68,11 @@ $sidenav-collapsed-width: 56px;
   gap: 2px;
   flex: 1;
   overflow: hidden;
+
+  &.collapsed {
+    visibility: hidden;
+    height: 0;
+  }
 }
 
 .org-name {
