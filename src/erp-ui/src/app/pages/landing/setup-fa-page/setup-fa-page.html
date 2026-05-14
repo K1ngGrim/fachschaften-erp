@@ -28,7 +28,7 @@
           <div class="secret-box">
             <code>{{ secret() }}</code>
             <button mat-icon-button (click)="copySecret()" matTooltip="Copy">
-              <mat-icon>content_copy</mat-icon>
+              <mat-icon svgIcon="content_copy"></mat-icon>
             </button>
           </div>
 
@@ -37,12 +37,9 @@
           <p class="small text-muted mb-2">Enter the 6-digit code from your app to confirm setup:</p>
 
           <form [formGroup]="form" (ngSubmit)="verify()">
-            <mat-form-field appearance="outline" class="w-100">
-              <mat-label>Verification Code</mat-label>
-              <mat-icon matPrefix>pin</mat-icon>
-              <input matInput formControlName="code" maxlength="6"
-                     inputmode="numeric" autocomplete="one-time-code" />
-            </mat-form-field>
+            <div class="d-flex flex-column align-items-center gap-3 mb-3">
+              <ng-otp-input formControlName="code" [config]="{ length: 6 }"></ng-otp-input>
+            </div>
 
             @if (error()) {
               <mat-error class="error-box">

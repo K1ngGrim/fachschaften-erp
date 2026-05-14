@@ -9,6 +9,7 @@ import { MatCard, MatCardContent } from '@angular/material/card';
 import { MatError, MatFormField, MatInput, MatLabel } from '@angular/material/input';
 import { MatButton } from '@angular/material/button';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
+import { NgOtpInputComponent } from 'ng-otp-input';
 
 @Component({
   selector: 'app-login-two-fa-page',
@@ -23,6 +24,7 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
     MatError,
     MatButton,
     MatProgressSpinner,
+    NgOtpInputComponent,
   ],
   templateUrl: './login-two-fa-page.html',
   styleUrl: './login-two-fa-page.scss',

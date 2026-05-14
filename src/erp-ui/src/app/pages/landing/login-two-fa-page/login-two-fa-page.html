@@ -14,12 +14,9 @@
       <mat-card-content>
         <form [formGroup]="form" (ngSubmit)="verify()">
 
-          <mat-form-field appearance="outline" class="w-100">
-            <mat-label>6-digit code</mat-label>
-            <mat-icon matPrefix>pin</mat-icon>
-            <input matInput formControlName="code" maxlength="6"
-                   inputmode="numeric" autocomplete="one-time-code" />
-          </mat-form-field>
+          <div class="d-flex flex-column align-items-center gap-3 mb-3">
+            <ng-otp-input formControlName="code" [config]="{ length: 6 }"></ng-otp-input>
+          </div>
 
           @if (error()) {
             <mat-error class="error-box">

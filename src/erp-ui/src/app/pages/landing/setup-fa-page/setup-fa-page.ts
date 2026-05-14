@@ -11,6 +11,7 @@ import { MatDivider } from '@angular/material/list';
 import { MatError, MatFormField, MatInput, MatLabel } from '@angular/material/input';
 import { MatTooltip } from '@angular/material/tooltip';
 import { lastValueFrom } from 'rxjs';
+import { NgOtpInputComponent } from 'ng-otp-input';
 
 @Component({
   selector: 'app-setup-2fa-page',
@@ -29,6 +30,7 @@ import { lastValueFrom } from 'rxjs';
     MatInput,
     MatButton,
     MatTooltip,
+    NgOtpInputComponent,
   ],
   templateUrl: './setup-fa-page.html',
   styleUrl: './setup-fa-page.scss',
@@ -67,7 +69,7 @@ export class Setup2faPage implements OnInit {
         this.twoFaController.apiAuth2faSetupPost({
           setup2FaRequest: {
             code: this.form.value.code!,
-          }
+          },
         }),
       );
       await this.router.navigate(['/login']);
