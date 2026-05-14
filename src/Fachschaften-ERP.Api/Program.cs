@@ -1,7 +1,8 @@
 using Fachschaften_ERP.Api.Services;
+using Fachschaften_ERP.Api.Services.Interfaces;
 using Fachschaften_ERP.Models;
 using Fachschaften_ERP.Models.Entities.Identity;
-using Fachschaften_ERP.Models.Identity;
+using Fachschaften_ERP.Models.Provider;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -36,6 +37,7 @@ builder.Services
     .AddSignInManager<SignInManager<IdentityUserEntity>>()
     .AddRoleManager<RoleManager<IdentityRoleEntity>>()
     .AddDefaultTokenProviders()
+    .AddTokenProvider<InviteTokenProvider<IdentityUserEntity>>("InviteTokenProvider")
     .AddClaimsPrincipalFactory<RoleClaimsUserClaimsPrincipalFactory>();
 
 builder.Services.AddAuthentication(options =>
@@ -46,6 +48,8 @@ builder.Services.AddAuthentication(options =>
         options.DefaultSignInScheme = IdentityConstants.ApplicationScheme;
     })
     .AddCookie(IdentityConstants.ApplicationScheme)
+    .AddCookie(IdentityConstants.TwoFactorUserIdScheme)
+    .AddCookie(IdentityConstants.TwoFactorRememberMeScheme)
     .AddCookie("Identity.External")
     .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme,
         x => { x.Cookie.Name = "Identity.Application"; });
@@ -90,6 +94,9 @@ builder.Services.ConfigureApplicationCookie(options =>
 
 
 builder.Services.AddSingleton<IAuthorizationHandler, PermissionHandler>();
+builder.Services.AddScoped<IEmailSender, DevEmailSender>();
+
+
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddAuthorization();

@@ -15,9 +15,7 @@
       </div>
     </div>
 
-    <mat-nav-list class="nav-list">
-
-
+    <mat-nav-list class="nav-list flex-grow-1 d-flex flex-column">
       @for (group of navItems(); track group) {
         @if ((group.items | filterNavigation).length !== 0) {
           <div class="nav-section">
@@ -33,7 +31,7 @@
                  class="nav-item gap-2 align-items-center"
                  [matTooltip]="collapsed() ? item.label : ''"
                  matTooltipPosition="right">
-                <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+                <mat-icon [svgIcon]="item.icon??''" matListItemIcon/>
                 @if (!collapsed()) {
                   <span matListItemTitle>{{ item.label }}</span>
                 }
@@ -42,6 +40,25 @@
           </div>
         }
       }
+
+      @if (!collapsed()) {
+        <div class="nav-footer flex-grow-1 d-flex flex-column justify-content-end">
+          <a mat-list-item
+             (click)="logout()"
+             class="nav-item gap-2 align-items-center"
+             [matTooltip]="collapsed() ? 'log out' : ''"
+             matTooltipPosition="right">
+            <mat-icon svgIcon="logout" matListItemIcon/>
+            @if (!collapsed()) {
+              <span matListItemTitle>
+              Log out
+            </span>
+            }
+          </a>
+
+        </div>
+      }
+
 
     </mat-nav-list>
   </mat-sidenav>
@@ -69,6 +86,9 @@
           </button>
         </div>
       </mat-toolbar>
+      @if (routeLoading()) {
+        <mat-progress-bar mode="indeterminate" style="position: fixed; top: 0; z-index: 9999;" />
+      }
 
       <ng-content></ng-content>
     </div>

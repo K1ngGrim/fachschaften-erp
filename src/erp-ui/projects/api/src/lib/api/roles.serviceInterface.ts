@@ -14,6 +14,7 @@ import { HttpHeaders }                                       from '@angular/comm
 import { Observable }                                        from 'rxjs';
 
 import { CreateRoleRequest } from '../model/models';
+import { RoleDto } from '../model/models';
 
 
 import { Configuration }                                     from '../configuration';
@@ -54,7 +55,7 @@ export interface RolesServiceInterface {
      * 
      * 
 */
-    apiRolesGet(extraHttpRequestParams?: any): Observable<{}>;
+    apiRolesGet(extraHttpRequestParams?: any): Observable<Array<RoleDto>>;
 
     /**
      * 

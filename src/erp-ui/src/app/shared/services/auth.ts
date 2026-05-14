@@ -1,6 +1,6 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { catchError, lastValueFrom, of } from 'rxjs';
-import { AuthService } from '../../../../projects/api/src/lib';
+import { AuthService, MeDto } from '../../../../projects/api/src/lib';
 
 @Injectable({
   providedIn: 'root',
@@ -29,6 +29,15 @@ export class Auth {
     return this.loadingPromise;
   }
 
+  requires2faSetup = computed(
+    () => this.currentUser()?.claims?.includes('2fa-setup-required') ?? false,
+  );
+
+  refresh(): Promise<void> {
+    this.loadingPromise = null; // ← Reset
+    return this.loadCurrentUser();
+  }
+
   hasPermission(permission: string): boolean {
     return this.permissions().includes(permission);
   }
@@ -45,12 +54,4 @@ export class Auth {
     await lastValueFrom(this.authController.apiAuthLogoutPost());
     this.currentUser.set(null);
   }
-}
-
-export interface MeDto {
-  id: string;
-  userName: string;
-  email: string;
-  roles: string[];
-  permissions: string[];
 }

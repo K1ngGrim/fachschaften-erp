@@ -3,7 +3,6 @@ import { MetricCard } from '../metric-card/metric-card';
 import { MatCard, MatCardContent, MatCardHeader, MatCardTitle } from '@angular/material/card';
 import { MatIcon } from '@angular/material/icon';
 import { MatChip, MatChipSet } from '@angular/material/chips';
-import { BaseChartDirective } from 'ng2-charts';
 import {
   BarElement,
   CategoryScale,
@@ -15,7 +14,7 @@ import {
   LinearScale,
   LineElement,
   PointElement,
-  Tooltip,
+  Tooltip
 } from 'chart.js';
 import { DataService } from '../../../shared/services/data.service';
 
@@ -41,7 +40,6 @@ Chart.register(
     MatIcon,
     MatChip,
     MatChipSet,
-    BaseChartDirective,
   ],
   templateUrl: './dashboard-page.html',
   styleUrl: './dashboard-page.scss',

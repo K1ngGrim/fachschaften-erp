@@ -1,5 +1,4 @@
 using Fachschaften_ERP.Models.Entities.Identity;
-using Fachschaften_ERP.Models.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 

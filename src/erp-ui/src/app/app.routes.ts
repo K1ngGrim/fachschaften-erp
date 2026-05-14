@@ -1,16 +1,31 @@
 import { Routes } from '@angular/router';
-import { authGuard, permissionGuard } from './shared/services/auth-guard';
+import { authGuard, setup2faGuard } from './shared/services/auth-guard';
 import { AppShell } from './shared/components/app-shell/app-shell';
 
 export const routes: Routes = [
   {
+    path: 'login/2fa', loadComponent: () => import('./pages/landing/login-two-fa-page/login-two-fa-page')
+      .then(m => m.LoginTwoFaPage)
+  },
+  {
     path: 'login',
     loadComponent: () => import('./pages/landing/login-page/login-page').then((m) => m.LoginPage),
   },
-
+  {
+    path: 'accept-invite',
+    loadComponent: () =>
+      import('./pages/landing/accept-invite-page/accept-invite-page').then(
+        (m) => m.AcceptInvitePage,
+      ),
+  },
+  {
+    path: 'setup-2fa',
+    loadComponent: () =>
+      import('./pages/landing/setup-fa-page/setup-fa-page').then((m) => m.Setup2faPage),
+  },
   {
     path: '',
-    canActivate: [authGuard],
+    canActivate: [authGuard, setup2faGuard],
     component: AppShell,
     children: [
       //refactored components/routes

@@ -1,7 +1,8 @@
 <div class="data-grid">
 
   @if (searchable()) {
-    <div class="data-grid__toolbar">
+    <div class="data-grid__toolbar gap-3">
+      <ng-container *ngTemplateOutlet="toolbarTemplate()"></ng-container>
       <mat-form-field appearance="outline" class="search-field">
         <mat-icon matPrefix>search</mat-icon>
         <input matInput [(ngModel)]="searchQuery" placeholder="Search...">

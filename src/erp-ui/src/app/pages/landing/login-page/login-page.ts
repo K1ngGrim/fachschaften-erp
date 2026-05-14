@@ -5,10 +5,10 @@ import { MatError, MatFormField, MatInput, MatLabel } from '@angular/material/in
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { AuthService } from '../../../../../projects/api/src/lib';
 import { Router } from '@angular/router';
 import { lastValueFrom } from 'rxjs';
 import { Auth } from '../../../shared/services/auth';
+import { AuthService } from '../../../../../projects/api/src/lib';
 
 @Component({
   selector: 'app-login-page',
@@ -34,7 +34,7 @@ export class LoginPage {
   private authController = inject(AuthService);
 
   form = new FormGroup({
-    userName: new FormControl('', Validators.required),
+    email: new FormControl('', Validators.required),
     password: new FormControl('', Validators.required),
   });
 
@@ -42,23 +42,29 @@ export class LoginPage {
   public error = signal<string | null>(null);
   public showPassword = signal(false);
 
+
   async submit() {
     if (this.form.invalid) return;
     this.loading.set(true);
     this.error.set(null);
 
     try {
-      await lastValueFrom(
+      const result = await lastValueFrom(
         this.authController.apiAuthLoginPost({
           loginRequest: {
-            userName: this.form.value.userName!,
+            email: this.form.value.email!,
             password: this.form.value.password!,
-            rememberMe: false,
+            rememberMe: true,
           },
         }),
       );
-      await this.authService.loadCurrentUser();
-      await this.router.navigate(['/']);
+
+      if (result.requiresTwoFactor) {
+        await this.router.navigate(['/login/2fa']);
+      } else {
+        await this.authService.refresh();
+        await this.router.navigate(['/']);
+      }
     } catch {
       this.error.set('Invalid username or password.');
     } finally {

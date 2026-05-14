@@ -1,21 +1,27 @@
 using System.Security.Claims;
 using Fachschaften_ERP.Api.Models;
 using Fachschaften_ERP.Api.Services;
-using Fachschaften_ERP.Models.Identity;
+using Fachschaften_ERP.Models;
+using Fachschaften_ERP.Models.Entities.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Fachschaften_ERP.Api.Controller.Identity;
 
 [ApiController]
 [Route("/api/roles")]
 [Authorize]
-public class RolesController(RoleManager<IdentityRoleEntity> roleManager) : ControllerBase
+public class RolesController(RoleManager<IdentityRoleEntity> roleManager, CoreContext core) : ControllerBase
 {
     [HttpGet]
-    public IActionResult GetAll() =>
-        Ok(roleManager.Roles.Select(r => new { r.Id, r.Name }).ToList());
+    public async Task<ActionResult<IList<RoleDto>>> GetAll()
+    {
+        return await core.Roles
+            .Select(x => new RoleDto(x.Id, x.Name!))
+            .ToListAsync();
+    }
 
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> Get(Guid id)
@@ -101,4 +107,5 @@ public class PermissionsController : ControllerBase
     }
 }
 
+public record RoleDto(Guid Id, string Name);
 public record CreateRoleRequest(string Name);

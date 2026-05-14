@@ -8,7 +8,11 @@ import { DataService } from '../../../shared/services/data.service';
 import { ItemDialogComponent } from '../item-dialog/item-dialog.component';
 import type { Product } from '../../../shared/models';
 import { PageHeader } from '../../../shared/components/page-header/page-header';
-import { DataGrid, GridActionCellDirective, GridColumn } from '../../../shared/components/data-grid/data-grid';
+import {
+  DataGrid,
+  GridActionCellDirective,
+  GridColumn,
+} from '../../../shared/components/data-grid/data-grid';
 import { MatTooltip } from '@angular/material/tooltip';
 
 @Component({

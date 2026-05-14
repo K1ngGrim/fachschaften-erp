@@ -14,7 +14,7 @@ import { HttpHeaders }                                       from '@angular/comm
 import { Observable }                                        from 'rxjs';
 
 import { ChangePasswordRequest } from '../model/models';
-import { UpdateUserRequest } from '../model/models';
+import { UpsertUserRequest } from '../model/models';
 import { UserDto } from '../model/models';
 
 
@@ -48,9 +48,9 @@ export interface ApiUsersIdPermissionsPermissionPostRequestParams {
     permission: string;
 }
 
-export interface ApiUsersIdPutRequestParams {
+export interface ApiUsersIdPostRequestParams {
     id: string;
-    updateUserRequest: UpdateUserRequest;
+    upsertUserRequest: UpsertUserRequest;
 }
 
 export interface ApiUsersIdRolesGetRequestParams {
@@ -125,7 +125,7 @@ export interface UsersServiceInterface {
      * 
 * @param requestParameters
      */
-    apiUsersIdPut(requestParameters: ApiUsersIdPutRequestParams, extraHttpRequestParams?: any): Observable<{}>;
+    apiUsersIdPost(requestParameters: ApiUsersIdPostRequestParams, extraHttpRequestParams?: any): Observable<{}>;
 
     /**
      * 

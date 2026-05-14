@@ -31,8 +31,18 @@ export class Navigation {
     {
       label: 'Administration',
       items: [
-        { label: 'Benutzer Verwaltung', route: '/users', icon: 'user', permissions: ['users.canread']},
-        { label: 'Rollen Verwaltung', route: '/item-types', icon: 'layers', permissions: ['roles.canread']},
+        {
+          label: 'Benutzer Verwaltung',
+          route: '/users',
+          icon: 'account-details',
+          permissions: ['users.canread'],
+        },
+        {
+          label: 'Rollen Verwaltung',
+          route: '/item-types',
+          icon: 'layers',
+          permissions: ['roles.canread'],
+        },
       ],
     },
   ]);

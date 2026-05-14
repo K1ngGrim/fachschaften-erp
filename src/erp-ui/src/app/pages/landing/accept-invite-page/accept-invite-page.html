@@ -1,0 +1,71 @@
+<div class="login-wrapper">
+  <div class="login-bg-circle login-bg-circle--top"></div>
+  <div class="login-bg-circle login-bg-circle--bottom"></div>
+  <div class="login-container">
+    <div class="login-header">
+      <div class="login-logo">
+        <mat-icon>mark_email_read</mat-icon>
+      </div>
+      <h1>Fachschaften ERP</h1>
+      <p>Accept your invitation</p>
+    </div>
+
+    @if (invalidLink()) {
+      <mat-card>
+        <mat-card-content>
+          <div class="error-box">
+            <mat-icon>error_outline</mat-icon>
+            This invite link is invalid or has already been used.
+          </div>
+        </mat-card-content>
+      </mat-card>
+    } @else {
+      <mat-card>
+        <mat-card-content>
+          <form [formGroup]="form" (ngSubmit)="submit()">
+
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Password</mat-label>
+              <mat-icon matPrefix>lock_outline</mat-icon>
+              <input matInput formControlName="password"
+                     [type]="showPassword() ? 'text' : 'password'"
+                     autocomplete="new-password" />
+              <button matSuffix mat-icon-button type="button"
+                      (click)="showPassword.set(!showPassword())">
+                <mat-icon>{{ showPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+              </button>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Confirm Password</mat-label>
+              <mat-icon matPrefix>lock_outline</mat-icon>
+              <input matInput formControlName="confirmPassword"
+                     [type]="showPassword() ? 'text' : 'password'"
+                     autocomplete="new-password" />
+            </mat-form-field>
+
+            @if (form.errors?.['passwordMismatch'] && form.get('confirmPassword')?.dirty) {
+              <mat-error class="error-box mb-2">
+                <mat-icon>error_outline</mat-icon>
+                Passwords do not match.
+              </mat-error>
+            }
+
+            @if (error()) {
+              <mat-error class="error-box">
+                <mat-icon>error_outline</mat-icon>
+                {{ error() }}
+              </mat-error>
+            }
+
+            <button mat-flat-button type="submit" class="w-100 submit-btn"
+                    [disabled]="form.invalid || loading()">
+              @if (loading()) { <mat-spinner diameter="18" /> } @else { Activate Account }
+            </button>
+
+          </form>
+        </mat-card-content>
+      </mat-card>
+    }
+  </div>
+</div>

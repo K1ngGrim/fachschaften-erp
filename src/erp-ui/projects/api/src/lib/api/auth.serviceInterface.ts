@@ -13,12 +13,19 @@ import { HttpHeaders }                                       from '@angular/comm
 
 import { Observable }                                        from 'rxjs';
 
+import { Login2FaRequest } from '../model/models';
 import { LoginRequest } from '../model/models';
+import { LoginResult } from '../model/models';
+import { MeDto } from '../model/models';
 import { RegisterRequest } from '../model/models';
 
 
 import { Configuration }                                     from '../configuration';
 
+
+export interface ApiAuthLogin2faPostRequestParams {
+    login2FaRequest: Login2FaRequest;
+}
 
 export interface ApiAuthLoginPostRequestParams {
     loginRequest: LoginRequest;
@@ -38,7 +45,14 @@ export interface AuthServiceInterface {
      * 
 * @param requestParameters
      */
-    apiAuthLoginPost(requestParameters: ApiAuthLoginPostRequestParams, extraHttpRequestParams?: any): Observable<{}>;
+    apiAuthLogin2faPost(requestParameters: ApiAuthLogin2faPostRequestParams, extraHttpRequestParams?: any): Observable<LoginResult>;
+
+    /**
+     * 
+     * 
+* @param requestParameters
+     */
+    apiAuthLoginPost(requestParameters: ApiAuthLoginPostRequestParams, extraHttpRequestParams?: any): Observable<LoginResult>;
 
     /**
      * 
@@ -50,7 +64,7 @@ export interface AuthServiceInterface {
      * 
      * 
 */
-    apiAuthMeGet(extraHttpRequestParams?: any): Observable<{}>;
+    apiAuthMeGet(extraHttpRequestParams?: any): Observable<MeDto>;
 
     /**
      * 

@@ -1,7 +1,6 @@
 using System.Security.Claims;
 using Fachschaften_ERP.Api.Models;
 using Fachschaften_ERP.Models.Entities.Identity;
-using Fachschaften_ERP.Models.Identity;
 using Microsoft.AspNetCore.Identity;
 
 namespace Fachschaften_ERP.Api.Services;

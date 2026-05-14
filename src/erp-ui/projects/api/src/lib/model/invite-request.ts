@@ -11,8 +11,10 @@
  */
 
 
-export interface UpdateUserRequest { 
-    userName: string | null;
+export interface InviteRequest { 
+    userName: string;
     email: string | null;
+    roles: Array<string>;
+    require2Fa: boolean;
 }
 

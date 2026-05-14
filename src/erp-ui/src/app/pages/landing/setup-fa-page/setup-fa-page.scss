@@ -1,0 +1,24 @@
+@use '../login-page/login-page';
+
+.qr-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.qr-code {
+  width: 180px;
+  height: 180px;
+  border-radius: 8px;
+}
+
+.secret-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--mat-sys-surface-container);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+}

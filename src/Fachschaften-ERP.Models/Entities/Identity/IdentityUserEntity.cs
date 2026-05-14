@@ -3,11 +3,6 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Fachschaften_ERP.Models.Entities.Identity;
 
-public class IdentityUserEntity : IdentityUser<Guid>, IBaseEntity
+public class IdentityUserEntity : IdentityUser<Guid>
 {
-    public Guid CreatorId { get; set; }
-    public DateTimeOffset Created { get; set; }
-    public Guid? ModifierId { get; set; }
-    public DateTimeOffset? Modified { get; set; }
-    public bool IsActive { get; set; }
 }

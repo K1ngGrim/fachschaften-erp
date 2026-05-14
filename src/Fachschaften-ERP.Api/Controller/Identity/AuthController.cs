@@ -1,6 +1,5 @@
 using Fachschaften_ERP.Models;
 using Fachschaften_ERP.Models.Entities.Identity;
-using Fachschaften_ERP.Models.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -18,17 +17,33 @@ public class AuthController(
     ) : ControllerBase
 {
     [HttpPost("login")]
-    public async Task<IActionResult> Login(LoginRequest request)
+    public async Task<ActionResult<LoginResult>> Login(LoginRequest request)
     {
         var result = await signInManager.PasswordSignInAsync(
-            request.UserName, request.Password, request.RememberMe, lockoutOnFailure: true);
+            request.Email, request.Password, request.RememberMe, lockoutOnFailure: true);
 
         if (result.IsLockedOut) return StatusCode(429, "Account is locked out.");
+        if (result.RequiresTwoFactor) return Ok(new LoginResult(RequiresTwoFactor: true));
         if (!result.Succeeded) return Unauthorized("Invalid credentials.");
 
-        var user = await userManager.FindByNameAsync(request.UserName);
-        return Ok(new { user!.Id, user.UserName, user.Email });
+        var user = await userManager.FindByNameAsync(request.Email);
+        return Ok(new LoginResult(RequiresTwoFactor: false, Id: user!.Id, UserName: user.UserName, Email: user.Email));
     }
+
+    [HttpPost("login/2fa")]
+    public async Task<ActionResult<LoginResult>> LoginWith2Fa(Login2FaRequest request)
+    {
+        var result = await signInManager.TwoFactorAuthenticatorSignInAsync(
+            request.Code, request.RememberMe, rememberClient: false);
+
+        if (result.IsLockedOut) return StatusCode(429, "Account is locked out.");
+        if (!result.Succeeded) return Unauthorized("Invalid code.");
+
+        var user = await signInManager.GetTwoFactorAuthenticationUserAsync();
+        return Ok(new LoginResult(RequiresTwoFactor: false, Id: user!.Id, UserName: user!.UserName, Email: user.Email));
+    }
+
+
 
     [HttpPost("logout")]
     [Authorize]
@@ -43,7 +58,7 @@ public class AuthController(
     {
         var user = new IdentityUserEntity
         {
-            UserName = request.UserName,
+            UserName = request.Email,
             Email = request.Email,
         };
 
@@ -56,7 +71,7 @@ public class AuthController(
 
     [HttpGet("me")]
     [Authorize]
-    public async Task<IActionResult> Me()
+    public async Task<ActionResult<MeDto>> Me()
     {
         var user = await userManager.GetUserAsync(User);
         if (user is null) return Unauthorized();
@@ -66,6 +81,11 @@ public class AuthController(
             .Join(coreContext.Roles, ur => ur.RoleId, r => r.Id, (ur, r) => r.Name!)
             .ToArrayAsync();
 
+        var claims = await coreContext.UserClaims
+            .Where(uc => uc.UserId == user.Id && uc.ClaimType == "custom")
+            .Select(uc => uc.ClaimValue!)
+            .ToArrayAsync();
+
         var permissions = await coreContext.RoleClaims
             .Where(rc => rc.ClaimType == "permission" &&
                          coreContext.Roles.Any(r => roles.AsEnumerable().Contains(r.Name!) && r.Id == rc.RoleId))
@@ -73,10 +93,12 @@ public class AuthController(
             .Distinct()
             .ToArrayAsync();
 
-        return Ok(new MeDto(user.Id, user.UserName ?? string.Empty, user.Email ?? string.Empty, roles, permissions));
+        return Ok(new MeDto(user.Id, user.UserName ?? string.Empty, user.Email ?? string.Empty, roles, permissions, claims));
     }
 }
 
-public record MeDto(Guid Id, string UserName, string Email, string[] Roles, string[] Permissions);
-public record LoginRequest(string UserName, string Password, bool RememberMe = false);
-public record RegisterRequest(string UserName, string? Email, string Password);
+public record LoginRequest(string Email, string Password, bool RememberMe = false);
+public record Login2FaRequest(string Code, bool RememberMe = false);
+public record LoginResult(bool RequiresTwoFactor, Guid? Id = null, string? UserName = null, string? Email = null);
+public record MeDto(Guid Id, string UserName, string Email, string[] Roles, string[] Permissions, string[] Claims);
+public record RegisterRequest(string Name, string? Email, string Password);

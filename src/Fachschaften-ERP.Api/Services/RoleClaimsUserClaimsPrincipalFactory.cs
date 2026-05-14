@@ -1,6 +1,5 @@
 using System.Security.Claims;
 using Fachschaften_ERP.Models.Entities.Identity;
-using Fachschaften_ERP.Models.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 

@@ -1,9 +1,9 @@
 using System.Security.Claims;
 using Fachschaften_ERP.Api.Models;
 using Fachschaften_ERP.Api.Services;
+using Fachschaften_ERP.Api.Services.Interfaces;
 using Fachschaften_ERP.Models;
 using Fachschaften_ERP.Models.Entities.Identity;
-using Fachschaften_ERP.Models.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -13,20 +13,20 @@ namespace Fachschaften_ERP.Api.Controller.Identity;
 
 [ApiController]
 [Route("/api/users")]
+[Authorize]
 public class UsersController(
     UserManager<IdentityUserEntity> userManager,
     RoleManager<IdentityRoleEntity> roleManager,
-    CoreContext coreContext
-    ) : ControllerBase
+    CoreContext coreContext,
+    IEmailSender emailSender,
+    IConfiguration config) : ControllerBase
 {
     [HttpGet]
     public async Task<ActionResult<IList<UserDto>>> GetAll()
     {
-
         var users = await coreContext.Users
             .Join(coreContext.UserRoles, u => u.Id, ur => ur.UserId, (u, ur) => new { User = u, UserRole = ur })
             .Join(coreContext.Roles, ur => ur.UserRole.RoleId, r => r.Id, (ur, r) => new { ur.User, Role = r })
-            .Where(x => x.User.IsActive)
             .Select(x => new UserDto(
                 x.User.Id,
                 x.User.UserName,
@@ -48,8 +48,8 @@ public class UsersController(
         return Ok(new { user.Id, user.UserName, user.Email, Roles = roles });
     }
 
-    [HttpPut("{id:guid}")]
-    public async Task<IActionResult> Update(Guid id, UpdateUserRequest request)
+    [HttpPost("{id:guid}")]
+    public async Task<IActionResult> Update(Guid id, UpsertUserRequest request)
     {
         var user = await userManager.FindByIdAsync(id.ToString());
         if (user is null) return NotFound();
@@ -102,7 +102,8 @@ public class UsersController(
         var user = await userManager.FindByIdAsync(id.ToString());
         if (user is null) return NotFound();
 
-        var role = await roleManager.Roles.Where(x => x.Id == roleId && x.IsActive).SingleAsync();
+        var role = await roleManager.Roles.Where(x => x.Id == roleId)
+            .SingleOrDefaultAsync();
 
         if (role is null)
             return BadRequest($"Role '{roleId}' does not exist.");
@@ -177,5 +178,5 @@ public class UsersController(
 }*/
 
 public record UserDto(Guid Id, string? UserName, string? Email, IList<string> Roles);
-public record UpdateUserRequest(string? UserName, string? Email);
+public record UpsertUserRequest(string? UserName, string? Email, IList<string> Roles, IList<string> Permissions);
 public record ChangePasswordRequest(string CurrentPassword, string NewPassword);

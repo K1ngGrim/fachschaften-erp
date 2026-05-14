@@ -1,5 +1,4 @@
 using Fachschaften_ERP.Models.Entities.Identity;
-using Fachschaften_ERP.Models.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,6 +8,8 @@ public partial class CoreContext
 {
     private static string IdentitySchema => "identity";
 
+    public DbSet<InviteEntity> Invites => Set<InviteEntity>();
+
     private static void OnIdentityCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<IdentityUserEntity>(entity =>
@@ -16,6 +17,12 @@ public partial class CoreContext
             entity.ToTable("Users", IdentitySchema);
             entity.HasKey(x => x.Id);
             entity.Property(x => x.Id).ValueGeneratedOnAdd();
+        });
+
+        modelBuilder.Entity<InviteEntity>(entity =>
+        {
+            entity.ToTable("Invites", IdentitySchema);
+            entity.HasKey(x => x.Id);
         });
 
         modelBuilder.Entity<IdentityRoleEntity>(entity => { entity.ToTable("Roles", IdentitySchema); });

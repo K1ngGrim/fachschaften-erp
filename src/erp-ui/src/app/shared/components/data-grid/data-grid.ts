@@ -7,7 +7,7 @@ import {
   input,
   QueryList,
   signal,
-  TemplateRef
+  TemplateRef,
 } from '@angular/core';
 import { MatIcon, MatIconModule } from '@angular/material/icon';
 import { MatIconButton } from '@angular/material/button';
@@ -39,6 +39,8 @@ export class GridActionCellDirective {
 export class DataGrid<T extends Record<string, any>> implements AfterContentInit {
   public columns = input.required<GridColumn<T>[]>();
   public data = input.required<T[]>();
+  public toolbarTemplate = input<TemplateRef<any>>();
+
   public searchable = input(false);
   public searchKeys = input<string[]>([]);
 

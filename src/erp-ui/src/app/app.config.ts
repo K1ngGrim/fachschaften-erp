@@ -8,7 +8,6 @@ import {
 import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
-import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 
 import { registerLocaleData } from '@angular/common';
@@ -31,9 +30,7 @@ export const appConfig: ApplicationConfig = {
     // provideClientHydration(withEventReplay()), weil kein ssr
     provideHttpClient(
       withFetch(),
-      withInterceptors([
-        (req, next) => next(req.clone({ withCredentials: true })),
-      ]),
+      withInterceptors([(req, next) => next(req.clone({ withCredentials: true }))]),
     ),
     { provide: BASE_PATH, useValue: '' },
     provideAppInitializer(initAppFn),

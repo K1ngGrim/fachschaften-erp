@@ -1,4 +1,6 @@
 <div class="login-wrapper">
+  <div class="login-bg-circle login-bg-circle--top"></div>
+  <div class="login-bg-circle login-bg-circle--bottom"></div>
   <div class="login-container">
     <div class="login-header">
       <div class="login-logo">
@@ -13,9 +15,9 @@
         <form [formGroup]="form" (ngSubmit)="submit()">
 
           <mat-form-field appearance="outline" class="w-100">
-            <mat-label>Username</mat-label>
+            <mat-label>Email</mat-label>
             <mat-icon matPrefix>person_outline</mat-icon>
-            <input matInput formControlName="userName" autocomplete="username" />
+            <input matInput formControlName="email" type="email" autocomplete="email" />
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="w-100">

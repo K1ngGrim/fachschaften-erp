@@ -1,15 +1,23 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { NavBar } from './shared/components/nav-bar/nav-bar';
+import { MatIconRegistry } from '@angular/material/icon';
+import { DomSanitizer } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, NavBar],
+  imports: [RouterOutlet],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
 export class App {
   protected readonly title = signal('portal');
 
-  constructor() {}
+  private iconRegistry = inject(MatIconRegistry);
+  private sanitizer = inject(DomSanitizer);
+
+  constructor() {
+    this.iconRegistry.addSvgIconSet(
+      this.sanitizer.bypassSecurityTrustResourceUrl('assets/mdi.svg'),
+    );
+  }
 }

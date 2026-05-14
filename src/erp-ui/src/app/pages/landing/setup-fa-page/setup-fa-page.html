@@ -1,0 +1,66 @@
+<div class="login-wrapper">
+  <div class="login-bg-circle login-bg-circle--top"></div>
+  <div class="login-bg-circle login-bg-circle--bottom"></div>
+  <div class="login-container">
+    <div class="login-header">
+      <div class="login-logo">
+        <mat-icon>security</mat-icon>
+      </div>
+      <h1>Two-Factor Authentication</h1>
+      <p>Scan the QR code with your authenticator app</p>
+    </div>
+
+    <mat-card>
+      <mat-card-content>
+
+        @if (loading()) {
+          <div class="d-flex justify-content-center p-4">
+            <mat-spinner diameter="36" />
+          </div>
+        } @else {
+          <div class="qr-wrapper">
+            <img [src]="qrCode()" alt="2FA QR Code" class="qr-code" />
+          </div>
+
+          <p class="text-muted small text-center mb-3">
+            Can't scan? Enter this code manually:
+          </p>
+          <div class="secret-box">
+            <code>{{ secret() }}</code>
+            <button mat-icon-button (click)="copySecret()" matTooltip="Copy">
+              <mat-icon>content_copy</mat-icon>
+            </button>
+          </div>
+
+          <mat-divider class="my-3" />
+
+          <p class="small text-muted mb-2">Enter the 6-digit code from your app to confirm setup:</p>
+
+          <form [formGroup]="form" (ngSubmit)="verify()">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Verification Code</mat-label>
+              <mat-icon matPrefix>pin</mat-icon>
+              <input matInput formControlName="code" maxlength="6"
+                     inputmode="numeric" autocomplete="one-time-code" />
+            </mat-form-field>
+
+            @if (error()) {
+              <mat-error class="error-box">
+                <mat-icon>error_outline</mat-icon>
+                {{ error() }}
+              </mat-error>
+            }
+
+            <button mat-flat-button type="submit" class="w-100 submit-btn"
+                    [disabled]="form.invalid || verifying()">
+              @if (verifying()) { <mat-spinner diameter="18" /> } @else { Enable 2FA }
+            </button>
+          </form>
+        }
+
+      </mat-card-content>
+    </mat-card>
+
+    <p class="login-footer">Use Google Authenticator, Authy, or any TOTP app.</p>
+  </div>
+</div>

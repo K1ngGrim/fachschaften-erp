@@ -1,0 +1,42 @@
+<div class="login-wrapper">
+  <div class="login-bg-circle login-bg-circle--top"></div>
+  <div class="login-bg-circle login-bg-circle--bottom"></div>
+  <div class="login-container">
+    <div class="login-header">
+      <div class="login-logo">
+        <mat-icon svgIcon="security"></mat-icon>
+      </div>
+      <h1>Fachschaften ERP</h1>
+      <p>Enter your authenticator code</p>
+    </div>
+
+    <mat-card>
+      <mat-card-content>
+        <form [formGroup]="form" (ngSubmit)="verify()">
+
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>6-digit code</mat-label>
+            <mat-icon matPrefix>pin</mat-icon>
+            <input matInput formControlName="code" maxlength="6"
+                   inputmode="numeric" autocomplete="one-time-code" />
+          </mat-form-field>
+
+          @if (error()) {
+            <mat-error class="error-box">
+              <mat-icon>error_outline</mat-icon>
+              {{ error() }}
+            </mat-error>
+          }
+
+          <button mat-flat-button type="submit" class="w-100 submit-btn"
+                  [disabled]="form.invalid || loading()">
+            @if (loading()) { <mat-spinner diameter="18" /> } @else { Verify }
+          </button>
+
+        </form>
+      </mat-card-content>
+    </mat-card>
+
+    <p class="login-footer">Open your authenticator app to get the code.</p>
+  </div>
+</div>

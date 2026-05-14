@@ -12,7 +12,7 @@
 
 
 export interface RegisterRequest { 
-    userName: string;
+    name: string;
     email: string | null;
     password: string;
 }
