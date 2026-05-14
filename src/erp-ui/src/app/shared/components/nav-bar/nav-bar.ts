@@ -9,6 +9,7 @@ import { MatTooltip } from '@angular/material/tooltip';
 import { Navigation } from '../../services/navigation';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { FilterNavigationPipe } from '../../pipes/filter-navigation-pipe';
 
 @Component({
   selector: 'app-nav-bar',
@@ -25,6 +26,7 @@ import { Subscription } from 'rxjs';
     RouterLink,
     RouterLinkActive,
     MatMiniFabButton,
+    FilterNavigationPipe,
   ],
   templateUrl: './nav-bar.html',
   styleUrl: './nav-bar.scss',

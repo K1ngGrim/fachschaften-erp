@@ -48,7 +48,7 @@
             ],
             "styles": ["src/styles.scss"],
             "server": false,
-            "outputMode": "server",
+            "outputMode": "static",
             "security": {
               "allowedHosts": []
             },

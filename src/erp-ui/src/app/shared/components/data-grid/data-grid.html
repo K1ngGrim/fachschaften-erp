@@ -57,7 +57,7 @@
               @for (col of columns(); track col.key) {
                 <td [class]="'grid-td ' + cellClass(col)">
                   @if (col.cellTemplate) {
-                    <ng-container *ngTemplateOutlet="col.cellTemplate; context: { $implicit: row }"/>
+                    <ng-container *ngTemplateOutlet="col.cellTemplate; context: { $implicit: row, value: col.value ? col.value(row) : row[col.key] }"/>
                   } @else {
                     {{ col.value ? col.value(row) : row[col.key] }}
                   }

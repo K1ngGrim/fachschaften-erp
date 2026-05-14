@@ -5,7 +5,11 @@ import { MatIcon } from '@angular/material/icon';
 import { MatIconButton } from '@angular/material/button';
 import { MatTooltip } from '@angular/material/tooltip';
 import { PageHeader } from '../../../shared/components/page-header/page-header';
-import { DataGrid, GridActionCellDirective, GridColumn } from '../../../shared/components/data-grid/data-grid';
+import {
+  DataGrid,
+  GridActionCellDirective,
+  GridColumn,
+} from '../../../shared/components/data-grid/data-grid';
 import { Product } from '../../../shared/models';
 
 @Component({
@@ -28,14 +32,13 @@ export class InventoryPage {
   public products = signal<Product[]>([]);
 
   constructor() {
-
-    this.products.set( [
+    this.products.set([
       {
         id: '1',
         name: 'Club T-Shirt (S)',
         itemTypeId: 'clothing',
-        purchasePrice: 8.50,
-        sellingPrice: 15.00,
+        purchasePrice: 8.5,
+        sellingPrice: 15.0,
         stock: 42,
         supplier: 'SportsDruck GmbH',
         lowStockThreshold: 10,
@@ -46,8 +49,8 @@ export class InventoryPage {
         id: '2',
         name: 'Club T-Shirt (M)',
         itemTypeId: 'clothing',
-        purchasePrice: 8.50,
-        sellingPrice: 15.00,
+        purchasePrice: 8.5,
+        sellingPrice: 15.0,
         stock: 7,
         supplier: 'SportsDruck GmbH',
         lowStockThreshold: 10,
@@ -58,8 +61,8 @@ export class InventoryPage {
         id: '3',
         name: 'Hoodie',
         itemTypeId: 'clothing',
-        purchasePrice: 22.00,
-        sellingPrice: 38.00,
+        purchasePrice: 22.0,
+        sellingPrice: 38.0,
         stock: 3,
         supplier: 'SportsDruck GmbH',
         lowStockThreshold: 5,
@@ -71,7 +74,7 @@ export class InventoryPage {
         name: 'Mate Tee (0,5l)',
         itemTypeId: 'beverage',
         purchasePrice: 0.89,
-        sellingPrice: 1.50,
+        sellingPrice: 1.5,
         stock: 144,
         supplier: 'Getränke Müller',
         lowStockThreshold: 24,
@@ -82,20 +85,20 @@ export class InventoryPage {
         id: '5',
         name: 'Club Bier (Kasten)',
         itemTypeId: 'beverage',
-        purchasePrice: 14.00,
-        sellingPrice: 20.00,
+        purchasePrice: 14.0,
+        sellingPrice: 20.0,
         stock: 8,
         supplier: 'Getränke Müller',
         lowStockThreshold: 3,
         trackStock: true,
-        customFieldValues: { alcoholic: true, deposit: 3.10 },
+        customFieldValues: { alcoholic: true, deposit: 3.1 },
       },
       {
         id: '6',
         name: 'Wasser still (0,5l)',
         itemTypeId: 'beverage',
         purchasePrice: 0.25,
-        sellingPrice: 1.00,
+        sellingPrice: 1.0,
         stock: 2,
         supplier: 'Getränke Müller',
         lowStockThreshold: 12,
@@ -106,8 +109,8 @@ export class InventoryPage {
         id: '7',
         name: 'Kugelschreiber (10er Pack)',
         itemTypeId: 'stationery',
-        purchasePrice: 3.20,
-        sellingPrice: 5.00,
+        purchasePrice: 3.2,
+        sellingPrice: 5.0,
         stock: 15,
         supplier: 'Bürobedarf Schmidt',
         lowStockThreshold: 5,
@@ -118,8 +121,8 @@ export class InventoryPage {
         id: '8',
         name: 'A4 Druckerpapier (500 Blatt)',
         itemTypeId: 'stationery',
-        purchasePrice: 4.50,
-        sellingPrice: 6.00,
+        purchasePrice: 4.5,
+        sellingPrice: 6.0,
         stock: 20,
         supplier: 'Bürobedarf Schmidt',
         lowStockThreshold: 5,
@@ -130,7 +133,7 @@ export class InventoryPage {
         id: '9',
         name: 'Eintrittsbändchen (100 Stk)',
         itemTypeId: 'event',
-        purchasePrice: 6.00,
+        purchasePrice: 6.0,
         sellingPrice: 0,
         stock: 300,
         supplier: 'EventSupply AG',
@@ -142,7 +145,7 @@ export class InventoryPage {
         id: '10',
         name: 'Tischdecken (10 Stk)',
         itemTypeId: 'event',
-        purchasePrice: 8.00,
+        purchasePrice: 8.0,
         sellingPrice: 0,
         stock: 4,
         supplier: 'EventSupply AG',
@@ -154,7 +157,7 @@ export class InventoryPage {
         id: '11',
         name: 'HDMI Kabel (2m)',
         itemTypeId: 'equipment',
-        purchasePrice: 7.00,
+        purchasePrice: 7.0,
         sellingPrice: 0,
         stock: 6,
         supplier: 'Elektronik Depot',
@@ -166,7 +169,7 @@ export class InventoryPage {
         id: '12',
         name: 'Verlängerungskabel (5m)',
         itemTypeId: 'equipment',
-        purchasePrice: 12.00,
+        purchasePrice: 12.0,
         sellingPrice: 0,
         stock: 1,
         supplier: 'Elektronik Depot',
@@ -175,10 +178,7 @@ export class InventoryPage {
         customFieldValues: { lengthM: 5, outlets: 4 },
       },
     ]);
-
-
   }
-
 
   columns: GridColumn<Product>[] = [
     { key: 'name', label: 'Name' },

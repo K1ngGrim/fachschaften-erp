@@ -31,8 +31,8 @@ export class Navigation {
     {
       label: 'Administration',
       items: [
-        { label: 'Benutzer Verwaltung', route: '/users', icon: 'user' },
-        { label: 'Rollen Verwaltung', route: '/item-types', icon: 'layers' },
+        { label: 'Benutzer Verwaltung', route: '/users', icon: 'user', permissions: ['users.canread']},
+        { label: 'Rollen Verwaltung', route: '/item-types', icon: 'layers', permissions: ['roles.canread']},
       ],
     },
   ]);
@@ -48,4 +48,5 @@ export interface NavigationItem {
   label: string;
   route: string;
   icon?: string;
+  permissions?: string[];
 }

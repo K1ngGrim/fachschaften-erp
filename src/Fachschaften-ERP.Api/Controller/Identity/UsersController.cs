@@ -1,6 +1,8 @@
 using System.Security.Claims;
 using Fachschaften_ERP.Api.Models;
 using Fachschaften_ERP.Api.Services;
+using Fachschaften_ERP.Models;
+using Fachschaften_ERP.Models.Entities.Identity;
 using Fachschaften_ERP.Models.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -13,18 +15,23 @@ namespace Fachschaften_ERP.Api.Controller.Identity;
 [Route("/api/users")]
 public class UsersController(
     UserManager<IdentityUserEntity> userManager,
-    RoleManager<IdentityRoleEntity> roleManager) : ControllerBase
+    RoleManager<IdentityRoleEntity> roleManager,
+    CoreContext coreContext
+    ) : ControllerBase
 {
     [HttpGet]
     public async Task<ActionResult<IList<UserDto>>> GetAll()
     {
-        var users = await userManager.Users
-            .Where(x => x.IsActive)
+
+        var users = await coreContext.Users
+            .Join(coreContext.UserRoles, u => u.Id, ur => ur.UserId, (u, ur) => new { User = u, UserRole = ur })
+            .Join(coreContext.Roles, ur => ur.UserRole.RoleId, r => r.Id, (ur, r) => new { ur.User, Role = r })
+            .Where(x => x.User.IsActive)
             .Select(x => new UserDto(
-                x.Id, 
-                x.UserName, 
-                x.Email,
-                new List<string>()
+                x.User.Id,
+                x.User.UserName,
+                x.User.Email,
+                new List<string> { x.Role.Name! }
                 ))
             .ToListAsync();
         

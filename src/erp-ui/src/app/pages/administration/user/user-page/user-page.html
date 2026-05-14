@@ -6,7 +6,7 @@
   </app-page-header>
 
   <app-data-grid
-    [columns]="columns"
+    [columns]="columns()"
     [data]="users()"
     [searchable]="true"
     [searchKeys]="['name', 'email']"
@@ -27,8 +27,12 @@
     </ng-template>
   </app-data-grid>
 
-  <!-- Custom Cell Template (z.B. für Stock mit Badge) -->
-  <ng-template #stockTpl let-p>
+  <ng-template #roleTemplate let-row let-roles="value">
+    @for (role of roles; track role) {
+      <mat-chip color="primary" selected>
+        {{ role }}
+      </mat-chip>
+    }
   </ng-template>
 
 </div>

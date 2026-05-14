@@ -1,21 +1,37 @@
 import { Routes } from '@angular/router';
+import { authGuard, permissionGuard } from './shared/services/auth-guard';
+import { AppShell } from './shared/components/app-shell/app-shell';
 
 export const routes: Routes = [
   {
+    path: 'login',
+    loadComponent: () => import('./pages/landing/login-page/login-page').then((m) => m.LoginPage),
+  },
+
+  {
     path: '',
-    loadComponent: () =>
-      import('./pages/dashboard/dashboard-page/dashboard-page').then((m) => m.DashboardPage),
+    canActivate: [authGuard],
+    component: AppShell,
+    children: [
+      //refactored components/routes
+      {
+        path: 'users',
+        //canActivate: [permissionGuard('users.canread')],
+        loadComponent: () =>
+          import('./pages/administration/user/user-page/user-page').then((m) => m.UserPage),
+      },
+      {
+        path: '',
+        loadComponent: () =>
+          import('./pages/dashboard/dashboard-page/dashboard-page').then((m) => m.DashboardPage),
+      },
+    ],
   },
 
   {
     path: 'inventory',
     loadComponent: () =>
       import('./pages/inventory/inventory-page/inventory-page').then((m) => m.InventoryPage),
-  },
-  {
-    path: 'users',
-    loadComponent: () =>
-      import('./pages/administration/user/user-page/user-page').then((m) => m.UserPage),
   },
 
   {

@@ -1,7 +1,6 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { MatCard, MatCardContent } from '@angular/material/card';
 import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
@@ -9,19 +8,13 @@ import { DataService } from '../../../shared/services/data.service';
 import { ItemDialogComponent } from '../item-dialog/item-dialog.component';
 import type { Product } from '../../../shared/models';
 import { PageHeader } from '../../../shared/components/page-header/page-header';
-import {
-  DataGrid,
-  GridActionCellDirective,
-  GridColumn,
-} from '../../../shared/components/data-grid/data-grid';
+import { DataGrid, GridActionCellDirective, GridColumn } from '../../../shared/components/data-grid/data-grid';
 import { MatTooltip } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-items-page',
   imports: [
     FormsModule,
-    MatCard,
-    MatCardContent,
     MatIcon,
     PageHeader,
     DataGrid,

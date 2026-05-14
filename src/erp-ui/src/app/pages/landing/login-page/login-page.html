@@ -1,0 +1,51 @@
+<div class="login-wrapper">
+  <div class="login-container">
+    <div class="login-header">
+      <div class="login-logo">
+        <mat-icon>domain</mat-icon>
+      </div>
+      <h1>Fachschaften ERP</h1>
+      <p>Sign in to your account</p>
+    </div>
+
+    <mat-card>
+      <mat-card-content>
+        <form [formGroup]="form" (ngSubmit)="submit()">
+
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Username</mat-label>
+            <mat-icon matPrefix>person_outline</mat-icon>
+            <input matInput formControlName="userName" autocomplete="username" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Password</mat-label>
+            <mat-icon matPrefix>lock_outline</mat-icon>
+            <input matInput formControlName="password"
+                   [type]="showPassword() ? 'text' : 'password'"
+                   autocomplete="current-password" />
+            <button matSuffix mat-icon-button type="button"
+                    (click)="showPassword.set(!showPassword())">
+              <mat-icon>{{ showPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+            </button>
+          </mat-form-field>
+
+          @if (error()) {
+            <mat-error class="error-box">
+              <mat-icon>error_outline</mat-icon>
+              {{ error() }}
+            </mat-error>
+          }
+
+          <button mat-flat-button type="submit" class="w-100 submit-btn"
+                  [disabled]="form.invalid || loading()">
+            @if (loading()) { <mat-spinner diameter="18" /> } @else { Sign in }
+          </button>
+
+        </form>
+      </mat-card-content>
+    </mat-card>
+
+    <p class="login-footer">Don't have an account? Contact your administrator.</p>
+  </div>
+</div>

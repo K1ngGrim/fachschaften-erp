@@ -1,7 +1,10 @@
+using Fachschaften_ERP.Models;
+using Fachschaften_ERP.Models.Entities.Identity;
 using Fachschaften_ERP.Models.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Fachschaften_ERP.Api.Controller.Identity;
 
@@ -9,7 +12,10 @@ namespace Fachschaften_ERP.Api.Controller.Identity;
 [Route("/api/auth")]
 public class AuthController(
     SignInManager<IdentityUserEntity> signInManager,
-    UserManager<IdentityUserEntity> userManager) : ControllerBase
+    UserManager<IdentityUserEntity> userManager,
+    RoleManager<IdentityRoleEntity> roleManager,
+    CoreContext coreContext
+    ) : ControllerBase
 {
     [HttpPost("login")]
     public async Task<IActionResult> Login(LoginRequest request)
@@ -55,10 +61,22 @@ public class AuthController(
         var user = await userManager.GetUserAsync(User);
         if (user is null) return Unauthorized();
 
-        var roles = await userManager.GetRolesAsync(user);
-        return Ok(new { user.Id, user.UserName, user.Email, Roles = roles });
+        var roles = await coreContext.UserRoles
+            .Where(ur => ur.UserId == user.Id)
+            .Join(coreContext.Roles, ur => ur.RoleId, r => r.Id, (ur, r) => r.Name!)
+            .ToArrayAsync();
+
+        var permissions = await coreContext.RoleClaims
+            .Where(rc => rc.ClaimType == "permission" &&
+                         coreContext.Roles.Any(r => roles.AsEnumerable().Contains(r.Name!) && r.Id == rc.RoleId))
+            .Select(rc => rc.ClaimValue!)
+            .Distinct()
+            .ToArrayAsync();
+
+        return Ok(new MeDto(user.Id, user.UserName ?? string.Empty, user.Email ?? string.Empty, roles, permissions));
     }
 }
 
+public record MeDto(Guid Id, string UserName, string Email, string[] Roles, string[] Permissions);
 public record LoginRequest(string UserName, string Password, bool RememberMe = false);
 public record RegisterRequest(string UserName, string? Email, string Password);

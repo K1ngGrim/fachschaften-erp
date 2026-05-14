@@ -95,7 +95,7 @@ public class PermissionsController : ControllerBase
 
     [RequirePermission(Permissions.PermissionsRead)]
     [HttpGet]
-    public IActionResult GetAll()
+    public async Task<ActionResult<IList<string>>> GetAll()
     {
         return Ok(Permissions.All);
     }

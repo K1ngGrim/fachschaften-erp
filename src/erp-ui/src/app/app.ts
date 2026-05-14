@@ -11,6 +11,5 @@ import { NavBar } from './shared/components/nav-bar/nav-bar';
 export class App {
   protected readonly title = signal('portal');
 
-  constructor() {
-  }
+  constructor() {}
 }

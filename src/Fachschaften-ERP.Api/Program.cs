@@ -1,5 +1,6 @@
 using Fachschaften_ERP.Api.Services;
 using Fachschaften_ERP.Models;
+using Fachschaften_ERP.Models.Entities.Identity;
 using Fachschaften_ERP.Models.Identity;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;

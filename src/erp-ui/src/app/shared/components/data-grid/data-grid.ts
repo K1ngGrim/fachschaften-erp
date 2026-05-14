@@ -7,23 +7,11 @@ import {
   input,
   QueryList,
   signal,
-  TemplateRef,
+  TemplateRef
 } from '@angular/core';
-import {
-  MatCell,
-  MatCellDef,
-  MatColumnDef,
-  MatHeaderCell,
-  MatHeaderCellDef,
-  MatHeaderRow,
-  MatHeaderRowDef,
-  MatRow,
-  MatRowDef,
-  MatTable,
-} from '@angular/material/table';
 import { MatIcon, MatIconModule } from '@angular/material/icon';
 import { MatIconButton } from '@angular/material/button';
-import { MatFormField, MatInput, MatLabel, MatPrefix, MatSuffix } from '@angular/material/input';
+import { MatFormField, MatInput, MatPrefix, MatSuffix } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
 import { NgTemplateOutlet } from '@angular/common';
 
@@ -35,21 +23,11 @@ export class GridActionCellDirective {
 @Component({
   selector: 'app-data-grid',
   imports: [
-    MatCell,
-    MatCellDef,
-    MatColumnDef,
-    MatHeaderCell,
-    MatHeaderRow,
-    MatHeaderRowDef,
     MatIcon,
     MatIconButton,
-    MatRow,
-    MatRowDef,
-    MatTable,
     MatFormField,
     MatInput,
     FormsModule,
-    MatHeaderCellDef,
     NgTemplateOutlet,
     MatIconModule,
     MatSuffix,
@@ -108,7 +86,7 @@ export interface GridColumn<T = any> {
   key: string;
   label: string;
   align?: 'start' | 'end' | 'center';
-  width?: string; // e.g. '200px', '20%'
-  cellTemplate?: TemplateRef<{ $implicit: T }>;
+  width?: string;
+  cellTemplate?: TemplateRef<{ $implicit: T ; value: any }>;
   value?: (row: T) => any;
 }
