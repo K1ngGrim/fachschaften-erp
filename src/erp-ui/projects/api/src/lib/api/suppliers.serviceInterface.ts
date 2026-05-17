@@ -13,6 +13,7 @@ import { HttpHeaders }                                       from '@angular/comm
 
 import { Observable }                                        from 'rxjs';
 
+import { SupplierDto } from '../model/models';
 import { UpsertSupplierRequest } from '../model/models';
 
 
@@ -41,7 +42,7 @@ export interface SuppliersServiceInterface {
      * 
      * 
 */
-    apiSuppliersGet(extraHttpRequestParams?: any): Observable<{}>;
+    apiSuppliersGet(extraHttpRequestParams?: any): Observable<Array<SupplierDto>>;
 
     /**
      * 
@@ -55,13 +56,13 @@ export interface SuppliersServiceInterface {
      * 
 * @param requestParameters
      */
-    apiSuppliersIdGet(requestParameters: ApiSuppliersIdGetRequestParams, extraHttpRequestParams?: any): Observable<{}>;
+    apiSuppliersIdGet(requestParameters: ApiSuppliersIdGetRequestParams, extraHttpRequestParams?: any): Observable<Array<SupplierDto>>;
 
     /**
      * 
      * 
 * @param requestParameters
      */
-    apiSuppliersIdPut(requestParameters: ApiSuppliersIdPutRequestParams, extraHttpRequestParams?: any): Observable<{}>;
+    apiSuppliersIdPut(requestParameters: ApiSuppliersIdPutRequestParams, extraHttpRequestParams?: any): Observable<SupplierDto>;
 
 }

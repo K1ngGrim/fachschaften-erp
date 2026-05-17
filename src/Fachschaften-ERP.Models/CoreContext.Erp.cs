@@ -40,10 +40,7 @@ public partial class CoreContext
                 .HasForeignKey(p => p.ItemTypeId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            entity.HasOne(p => p.Supplier)
-                .WithMany(s => s.Products)
-                .HasForeignKey(p => p.SupplierId)
-                .OnDelete(DeleteBehavior.SetNull);
+            entity.HasOne(p => p.Supplier);
         });
 
         modelBuilder.Entity<ItemTypeEntity>(entity =>

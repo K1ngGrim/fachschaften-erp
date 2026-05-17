@@ -39,6 +39,7 @@ model/register-request.ts
 model/role-dto.ts
 model/setup2-fa-request.ts
 model/setup2-fa-result.ts
+model/supplier-dto.ts
 model/upsert-item-type-request.ts
 model/upsert-product-request.ts
 model/upsert-supplier-request.ts

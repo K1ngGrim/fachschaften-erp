@@ -1,0 +1,47 @@
+<div class="container-fluid p-4">
+  <app-page-header
+    [title]="'User'"
+    [subtitle]="'Manage your users here'"
+  >
+  </app-page-header>
+
+  <app-data-grid
+    [columns]="columns()"
+    [data]="suppliers()"
+    [searchable]="true"
+    [searchKeys]="['name', 'email']"
+    [toolbarTemplate]="gridHeaderActions"
+  >
+
+    <ng-template #gridHeaderActions>
+      <button mat-flat-button color="primary" class="d-flex" (click)="openAdd()">
+        <mat-icon svgIcon="plus" class="d-flex"></mat-icon>
+        <span>Add User</span>
+      </button>
+    </ng-template>
+
+    <!-- Action Column via Directive -->
+    <ng-template gridActionCell let-p>
+      <div class="d-flex gap-1 justify-content-end">
+        <button mat-icon-button matTooltip="View" color="primary" (click)="openView(p)">
+          <mat-icon>visibility</mat-icon>
+        </button>
+        <button mat-icon-button matTooltip="Edit" color="accent" (click)="openEdit(p)">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button matTooltip="Delete" color="warn" (click)="null">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+    </ng-template>
+  </app-data-grid>
+
+  <ng-template #roleTemplate let-row let-roles="value">
+    @for (role of roles; track role) {
+      <mat-chip color="primary" selected>
+        {{ role }}
+      </mat-chip>
+    }
+  </ng-template>
+
+</div>

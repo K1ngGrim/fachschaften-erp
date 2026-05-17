@@ -1,4 +1,4 @@
-using System.Security.Claims;
+using Fachschaften_ERP.Api.Models.Generic;
 using Fachschaften_ERP.Models;
 using Fachschaften_ERP.Models.Entities;
 using Microsoft.AspNetCore.Mvc;
@@ -11,19 +11,41 @@ namespace Fachschaften_ERP.Api.Controller;
 public class SuppliersController(CoreContext db) : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> GetAll() =>
-        Ok(await db.Suppliers.Where(x => x.IsActive).ToListAsync());
+    public async Task<ActionResult<IList<SupplierDto>>> GetAll()
+    {
+        var suppliers = await db.Suppliers
+            .Where(x => x.IsActive)
+            .Select(x => new SupplierDto
+            {
+                Id = x.Id,
+                Name = x.Name,
+            })
+            .ToListAsync();
+
+        return Ok(suppliers);
+    }
 
     [HttpGet("{id:guid}")]
-    public async Task<IActionResult> Get(Guid id)
+    public async Task<ActionResult<IList<SupplierDto>>> Get(Guid id)
     {
-        var entity = await db.Suppliers.FirstOrDefaultAsync(x => x.Id == id && x.IsActive);
+        var entity = await db.Suppliers
+            .Where(x => x.Id == id && x.IsActive)
+            .Select(x => new SupplierDto
+            {
+                Id = x.Id,
+                Name = x.Name,
+            })
+            .FirstOrDefaultAsync();
+
         return entity is null ? NotFound() : Ok(entity);
     }
 
     [HttpPut("{id:guid?}")]
-    public async Task<IActionResult> Upsert(Guid? id, UpsertSupplierRequest request)
+    public async Task<ActionResult<SupplierDto>> Upsert(Guid? id, UpsertSupplierRequest request)
     {
+
+        var invoker = (Invoker)User;
+
         if (id is null)
         {
             var entity = new SupplierEntity
@@ -31,12 +53,16 @@ public class SuppliersController(CoreContext db) : ControllerBase
                 Id = Guid.NewGuid(),
                 Name = request.Name,
                 Created = DateTimeOffset.UtcNow,
-                CreatorId = GetUserId(),
+                CreatorId = invoker.UserId,
                 IsActive = true,
             };
             db.Suppliers.Add(entity);
             await db.SaveChangesAsync();
-            return CreatedAtAction(nameof(Get), new { id = entity.Id }, entity);
+            return CreatedAtAction(nameof(Get), new { id = entity.Id }, new SupplierDto
+            {
+                Id = entity.Id,
+                Name = entity.Name
+            });
         }
         else
         {
@@ -45,7 +71,7 @@ public class SuppliersController(CoreContext db) : ControllerBase
 
             entity.Name = request.Name;
             entity.Modified = DateTimeOffset.UtcNow;
-            entity.ModifierId = GetUserId();
+            entity.ModifierId = invoker.UserId;
 
             await db.SaveChangesAsync();
             return Ok(entity);
@@ -55,19 +81,19 @@ public class SuppliersController(CoreContext db) : ControllerBase
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id)
     {
+        var invoker = (Invoker)User;
+
         var entity = await db.Suppliers.FirstOrDefaultAsync(x => x.Id == id && x.IsActive);
         if (entity is null) return NotFound();
 
         entity.IsActive = false;
         entity.Modified = DateTimeOffset.UtcNow;
-        entity.ModifierId = GetUserId();
+        entity.ModifierId = invoker.UserId;
 
         await db.SaveChangesAsync();
         return NoContent();
     }
-
-    private Guid GetUserId() =>
-        Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? Guid.Empty.ToString());
 }
 
+public class SupplierDto : SupplierBase;
 public record UpsertSupplierRequest(string Name);

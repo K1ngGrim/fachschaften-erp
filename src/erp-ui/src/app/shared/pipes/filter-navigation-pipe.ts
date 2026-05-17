@@ -1,6 +1,6 @@
 import { inject, Pipe, PipeTransform } from '@angular/core';
-import { Auth } from '../services/auth';
-import { NavigationItem } from '../services/navigation';
+import { Auth } from '../../core/services/auth';
+import { NavigationItem } from '../../core/services/navigation';
 
 @Pipe({
   name: 'filterNavigation',

@@ -12,13 +12,13 @@ import { FormsModule } from '@angular/forms';
 import { MatButton } from '@angular/material/button';
 import { MatDivider } from '@angular/material/list';
 import { MatOption, MatSelect } from '@angular/material/select';
-import { RoleDto, RolesService, UserDto } from '../../../../../../projects/api/src/lib';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
+import { RoleDto, RolesService, UserDto } from '../../../../../../../projects/api/src/lib';
 
-export type UserDialogMode = 'add' | 'edit' | 'view';
+export type DialogMode = 'add' | 'edit' | 'view';
 
 export interface UserDialogData {
-  mode: UserDialogMode;
+  mode: DialogMode;
   user?: UserDto;
 }
 
@@ -55,7 +55,6 @@ export class UserDialog {
   public availableRoles = signal<RoleDto[]>([]);
 
   loading = signal(false);
-  showPassword = signal(false);
 
   get isAdd() {
     return this.data.mode === 'add';

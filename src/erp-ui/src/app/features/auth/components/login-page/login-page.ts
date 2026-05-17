@@ -7,8 +7,8 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { lastValueFrom } from 'rxjs';
-import { Auth } from '../../../shared/services/auth';
-import { AuthService } from '../../../../../projects/api/src/lib';
+import { Auth } from '../../../../core/services/auth';
+import { AuthService } from '../../../../../../projects/api/src/lib';
 
 @Component({
   selector: 'app-login-page',

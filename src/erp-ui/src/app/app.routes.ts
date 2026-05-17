@@ -1,27 +1,27 @@
 import { Routes } from '@angular/router';
-import { authGuard, setup2faGuard } from './shared/services/auth-guard';
+import { authGuard, setup2faGuard } from './core/guards/auth-guard';
 import { AppShell } from './shared/components/app-shell/app-shell';
 
 export const routes: Routes = [
   {
-    path: 'login/2fa', loadComponent: () => import('./pages/landing/login-two-fa-page/login-two-fa-page')
+    path: 'login/2fa', loadComponent: () => import('./features/auth/components/login-two-fa-page/login-two-fa-page')
       .then(m => m.LoginTwoFaPage)
   },
   {
     path: 'login',
-    loadComponent: () => import('./pages/landing/login-page/login-page').then((m) => m.LoginPage),
+    loadComponent: () => import('./features/auth/components/login-page/login-page').then((m) => m.LoginPage),
   },
   {
     path: 'accept-invite',
     loadComponent: () =>
-      import('./pages/landing/accept-invite-page/accept-invite-page').then(
+      import('./features/auth/components/accept-invite-page/accept-invite-page').then(
         (m) => m.AcceptInvitePage,
       ),
   },
   {
     path: 'setup-2fa',
     loadComponent: () =>
-      import('./pages/landing/setup-fa-page/setup-fa-page').then((m) => m.Setup2faPage),
+      import('./features/auth/components/setup-fa-page/setup-fa-page').then((m) => m.Setup2faPage),
   },
   {
     path: '',
@@ -33,7 +33,7 @@ export const routes: Routes = [
         path: 'users',
         //canActivate: [permissionGuard('users.canread')],
         loadComponent: () =>
-          import('./pages/administration/user/user-page/user-page').then((m) => m.UserPage),
+          import('./features/administration/users/components/user-page/user-page').then((m) => m.UserPage),
       },
       {
         path: '',

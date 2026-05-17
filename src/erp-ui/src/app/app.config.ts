@@ -13,7 +13,7 @@ import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/
 import { registerLocaleData } from '@angular/common';
 import localeDe from '@angular/common/locales/de';
 import { BASE_PATH } from '../../projects/api/src/lib';
-import { Auth } from './shared/services/auth';
+import { Auth } from './core/services/auth';
 
 registerLocaleData(localeDe);
 

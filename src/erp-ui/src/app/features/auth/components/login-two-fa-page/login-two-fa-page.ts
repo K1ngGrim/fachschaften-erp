@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { AuthService } from '../../../../../projects/api/src/lib';
-import { Auth } from '../../../shared/services/auth';
+import { AuthService } from '../../../../../../projects/api/src/lib';
+import { Auth } from '../../../../core/services/auth';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { lastValueFrom } from 'rxjs';
 import { MatIcon } from '@angular/material/icon';

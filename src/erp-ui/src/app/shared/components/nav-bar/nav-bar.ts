@@ -6,7 +6,7 @@ import { MatSidenav, MatSidenavContainer, MatSidenavContent } from '@angular/mat
 import { MatListItem, MatNavList } from '@angular/material/list';
 import { MatIcon } from '@angular/material/icon';
 import { MatTooltip } from '@angular/material/tooltip';
-import { Navigation } from '../../services/navigation';
+import { Navigation } from '../../../core/services/navigation';
 import {
   NavigationCancel,
   NavigationEnd,
@@ -18,7 +18,7 @@ import {
 import { filter, Subscription } from 'rxjs';
 import { FilterNavigationPipe } from '../../pipes/filter-navigation-pipe';
 import { MatProgressBar } from '@angular/material/progress-bar';
-import { Auth } from '../../services/auth';
+import { Auth } from '../../../core/services/auth';
 
 @Component({
   selector: 'app-nav-bar',

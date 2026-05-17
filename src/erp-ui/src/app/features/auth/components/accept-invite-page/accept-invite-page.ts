@@ -1,6 +1,6 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { InviteService } from '../../../../../projects/api/src/lib';
+import { InviteService } from '../../../../../../projects/api/src/lib';
 import {
   AbstractControl,
   FormControl,

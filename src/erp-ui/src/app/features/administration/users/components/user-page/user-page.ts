@@ -1,14 +1,14 @@
 import { Component, inject, OnInit, signal, TemplateRef, viewChild } from '@angular/core';
-import { DataGrid, GridActionCellDirective, GridColumn } from '../../../../shared/components/data-grid/data-grid';
+import { DataGrid, GridActionCellDirective, GridColumn } from '../../../../../shared/components/data-grid/data-grid';
 import { MatIcon } from '@angular/material/icon';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatTooltip } from '@angular/material/tooltip';
-import { PageHeader } from '../../../../shared/components/page-header/page-header';
+import { PageHeader } from '../../../../../shared/components/page-header/page-header';
 import { lastValueFrom } from 'rxjs';
 import { MatChip } from '@angular/material/chips';
 import { MatDialog } from '@angular/material/dialog';
 import { UserDialog, UserDialogData, UserInviteData } from '../user-dialog/user-dialog';
-import { InviteService, UserDto, UsersService } from '../../../../../../projects/api/src/lib';
+import { InviteService, UserDto, UsersService } from '../../../../../../../projects/api/src/lib';
 
 @Component({
   selector: 'app-user-page',

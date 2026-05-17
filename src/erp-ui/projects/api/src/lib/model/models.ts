@@ -11,6 +11,7 @@ export * from './register-request';
 export * from './role-dto';
 export * from './setup2-fa-request';
 export * from './setup2-fa-result';
+export * from './supplier-dto';
 export * from './upsert-item-type-request';
 export * from './upsert-product-request';
 export * from './upsert-supplier-request';
