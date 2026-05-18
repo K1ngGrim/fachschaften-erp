@@ -12,7 +12,7 @@
 
 
 export interface ChangePasswordRequest { 
-    currentPassword: string;
-    newPassword: string;
+    currentPassword: any | null;
+    newPassword: any | null;
 }
 

@@ -1,3 +1,5 @@
+using System.Text.Json.Nodes;
+using Fachschaften_ERP.Api.Models;
 using Fachschaften_ERP.Api.Services;
 using Fachschaften_ERP.Api.Services.Interfaces;
 using Fachschaften_ERP.Models;
@@ -6,7 +8,9 @@ using Fachschaften_ERP.Models.Provider;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,7 +24,22 @@ builder
 
 var connectionString = builder.Configuration.GetConnectionString("Database");
 
-builder.Services.AddOpenApi();
+builder.Services.AddOpenApi(options =>
+{
+    options.AddSchemaTransformer((schema, context, ct) =>
+    {
+        if (context.JsonTypeInfo.Type != typeof(PermissionType))
+            return Task.CompletedTask;
+
+        schema.Type = JsonSchemaType.String;
+        schema.Format = null;
+        schema.Enum = Enum.GetValues<PermissionType>()
+            .Select(p => JsonNode.Parse($"\"{p.GetDescription()}\""))
+            .ToList();
+
+        return Task.CompletedTask;
+    });
+});
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerUI();
 builder.Services.AddControllers();
@@ -92,6 +111,10 @@ builder.Services.ConfigureApplicationCookie(options =>
     };
 });
 
+builder.Services.ConfigureHttpJsonOptions(options =>
+    options.SerializerOptions.Converters.Add(new PermissionJsonConverter()));
+builder.Services.Configure<JsonOptions>(options =>
+    options.JsonSerializerOptions.Converters.Add(new PermissionJsonConverter()));
 
 builder.Services.AddSingleton<IAuthorizationHandler, PermissionHandler>();
 builder.Services.AddScoped<IEmailSender, DevEmailSender>();

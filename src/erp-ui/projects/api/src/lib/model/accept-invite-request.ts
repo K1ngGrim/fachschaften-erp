@@ -12,8 +12,8 @@
 
 
 export interface AcceptInviteRequest { 
-    inviteId: string;
-    token: string;
-    password: string;
+    inviteId: any | null;
+    token: any | null;
+    password: any | null;
 }
 

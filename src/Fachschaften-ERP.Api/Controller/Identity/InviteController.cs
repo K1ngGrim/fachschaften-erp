@@ -22,7 +22,7 @@ public class InviteController(
     CoreContext core,
     IConfiguration config) : ControllerBase
 {
-    [RequirePermission(Permissions.UsersWrite)]
+    [RequirePermission(PermissionType.UsersWrite)]
     [HttpPost]
     public async Task<IActionResult> Invite(
         InviteRequest request

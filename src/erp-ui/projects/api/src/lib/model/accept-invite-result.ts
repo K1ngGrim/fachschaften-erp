@@ -12,6 +12,6 @@
 
 
 export interface AcceptInviteResult { 
-    require2Fa: boolean;
+    require2Fa: any | null;
 }
 

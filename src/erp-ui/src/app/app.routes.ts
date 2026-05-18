@@ -4,12 +4,16 @@ import { AppShell } from './shared/components/app-shell/app-shell';
 
 export const routes: Routes = [
   {
-    path: 'login/2fa', loadComponent: () => import('./features/auth/components/login-two-fa-page/login-two-fa-page')
-      .then(m => m.LoginTwoFaPage)
+    path: 'login/2fa',
+    loadComponent: () =>
+      import('./features/auth/components/login-two-fa-page/login-two-fa-page').then(
+        (m) => m.LoginTwoFaPage,
+      ),
   },
   {
     path: 'login',
-    loadComponent: () => import('./features/auth/components/login-page/login-page').then((m) => m.LoginPage),
+    loadComponent: () =>
+      import('./features/auth/components/login-page/login-page').then((m) => m.LoginPage),
   },
   {
     path: 'accept-invite',
@@ -33,7 +37,15 @@ export const routes: Routes = [
         path: 'users',
         //canActivate: [permissionGuard('users.canread')],
         loadComponent: () =>
-          import('./features/administration/users/components/user-page/user-page').then((m) => m.UserPage),
+          import('./features/administration/users/components/user-page/user-page').then(
+            (m) => m.UserPage,
+          ),
+      },
+      {
+        path: 'inventory',
+        //canActivate: [permissionGuard('users.canread')],
+        loadComponent: () =>
+          import('./pages/inventory/inventory-page/inventory-page').then((m) => m.InventoryPage),
       },
       {
         path: '',
@@ -41,12 +53,6 @@ export const routes: Routes = [
           import('./pages/dashboard/dashboard-page/dashboard-page').then((m) => m.DashboardPage),
       },
     ],
-  },
-
-  {
-    path: 'inventory',
-    loadComponent: () =>
-      import('./pages/inventory/inventory-page/inventory-page').then((m) => m.InventoryPage),
   },
 
   {

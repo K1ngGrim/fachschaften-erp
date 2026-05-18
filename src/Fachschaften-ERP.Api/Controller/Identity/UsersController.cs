@@ -127,7 +127,7 @@ public class UsersController(
         return NoContent();
     }
 
-    [RequirePermission(Permissions.PermissionsRead)]
+    [RequirePermission(PermissionType.PermissionsRead)]
     [HttpGet("{id:guid}/permissions")]
     public async Task<IActionResult> GetPermissions(Guid id)
     {
@@ -140,7 +140,7 @@ public class UsersController(
             .Select(c => c.Value));
     }
 
-    [RequirePermission(Permissions.PermissionsWrite)]
+    [RequirePermission(PermissionType.PermissionsWrite)]
     [HttpPost("{id:guid}/permissions/{permission}")]
     public async Task<IActionResult> AddPermission(Guid id, string permission)
     {
@@ -157,7 +157,7 @@ public class UsersController(
         return NoContent();
     }
 
-    [RequirePermission(Permissions.PermissionsWrite)]
+    [RequirePermission(PermissionType.PermissionsWrite)]
     [HttpDelete("{id:guid}/permissions/{permission}")]
     public async Task<IActionResult> RemovePermission(Guid id, string permission)
     {

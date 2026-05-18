@@ -29,16 +29,13 @@ import { lastValueFrom } from 'rxjs';
   styleUrl: './suppliers-page.scss',
 })
 export class SuppliersPage {
-
   public supplierController = inject(SuppliersService);
 
   public suppliers = signal<SupplierDto[]>([]);
   public columns = signal<GridColumn<SupplierDto>[]>([]);
 
   public async ngOnInit() {
-    this.columns.set([
-      { key: 'name', label: 'Name' },
-    ]);
+    this.columns.set([{ key: 'name', label: 'Name' }]);
 
     await this.loadSuppliers();
   }
@@ -48,15 +45,9 @@ export class SuppliersPage {
     this.suppliers.set(suppliers);
   }
 
-  public async openAdd() {
+  public async openAdd() {}
 
-  }
+  public async openEdit(p: SupplierDto) {}
 
-  public async openEdit() {
-
-  }
-
-  public async openView() {
-
-  }
+  public async openView(p: SupplierDto) {}
 }

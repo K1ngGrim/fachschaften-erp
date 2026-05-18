@@ -12,9 +12,9 @@
 
 
 export interface UserDto { 
-    id: string;
-    userName: string | null;
-    email: string | null;
-    roles: Array<string>;
+    id: any | null;
+    userName: any | null;
+    email: any | null;
+    roles: any | null;
 }
 

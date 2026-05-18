@@ -12,9 +12,9 @@
 
 
 export interface LoginResult { 
-    requiresTwoFactor: boolean;
-    id?: string | null;
-    userName?: string | null;
-    email?: string | null;
+    requiresTwoFactor: any | null;
+    id?: any | null;
+    userName?: any | null;
+    email?: any | null;
 }
 

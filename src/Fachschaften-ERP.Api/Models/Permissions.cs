@@ -1,35 +1,56 @@
+using System.ComponentModel;
 using System.Reflection;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Fachschaften_ERP.Api.Models;
 
 public static class Permissions
 {
-    // Item Types
-    public const string ItemTypesRead  = "itemtypes.canread";
-    public const string ItemTypesWrite = "itemtypes.canwrite";
+    public static string GetDescription(this PermissionType permissionType) =>
+        typeof(PermissionType)
+            .GetField(permissionType.ToString())
+            ?.GetCustomAttribute<DescriptionAttribute>()?.Description
+        ?? permissionType.ToString();
 
-    // Products
-    public const string ProductsRead  = "products.canread";
-    public const string ProductsWrite = "products.canwrite";
+    public static IEnumerable<string> All =>
+        Enum.GetValues<PermissionType>().Select(p => p.GetDescription());
+}
 
-    // Suppliers
-    public const string SuppliersRead  = "suppliers.canread";
-    public const string SuppliersWrite = "suppliers.canwrite";
+// Permission.cs
+[JsonConverter(typeof(JsonStringEnumConverter))]
+public enum PermissionType
+{
+    [Description("itemtypes.canread")]  ItemTypesRead,
+    [Description("itemtypes.canwrite")] ItemTypesWrite,
+    [Description("products.canread")]   ProductsRead,
+    [Description("products.canwrite")]  ProductsWrite,
+    [Description("suppliers.canread")]  SuppliersRead,
+    [Description("suppliers.canwrite")] SuppliersWrite,
+    [Description("users.canread")]      UsersRead,
+    [Description("users.canwrite")]     UsersWrite,
+    [Description("roles.canread")]      RolesRead,
+    [Description("roles.canwrite")]     RolesWrite,
+    [Description("permissions.canread")]  PermissionsRead,
+    [Description("permissions.canwrite")] PermissionsWrite,
+}
 
-    // Users
-    public const string UsersRead  = "users.canread";
-    public const string UsersWrite = "users.canwrite";
+public class PermissionJsonConverter : JsonConverter<PermissionType>
+{
+    public override PermissionType Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        var value = reader.GetString();
+        return typeof(PermissionType)
+            .GetFields()
+            .FirstOrDefault(f => f.GetCustomAttribute<DescriptionAttribute>()?.Description == value)
+            ?.GetValue(null) is PermissionType p ? p : throw new JsonException($"Unknown permission: {value}");
+    }
 
-    // Roles
-    public const string RolesRead  = "roles.canread";
-    public const string RolesWrite = "roles.canwrite";
-
-    // Permissions
-    public const string PermissionsRead  = "permissions.canread";
-    public const string PermissionsWrite = "permissions.canwrite";
-
-    public static IEnumerable<string> All => typeof(Permissions)
-        .GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy)
-        .Where(f => f is { IsLiteral: true, IsInitOnly: false })
-        .Select(f => (string)f.GetRawConstantValue()!);
+    public override void Write(Utf8JsonWriter writer, PermissionType value, JsonSerializerOptions options)
+    {
+        var description = typeof(PermissionType)
+            .GetField(value.ToString())
+            ?.GetCustomAttribute<DescriptionAttribute>()?.Description ?? value.ToString();
+        writer.WriteStringValue(description);
+    }
 }

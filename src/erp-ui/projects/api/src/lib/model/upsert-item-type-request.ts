@@ -12,7 +12,7 @@
 
 
 export interface UpsertItemTypeRequest { 
-    name: string;
-    icon: string | null;
+    name: any | null;
+    icon: any | null;
 }
 

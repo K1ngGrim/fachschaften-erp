@@ -12,9 +12,9 @@
 
 
 export interface InviteRequest { 
-    userName: string;
-    email: string | null;
-    roles: Array<string>;
-    require2Fa: boolean;
+    userName: any | null;
+    email: any | null;
+    roles: any | null;
+    require2Fa: any | null;
 }
 

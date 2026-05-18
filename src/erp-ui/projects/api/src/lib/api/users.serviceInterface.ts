@@ -15,7 +15,6 @@ import { Observable }                                        from 'rxjs';
 
 import { ChangePasswordRequest } from '../model/models';
 import { UpsertUserRequest } from '../model/models';
-import { UserDto } from '../model/models';
 
 
 import { Configuration }                                     from '../configuration';
@@ -35,17 +34,17 @@ export interface ApiUsersIdGetRequestParams {
 }
 
 export interface ApiUsersIdPermissionsGetRequestParams {
-    id: string;
+    id: any;
 }
 
 export interface ApiUsersIdPermissionsPermissionDeleteRequestParams {
     id: string;
-    permission: string;
+    permission: any;
 }
 
 export interface ApiUsersIdPermissionsPermissionPostRequestParams {
     id: string;
-    permission: string;
+    permission: any;
 }
 
 export interface ApiUsersIdPostRequestParams {
@@ -64,7 +63,7 @@ export interface ApiUsersIdRolesRoleDeleteRequestParams {
 
 export interface ApiUsersIdRolesRoleIdPostRequestParams {
     id: string;
-    roleId: string;
+    roleId: any;
 }
 
 
@@ -76,7 +75,7 @@ export interface UsersServiceInterface {
      * 
      * 
 */
-    apiUsersGet(extraHttpRequestParams?: any): Observable<Array<UserDto>>;
+    apiUsersGet(extraHttpRequestParams?: any): Observable<any>;
 
     /**
      * 

@@ -12,14 +12,14 @@
 
 
 export interface UpsertProductRequest { 
-    name: string;
-    itemTypeId: string;
-    supplierId: string | null;
-    purchasePrice: number;
-    sellingPrice: number;
-    stock: number;
-    lowStockThreshold: number;
-    trackStock: boolean;
-    customFieldValues: string | null;
+    name: any | null;
+    itemTypeId: any | null;
+    supplierId: any | null;
+    purchasePrice: any | null;
+    sellingPrice: any | null;
+    stock: any | null;
+    lowStockThreshold: any | null;
+    trackStock: any | null;
+    customFieldValues: any | null;
 }
 

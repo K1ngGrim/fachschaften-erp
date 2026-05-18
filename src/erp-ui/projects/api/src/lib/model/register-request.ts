@@ -12,8 +12,8 @@
 
 
 export interface RegisterRequest { 
-    name: string;
-    email: string | null;
-    password: string;
+    name: any | null;
+    email: any | null;
+    password: any | null;
 }
 

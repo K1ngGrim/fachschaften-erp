@@ -12,7 +12,7 @@
 
 
 export interface SupplierDto { 
-    id?: string;
-    name?: string;
+    id?: any | null;
+    name?: any | null;
 }
 

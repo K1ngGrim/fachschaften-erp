@@ -15,7 +15,8 @@
           "fileNaming": "kebab-case",
           "useSingleRequestParameter": "true",
           "supportsES6": "true",
-          "stringEnums": "true"
+          "stringEnums": "true",
+          "enumPropertyNaming": "original"
         }
       }
     }

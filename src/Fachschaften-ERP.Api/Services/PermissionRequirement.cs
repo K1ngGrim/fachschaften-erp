@@ -1,3 +1,4 @@
+using Fachschaften_ERP.Api.Models;
 using Microsoft.AspNetCore.Authorization;
 
 namespace Fachschaften_ERP.Api.Services;
@@ -20,9 +21,9 @@ public class PermissionHandler(IHttpContextAccessor httpContextAccessor)
     }
 }
 
-public class RequirePermissionAttribute(string permission)
+public class RequirePermissionAttribute(PermissionType permission)
     : AuthorizeAttribute, IAuthorizationRequirementData
 {
     public IEnumerable<IAuthorizationRequirement> GetRequirements() =>
-        [new PermissionRequirement(permission)];
+        [new PermissionRequirement(permission.GetDescription())];
 }

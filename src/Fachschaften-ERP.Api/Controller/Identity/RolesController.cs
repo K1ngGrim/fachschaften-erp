@@ -99,11 +99,11 @@ public class RolesController(RoleManager<IdentityRoleEntity> roleManager, CoreCo
 public class PermissionsController : ControllerBase
 {
 
-    [RequirePermission(Permissions.PermissionsRead)]
+    [RequirePermission(PermissionType.PermissionsRead)]
     [HttpGet]
-    public async Task<ActionResult<IList<string>>> GetAll()
+    public async Task<ActionResult<IList<PermissionType>>> GetAll()
     {
-        return Ok(Permissions.All);
+        return Ok(Enum.GetValues<PermissionType>());
     }
 }
 

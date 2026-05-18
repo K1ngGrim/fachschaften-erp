@@ -12,7 +12,7 @@
 
 
 export interface Setup2FaResult { 
-    qrCode: string;
-    secret: string;
+    qrCode: any | null;
+    secret: any | null;
 }
 

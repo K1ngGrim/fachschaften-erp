@@ -12,9 +12,9 @@
 
 
 export interface UpsertUserRequest { 
-    userName: string | null;
-    email: string | null;
-    roles: Array<string>;
-    permissions: Array<string>;
+    userName: any | null;
+    email: any | null;
+    roles: any | null;
+    permissions: any | null;
 }
 

@@ -12,8 +12,8 @@
 
 
 export interface LoginRequest { 
-    email: string;
-    password: string;
-    rememberMe?: boolean;
+    email: any | null;
+    password: any | null;
+    rememberMe?: any | null;
 }
 

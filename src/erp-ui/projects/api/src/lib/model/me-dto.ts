@@ -12,11 +12,11 @@
 
 
 export interface MeDto { 
-    id: string;
-    userName: string;
-    email: string;
-    roles: Array<string>;
-    permissions: Array<string>;
-    claims: Array<string>;
+    id: any | null;
+    userName: any | null;
+    email: any | null;
+    roles: any | null;
+    permissions: any | null;
+    claims: any | null;
 }
 

@@ -12,7 +12,7 @@
 
 
 export interface Login2FaRequest { 
-    code: string;
-    rememberMe?: boolean;
+    code: any | null;
+    rememberMe?: any | null;
 }
 

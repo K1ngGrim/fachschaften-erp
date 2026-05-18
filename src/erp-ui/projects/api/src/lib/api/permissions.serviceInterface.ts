@@ -27,6 +27,6 @@ export interface PermissionsServiceInterface {
      * 
      * 
 */
-    apiPermissionsGet(extraHttpRequestParams?: any): Observable<Array<string>>;
+    apiPermissionsGet(extraHttpRequestParams?: any): Observable<any>;
 
 }

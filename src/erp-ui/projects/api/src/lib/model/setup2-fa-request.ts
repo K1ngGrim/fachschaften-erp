@@ -12,6 +12,6 @@
 
 
 export interface Setup2FaRequest { 
-    code: string;
+    code: any | null;
 }
 
