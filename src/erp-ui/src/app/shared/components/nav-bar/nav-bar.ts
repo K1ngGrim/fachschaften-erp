@@ -13,7 +13,7 @@ import {
   NavigationStart,
   Router,
   RouterLink,
-  RouterLinkActive
+  RouterLinkActive,
 } from '@angular/router';
 import { filter, Subscription } from 'rxjs';
 import { FilterNavigationPipe } from '../../pipes/filter-navigation-pipe';

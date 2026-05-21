@@ -14,7 +14,7 @@ import {
   LinearScale,
   LineElement,
   PointElement,
-  Tooltip
+  Tooltip,
 } from 'chart.js';
 import { DataService } from '../../../shared/services/data.service';
 

@@ -42,7 +42,6 @@ export class LoginPage {
   public error = signal<string | null>(null);
   public showPassword = signal(false);
 
-
   async submit() {
     if (this.form.invalid) return;
     this.loading.set(true);

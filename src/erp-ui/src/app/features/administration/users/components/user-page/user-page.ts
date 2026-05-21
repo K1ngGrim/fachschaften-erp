@@ -1,5 +1,9 @@
 import { Component, inject, OnInit, signal, TemplateRef, viewChild } from '@angular/core';
-import { DataGrid, GridActionCellDirective, GridColumn } from '../../../../../shared/components/data-grid/data-grid';
+import {
+  DataGrid,
+  GridActionCellDirective,
+  GridColumn,
+} from '../../../../../shared/components/data-grid/data-grid';
 import { MatIcon } from '@angular/material/icon';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatTooltip } from '@angular/material/tooltip';

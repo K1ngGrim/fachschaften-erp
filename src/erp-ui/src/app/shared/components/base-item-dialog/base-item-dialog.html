@@ -1,0 +1,66 @@
+<h2 mat-dialog-title>{{ config.title }}</h2>
+
+<mat-dialog-content class="pt-2">
+  <div class="d-flex flex-column gap-3">
+    <form [formGroup]="form">
+      @for (field of config.fields; track field.key) {
+
+        @if (field.type === 'text') {
+          <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
+            <mat-label>{{ field.label }}</mat-label>
+            <input matInput [formControlName]="field.key"
+                   [placeholder]="asText(field).placeholder ?? ''"
+                   [readonly]="config.readonly" />
+          </mat-form-field>
+        }
+
+        @if (field.type === 'number') {
+          <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
+            <mat-label>{{ field.label }}</mat-label>
+            <input matInput type="number" [formControlName]="field.key"
+                   [placeholder]="asNumber(field).placeholder ?? ''"
+                   [readonly]="config.readonly" />
+          </mat-form-field>
+        }
+
+        @if (field.type === 'date') {
+          <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
+            <mat-label>{{ field.label }}</mat-label>
+            <input matInput type="date" [formControlName]="field.key"
+                   [readonly]="config.readonly" />
+          </mat-form-field>
+        }
+
+        @if (field.type === 'select') {
+          <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
+            <mat-label>{{ field.label }}</mat-label>
+            <mat-select [formControlName]="field.key">
+              @for (opt of asSelect(field).options; track opt.value) {
+                <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        }
+
+        @if (field.type === 'boolean') {
+          <mat-slide-toggle [formControlName]="field.key">
+            {{ field.label }}
+          </mat-slide-toggle>
+        }
+
+      }
+    </form>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()">
+    {{ config.readonly ? 'Close' : 'Cancel' }}
+  </button>
+  @if (!config.readonly) {
+    <button mat-raised-button color="primary" (click)="save()"
+            [disabled]="form.invalid">
+      {{ config.data ? 'Save Changes' : 'Create' }}
+    </button>
+  }
+</mat-dialog-actions>

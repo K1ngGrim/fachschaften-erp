@@ -6,7 +6,7 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { lastValueFrom } from 'rxjs';
 import { MatIcon } from '@angular/material/icon';
 import { MatCard, MatCardContent } from '@angular/material/card';
-import { MatError, MatFormField, MatInput, MatLabel } from '@angular/material/input';
+import { MatError } from '@angular/material/input';
 import { MatButton } from '@angular/material/button';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { NgOtpInputComponent } from 'ng-otp-input';
@@ -18,9 +18,6 @@ import { NgOtpInputComponent } from 'ng-otp-input';
     MatCard,
     MatCardContent,
     ReactiveFormsModule,
-    MatFormField,
-    MatLabel,
-    MatInput,
     MatError,
     MatButton,
     MatProgressSpinner,

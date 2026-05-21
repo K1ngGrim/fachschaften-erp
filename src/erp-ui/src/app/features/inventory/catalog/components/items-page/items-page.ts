@@ -5,7 +5,6 @@ import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
 import { DataService } from '../../../../../shared/services/data.service';
-import { ItemDialogComponent } from '../../../../../pages/items/item-dialog/item-dialog.component';
 import type { Product } from '../../../../../shared/models';
 import { PageHeader } from '../../../../../shared/components/page-header/page-header';
 import {

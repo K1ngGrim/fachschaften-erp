@@ -1,12 +1,16 @@
-import { Component, computed, inject, signal } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogActions, MatDialogContent, MatDialogRef, MatDialogTitle } from '@angular/material/dialog';
+import { Component, inject, signal } from '@angular/core';
+import {
+  MAT_DIALOG_DATA,
+  MatDialogActions,
+  MatDialogContent,
+  MatDialogRef,
+  MatDialogTitle,
+} from '@angular/material/dialog';
 import { MatFormField, MatInput, MatLabel } from '@angular/material/input';
 import { MatOption, MatSelect } from '@angular/material/select';
 import { FormsModule } from '@angular/forms';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
-import { MatDivider } from '@angular/material/list';
-import { MatCheckbox } from '@angular/material/checkbox';
-import type { CustomField, Product } from '../../../../../shared/models';
+import type { Product } from '../../../../../shared/models';
 import { MatButton } from '@angular/material/button';
 import {
   CustomFieldsService,
@@ -27,8 +31,6 @@ import { lastValueFrom } from 'rxjs';
     MatOption,
     MatInput,
     MatSlideToggle,
-    MatDivider,
-    MatCheckbox,
     MatDialogActions,
     MatButton,
   ],

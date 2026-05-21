@@ -1,14 +1,13 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { AuthService, TwoFactorService } from '../../../../../../projects/api/src/lib';
+import { TwoFactorService } from '../../../../../../projects/api/src/lib';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatIcon } from '@angular/material/icon';
 import { MatCard, MatCardContent } from '@angular/material/card';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
-import { NgOptimizedImage } from '@angular/common';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatDivider } from '@angular/material/list';
-import { MatError, MatFormField, MatInput, MatLabel } from '@angular/material/input';
+import { MatError } from '@angular/material/input';
 import { MatTooltip } from '@angular/material/tooltip';
 import { lastValueFrom } from 'rxjs';
 import { NgOtpInputComponent } from 'ng-otp-input';
@@ -20,14 +19,10 @@ import { NgOtpInputComponent } from 'ng-otp-input';
     MatCard,
     MatCardContent,
     MatProgressSpinner,
-    NgOptimizedImage,
     MatIconButton,
     MatDivider,
     ReactiveFormsModule,
-    MatFormField,
-    MatLabel,
     MatError,
-    MatInput,
     MatButton,
     MatTooltip,
     NgOtpInputComponent,

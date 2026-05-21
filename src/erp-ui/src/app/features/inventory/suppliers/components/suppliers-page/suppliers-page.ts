@@ -9,8 +9,7 @@ import { MatChip } from '@angular/material/chips';
 import { MatIcon } from '@angular/material/icon';
 import { MatTooltip } from '@angular/material/tooltip';
 import { PageHeader } from '../../../../../shared/components/page-header/page-header';
-import { SupplierDto, SuppliersService, UserDto } from '../../../../../../../projects/api/src/lib';
-import { SupplierDialog } from '../supplier-dialog/supplier-dialog';
+import { SupplierDto, SuppliersService } from '../../../../../../../projects/api/src/lib';
 import { lastValueFrom } from 'rxjs';
 
 @Component({
