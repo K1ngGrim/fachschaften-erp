@@ -1,10 +1,10 @@
 using System.Text.Json.Nodes;
 using Fachschaften_ERP.Api.Models;
+using Fachschaften_ERP.Api.Provider;
 using Fachschaften_ERP.Api.Services;
 using Fachschaften_ERP.Api.Services.Interfaces;
 using Fachschaften_ERP.Models;
 using Fachschaften_ERP.Models.Entities.Identity;
-using Fachschaften_ERP.Models.Provider;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -35,7 +35,7 @@ builder.Services.AddOpenApi(options =>
         schema.Format = null;
         schema.Enum = Enum.GetValues<PermissionType>()
             .Select(p => JsonNode.Parse($"\"{p.GetDescription()}\""))
-            .ToList();
+            .ToList()!;
 
         return Task.CompletedTask;
     });

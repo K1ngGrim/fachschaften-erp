@@ -8,6 +8,7 @@ public class ItemTypeEntity : IBaseEntity
     public string Name { get; set; } = null!;
     public string? Icon { get; set; }
 
+    public ICollection<CustomFieldEntity> CustomFields { get; set; } = [];
     public ICollection<ProductEntity> Products { get; set; } = [];
 
     public Guid CreatorId { get; set; }

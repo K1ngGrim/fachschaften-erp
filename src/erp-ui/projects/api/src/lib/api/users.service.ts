@@ -831,7 +831,7 @@ export class UsersService implements UsersServiceInterface {
             }
         }
 
-        let localVarPath = `/api/users/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}/roles/${this.configuration.encodeParam({name: "roleId", value: roleId, in: "path", style: "simple", explode: false, dataType: "any", dataFormat: "uuid"})}`;
+        let localVarPath = `/api/users/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}/roles/${this.configuration.encodeParam({name: "roleId", value: roleId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}`;
         return this.httpClient.request<any>('post', `${this.configuration.basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,

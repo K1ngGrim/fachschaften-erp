@@ -6,10 +6,10 @@ namespace Fachschaften_ERP.Models;
 
 public partial class CoreContext
 {
-
     public DbSet<ItemTypeEntity> ItemTypes => Set<ItemTypeEntity>();
     public DbSet<ProductEntity> Products => Set<ProductEntity>();
     public DbSet<SupplierEntity> Suppliers => Set<SupplierEntity>();
+    public DbSet<CustomFieldEntity> CustomFields => Set<CustomFieldEntity>();
 
     private static void OnErpCreating(ModelBuilder modelBuilder)
     {
@@ -63,6 +63,30 @@ public partial class CoreContext
             entity.Property(s => s.Name)
                 .IsRequired()
                 .HasMaxLength(255);
+        });
+
+        modelBuilder.Entity<CustomFieldEntity>(entity =>
+        {
+            entity.HasKey(c => c.Id);
+            
+            entity.Property(c => c.Name)
+                .IsRequired()
+                .HasMaxLength(255);
+            
+            entity.Property(c => c.Label)
+                .IsRequired()
+                .HasMaxLength(255);
+            
+            entity.Property(c => c.SelectOptions)
+                .HasColumnType("jsonb")
+                .HasConversion(
+                    v => JsonSerializer.Serialize(v, (JsonSerializerOptions)null!),
+                    v => JsonSerializer.Deserialize<List<string>>(v, (JsonSerializerOptions)null!) ?? new List<string>()
+                );
+
+            entity.HasMany(c => c.ItemTypes)
+                .WithMany(i => i.CustomFields)
+                .UsingEntity(j => j.ToTable("ItemTypeCustomFields"));
         });
 
 

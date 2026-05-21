@@ -17,7 +17,7 @@ import {
   MatRowDef,
   MatTable,
 } from '@angular/material/table';
-import { DataService } from '../../../shared/services/data.service';
+import { DataService } from '../../../../../shared/services/data.service';
 
 @Component({
   selector: 'app-item-detail',

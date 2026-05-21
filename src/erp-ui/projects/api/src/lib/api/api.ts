@@ -1,6 +1,9 @@
 export * from './auth.service';
 import { AuthService } from './auth.service';
 export * from './auth.serviceInterface';
+export * from './custom-fields.service';
+import { CustomFieldsService } from './custom-fields.service';
+export * from './custom-fields.serviceInterface';
 export * from './invite.service';
 import { InviteService } from './invite.service';
 export * from './invite.serviceInterface';
@@ -25,4 +28,4 @@ export * from './two-factor.serviceInterface';
 export * from './users.service';
 import { UsersService } from './users.service';
 export * from './users.serviceInterface';
-export const APIS = [AuthService, InviteService, ItemTypesService, PermissionsService, ProductsService, RolesService, SuppliersService, TwoFactorService, UsersService];
+export const APIS = [AuthService, CustomFieldsService, InviteService, ItemTypesService, PermissionsService, ProductsService, RolesService, SuppliersService, TwoFactorService, UsersService];

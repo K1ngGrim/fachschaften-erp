@@ -11,8 +11,16 @@ namespace Fachschaften_ERP.Api.Controller;
 public class ItemTypesController(CoreContext db) : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> GetAll() =>
-        Ok(await db.ItemTypes.Where(x => x.IsActive).ToListAsync());
+    public async Task<ActionResult<IList<ItemTypeDto>>> GetAll()
+    {
+        var types = await db.ItemTypes
+            .Where(x => x.IsActive)
+            .Select(x => new ItemTypeDto(x.Id, x.Name, x.Icon))
+            .ToListAsync();
+
+
+        return Ok(types);
+    }
 
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> Get(Guid id)
@@ -72,4 +80,5 @@ public class ItemTypesController(CoreContext db) : ControllerBase
         Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? Guid.Empty.ToString());
 }
 
+public record ItemTypeDto(Guid Id, string Name, string? Icon);
 public record UpsertItemTypeRequest(string Name, string? Icon);

@@ -21,7 +21,7 @@ public class ProductEntity : IBaseEntity
     public int LowStockThreshold { get; set; }
     public bool TrackStock { get; set; }
 
-    public JsonDocument  CustomFieldValues { get; set; } = JsonDocument.Parse("{}");
+    public JsonDocument CustomFieldValues { get; set; } = JsonDocument.Parse("{}");
 
     public Guid CreatorId { get; set; }
     public DateTimeOffset Created { get; set; }

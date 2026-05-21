@@ -10,7 +10,16 @@
     [data]="data.products()"
     [searchable]="true"
     [searchKeys]="['name', 'supplier']"
+    [toolbarTemplate]="gridHeaderActions"
   >
+
+    <ng-template #gridHeaderActions>
+      <button mat-flat-button color="primary" class="d-flex" (click)="openAdd()">
+        <mat-icon svgIcon="plus" class="d-flex"></mat-icon>
+        <span>Add Item</span>
+      </button>
+    </ng-template>
+
     <!-- Action Column via Directive -->
     <ng-template gridActionCell let-p>
       <div class="d-flex gap-1 justify-content-end">

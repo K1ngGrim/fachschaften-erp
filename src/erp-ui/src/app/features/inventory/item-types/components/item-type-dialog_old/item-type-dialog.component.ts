@@ -10,10 +10,10 @@ import {
 import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { MatButton } from '@angular/material/button';
-import type { ItemType } from '../../../shared/models';
+import type { ItemType } from '../../../../../shared/models';
 
 @Component({
-  selector: 'app-item-type-dialog',
+  selector: 'app-item-type-dialog_old',
   imports: [
     FormsModule,
     MatDialogTitle,

@@ -1,0 +1,38 @@
+<div class="container-fluid p-4">
+  <app-page-header
+    [title]="'Item Types'"
+    [subtitle]="'Manage your item types here.'"
+  >
+  </app-page-header>
+
+  <app-data-grid
+    [columns]="columns()"
+    [data]="itemTypes()"
+    [searchable]="true"
+    [searchKeys]="[]"
+  >
+
+    <ng-template #gridHeaderActions>
+      <button mat-flat-button color="primary" class="d-flex" (click)="openAdd()">
+        <mat-icon svgIcon="plus" class="d-flex"></mat-icon>
+        <span>Add</span>
+      </button>
+    </ng-template>
+
+    <!-- Action Column via Directive -->
+    <ng-template gridActionCell let-p>
+      <div class="d-flex gap-1 justify-content-end">
+        <button mat-icon-button matTooltip="View" (click)="null">
+          <mat-icon>visibility</mat-icon>
+        </button>
+        <button mat-icon-button matTooltip="Edit" (click)="openEdit(p)">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button matTooltip="Delete" color="warn" (click)="null">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+    </ng-template>
+  </app-data-grid>
+
+</div>

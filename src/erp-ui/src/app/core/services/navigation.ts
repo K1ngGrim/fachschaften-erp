@@ -52,7 +52,7 @@ export class Navigation {
         {
           label: 'Artikel',
           route: '/catalog',
-          icon: 'inventory_2',
+          icon: 'format-list-bulleted-type',
           permissions: [PermissionType.ProductsCanRead],
         },
         {
@@ -80,13 +80,13 @@ export class Navigation {
       items: [
         {
           label: 'Benutzer',
-          route: '/administration/users',
+          route: '/users',
           icon: 'group',
           permissions: [PermissionType.UsersCanRead],
         },
         {
           label: 'Rollen',
-          route: '/administration/roles',
+          route: '/roles',
           icon: 'shield',
           permissions: [PermissionType.RolesCanRead],
         },

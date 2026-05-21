@@ -1,9 +1,8 @@
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Fachschaften_ERP.Models.Provider;
+namespace Fachschaften_ERP.Api.Provider;
 
 public class InviteTokenProvider<TUser>(
     IDataProtectionProvider dataProtectionProvider,

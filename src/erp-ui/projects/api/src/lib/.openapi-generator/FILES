@@ -5,6 +5,8 @@ api.module.ts
 api/api.ts
 api/auth.service.ts
 api/auth.serviceInterface.ts
+api/custom-fields.service.ts
+api/custom-fields.serviceInterface.ts
 api/invite.service.ts
 api/invite.serviceInterface.ts
 api/item-types.service.ts
@@ -29,7 +31,9 @@ model/accept-invite-request.ts
 model/accept-invite-result.ts
 model/change-password-request.ts
 model/create-role-request.ts
+model/custom-field-dto.ts
 model/invite-request.ts
+model/item-type-dto.ts
 model/login-request.ts
 model/login-result.ts
 model/login2-fa-request.ts

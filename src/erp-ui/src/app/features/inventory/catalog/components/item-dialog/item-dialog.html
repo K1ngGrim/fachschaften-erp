@@ -1,0 +1,108 @@
+<h2 mat-dialog-title>{{ isEdit ? 'Edit Item' : 'Add New Item' }}</h2>
+
+<mat-dialog-content class="pt-2">
+  <div class="d-flex flex-column gap-3">
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>Item Type</mat-label>
+      <mat-select [ngModel]="selectedTypeId()" (ngModelChange)="selectedTypeId.set($event)">
+        @for (t of itemTypes(); track t.id) {
+          <mat-option [value]="t.id">{{ t.icon }} {{ t.name }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <div class="row g-3">
+      <div class="col-12 col-sm-6">
+        <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
+          <mat-label>Name</mat-label>
+          <input matInput [(ngModel)]="name" required />
+        </mat-form-field>
+      </div>
+      <div class="col-12 col-sm-6">
+        <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
+          <mat-label>Supplier</mat-label>
+          <input matInput [(ngModel)]="supplier" required />
+        </mat-form-field>
+      </div>
+      <div class="col-12 col-sm-6">
+        <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
+          <mat-label>Purchase Price (€)</mat-label>
+          <input matInput type="number" step="0.01" [(ngModel)]="purchasePrice" required />
+        </mat-form-field>
+      </div>
+      <div class="col-12 col-sm-6">
+        <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
+          <mat-label>Selling Price (€)</mat-label>
+          <input matInput type="number" step="0.01" [(ngModel)]="sellingPrice" required />
+        </mat-form-field>
+      </div>
+      <div class="col-12 col-sm-6">
+        <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
+          <mat-label>Current Stock</mat-label>
+          <input matInput type="number" [(ngModel)]="stock" required />
+        </mat-form-field>
+      </div>
+      <div class="col-12 col-sm-6">
+        <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
+          <mat-label>Low Stock Threshold</mat-label>
+          <input matInput type="number" [(ngModel)]="threshold" required />
+        </mat-form-field>
+      </div>
+    </div>
+
+    <mat-slide-toggle [checked]="trackStock()" (change)="trackStock.set($event.checked)">
+      Track stock for this item
+    </mat-slide-toggle>
+
+    <!--@if (typeCustomFields().length > 0) {
+      <mat-divider />
+      <p class="text-muted small fw-medium mb-1">Custom Attributes</p>
+
+      @for (f of typeCustomFields(); track f.id) {
+        <div>
+          @if (f.type === 'text') {
+            <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
+              <mat-label>{{ f.label }}{{ f.required ? ' *' : '' }}</mat-label>
+              <input matInput [ngModel]="getCustomValue(f.name)" (ngModelChange)="setCustomValue(f.name, $event)" [required]="f.required" />
+            </mat-form-field>
+          }
+          @if (f.type === 'number') {
+            <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
+              <mat-label>{{ f.label }}{{ f.required ? ' *' : '' }}</mat-label>
+              <input matInput type="number" step="any" [ngModel]="getCustomValue(f.name)" (ngModelChange)="setCustomValue(f.name, +$event)" [required]="f.required" />
+            </mat-form-field>
+          }
+          @if (f.type === 'date') {
+            <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
+              <mat-label>{{ f.label }}{{ f.required ? ' *' : '' }}</mat-label>
+              <input matInput type="date" [ngModel]="getCustomValue(f.name)" (ngModelChange)="setCustomValue(f.name, $event)" [required]="f.required" />
+            </mat-form-field>
+          }
+          @if (f.type === 'boolean') {
+            <mat-checkbox [checked]="!!getCustomValue(f.name)" (change)="setCustomValue(f.name, $event.checked)">
+              {{ f.label }}
+            </mat-checkbox>
+          }
+          @if (f.type === 'select' && f.options) {
+            <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
+              <mat-label>{{ f.label }}{{ f.required ? ' *' : '' }}</mat-label>
+              <mat-select [ngModel]="getCustomValue(f.name)" (ngModelChange)="setCustomValue(f.name, $event)" [required]="f.required">
+                @for (opt of f.options; track opt) {
+                  <mat-option [value]="opt">{{ opt }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          }
+        </div>
+      }
+    }-->
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()">Cancel</button>
+  <button mat-raised-button color="primary" (click)="save()" [disabled]="!name || !supplier">
+    {{ isEdit ? 'Save Changes' : 'Add Item' }}
+  </button>
+</mat-dialog-actions>

@@ -13,6 +13,7 @@ import { HttpHeaders }                                       from '@angular/comm
 
 import { Observable }                                        from 'rxjs';
 
+import { ItemTypeDto } from '../model/models';
 import { UpsertItemTypeRequest } from '../model/models';
 
 
@@ -41,7 +42,7 @@ export interface ItemTypesServiceInterface {
      * 
      * 
 */
-    apiItemTypesGet(extraHttpRequestParams?: any): Observable<{}>;
+    apiItemTypesGet(extraHttpRequestParams?: any): Observable<Array<ItemTypeDto>>;
 
     /**
      * 

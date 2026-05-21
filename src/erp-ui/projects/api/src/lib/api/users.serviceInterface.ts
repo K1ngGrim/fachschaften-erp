@@ -63,7 +63,7 @@ export interface ApiUsersIdRolesRoleDeleteRequestParams {
 
 export interface ApiUsersIdRolesRoleIdPostRequestParams {
     id: string;
-    roleId: any;
+    roleId: string;
 }
 
 

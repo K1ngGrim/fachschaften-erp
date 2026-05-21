@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { authGuard, setup2faGuard } from './core/guards/auth-guard';
+import { authGuard, permissionGuard, setup2faGuard } from './core/guards/auth-guard';
 import { AppShell } from './shared/components/app-shell/app-shell';
 
 export const routes: Routes = [
@@ -41,12 +41,37 @@ export const routes: Routes = [
             (m) => m.UserPage,
           ),
       },
+
+      {
+        path: 'catalog',
+        //canActivate: [permissionGuard('products.canread')],
+        loadComponent: () =>
+          import('./features/inventory/catalog/components/items-page/items-page').then(
+            (m) => m.ItemsPage,
+          ),
+      },
+
+      {
+        path: 'catalog/item/:id',
+        loadComponent: () =>
+          import('./features/inventory/catalog/components/item-detail/item-detail').then(
+            (m) => m.ItemDetail,
+          ),
+      },
       {
         path: 'inventory',
         //canActivate: [permissionGuard('users.canread')],
         loadComponent: () =>
           import('./pages/inventory/inventory-page/inventory-page').then((m) => m.InventoryPage),
       },
+      {
+        path: 'item-types',
+        loadComponent: () =>
+          import('./features/inventory/item-types/components/item-types-page/item-types-page').then(
+            (m) => m.ItemTypesPage,
+          ),
+      },
+
       {
         path: '',
         loadComponent: () =>
@@ -56,12 +81,11 @@ export const routes: Routes = [
   },
 
   {
-    path: 'catalog',
-    loadComponent: () => import('./pages/items/items-page/items-page').then((m) => m.ItemsPage),
-  },
-  {
     path: 'catalog/:id',
-    loadComponent: () => import('./pages/items/item-detail/item-detail').then((m) => m.ItemDetail),
+    loadComponent: () =>
+      import('./features/inventory/catalog/components/item-detail/item-detail').then(
+        (m) => m.ItemDetail,
+      ),
   },
 
   {
@@ -83,11 +107,7 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./pages/reports/reports-page/reports-page').then((m) => m.ReportsPage),
   },
-  {
-    path: 'item-types',
-    loadComponent: () =>
-      import('./pages/item-types/item-types-page/item-types-page').then((m) => m.ItemTypesPage),
-  },
+
   {
     path: 'custom-fields',
     loadComponent: () =>

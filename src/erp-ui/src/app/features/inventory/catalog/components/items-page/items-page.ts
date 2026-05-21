@@ -1,19 +1,20 @@
 import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { MatIconButton } from '@angular/material/button';
+import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
-import { DataService } from '../../../shared/services/data.service';
-import { ItemDialogComponent } from '../item-dialog/item-dialog.component';
-import type { Product } from '../../../shared/models';
-import { PageHeader } from '../../../shared/components/page-header/page-header';
+import { DataService } from '../../../../../shared/services/data.service';
+import { ItemDialogComponent } from '../../../../../pages/items/item-dialog/item-dialog.component';
+import type { Product } from '../../../../../shared/models';
+import { PageHeader } from '../../../../../shared/components/page-header/page-header';
 import {
   DataGrid,
   GridActionCellDirective,
   GridColumn,
-} from '../../../shared/components/data-grid/data-grid';
+} from '../../../../../shared/components/data-grid/data-grid';
 import { MatTooltip } from '@angular/material/tooltip';
+import { ItemDialog } from '../item-dialog/item-dialog';
 
 @Component({
   selector: 'app-items-page',
@@ -25,6 +26,7 @@ import { MatTooltip } from '@angular/material/tooltip';
     GridActionCellDirective,
     MatIconButton,
     MatTooltip,
+    MatButton,
   ],
   templateUrl: './items-page.html',
   styleUrl: './items-page.scss',
@@ -54,7 +56,7 @@ export class ItemsPage {
   }
 
   openAdd() {
-    const ref = this.dialog.open(ItemDialogComponent, {
+    const ref = this.dialog.open(ItemDialog, {
       width: '520px',
       maxHeight: '90vh',
       data: { product: null },
@@ -65,7 +67,7 @@ export class ItemsPage {
   }
 
   openEdit(p: Product) {
-    const ref = this.dialog.open(ItemDialogComponent, {
+    const ref = this.dialog.open(ItemDialog, {
       width: '520px',
       maxHeight: '90vh',
       data: { product: p },
@@ -79,7 +81,7 @@ export class ItemsPage {
     this.data.deleteProduct(id);
   }
 
-  viewDetail(id: string) {
-    this.router.navigate(['/items', id]);
+  public async viewDetail(id: string) {
+    await this.router.navigate(['/catalog/item', id]);
   }
 }

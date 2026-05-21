@@ -5,7 +5,6 @@ using Fachschaften_ERP.Api.Services;
 using Fachschaften_ERP.Api.Services.Interfaces;
 using Fachschaften_ERP.Models;
 using Fachschaften_ERP.Models.Entities.Identity;
-using Fachschaften_ERP.Models.Provider;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
