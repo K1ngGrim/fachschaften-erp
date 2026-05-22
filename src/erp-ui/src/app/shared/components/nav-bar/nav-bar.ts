@@ -1,4 +1,13 @@
-import { Component, ElementRef, inject, OnDestroy, OnInit, signal, viewChild } from '@angular/core';
+import {
+  Component,
+  computed,
+  ElementRef,
+  inject,
+  OnDestroy,
+  OnInit,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { MatToolbar } from '@angular/material/toolbar';
 import { MatIconButton, MatMiniFabButton } from '@angular/material/button';
@@ -19,6 +28,7 @@ import { filter, Subscription } from 'rxjs';
 import { FilterNavigationPipe } from '../../pipes/filter-navigation-pipe';
 import { MatProgressBar } from '@angular/material/progress-bar';
 import { Auth } from '../../../core/services/auth';
+import { LoadingService } from '../../services/loading-service';
 
 @Component({
   selector: 'app-nav-bar',
@@ -44,6 +54,7 @@ import { Auth } from '../../../core/services/auth';
 export class NavBar implements OnInit, OnDestroy {
   navContent = viewChild.required<ElementRef<HTMLElement>>('content');
 
+  private readonly loadingService = inject(LoadingService);
   private readonly navigation = inject(Navigation);
   private readonly auth = inject(Auth);
   private readonly breakpointObserver = inject(BreakpointObserver);
@@ -60,7 +71,9 @@ export class NavBar implements OnInit, OnDestroy {
   }
 
   private router = inject(Router);
-  routeLoading = signal(false);
+  public routeLoading = computed(() => {
+    return this.loadingService.isLoading();
+  });
 
   constructor() {
     this.router.events
@@ -73,7 +86,14 @@ export class NavBar implements OnInit, OnDestroy {
         ),
       )
       .subscribe((e) => {
-        this.routeLoading.set(e instanceof NavigationStart);
+        if (e instanceof NavigationStart) {
+          this.loadingService.reset();
+          this.loadingService.increment();
+          return;
+        } else if (e instanceof NavigationEnd) {
+          this.loadingService.decrement();
+          return;
+        }
       });
   }
 

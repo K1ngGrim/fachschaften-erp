@@ -2,10 +2,14 @@ using Fachschaften_ERP.Models.Core;
 
 namespace Fachschaften_ERP.Models.Entities;
 
-public class ItemTypeEntity : IBaseEntity
+public class ItemTypeBase
 {
     public Guid Id { get; set; }
-    public string Name { get; set; } = null!;
+    public string Name { get; set; } = string.Empty;
+}
+
+public class ItemTypeEntity : ItemTypeBase, IBaseEntity
+{
     public string? Icon { get; set; }
 
     public ICollection<CustomFieldEntity> CustomFields { get; set; } = [];

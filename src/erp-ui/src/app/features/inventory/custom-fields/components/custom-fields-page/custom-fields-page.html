@@ -1,0 +1,53 @@
+<div class="container-fluid p-4">
+  <app-page-header
+    [title]="'Custom Fields'"
+    [subtitle]="'Manage custom fields for inventory items.'"
+  >
+  </app-page-header>
+
+  <app-data-grid
+    [columns]="columns()"
+    [data]="fields()"
+    [searchable]="true"
+    [searchKeys]="['name', 'email']"
+    [toolbarTemplate]="gridHeaderActions"
+  >
+
+    <ng-template #gridHeaderActions>
+      <button mat-flat-button color="primary" class="d-flex" (click)="openAdd()">
+        <mat-icon svgIcon="plus" class="d-flex"></mat-icon>
+        <span>Add</span>
+      </button>
+    </ng-template>
+
+    <!-- Action Column via Directive -->
+    <ng-template gridActionCell let-p>
+      <div class="d-flex gap-1 justify-content-end">
+        <button mat-icon-button matTooltip="View" color="primary" (click)="openView(p)">
+          <mat-icon>visibility</mat-icon>
+        </button>
+        <button mat-icon-button matTooltip="Edit" color="accent" (click)="openEdit(p)">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button matTooltip="Delete" color="warn" (click)="openDelete(p)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+    </ng-template>
+  </app-data-grid>
+
+  <ng-template #typeTpl let-f>
+    <mat-chip-set>
+      <mat-chip>{{ f.type }}</mat-chip>
+    </mat-chip-set>
+  </ng-template>
+
+  <ng-template #itemTypesTpl let-f>
+    <mat-chip-set>
+      @for (t of f.itemTypes; track t.id) {
+        <mat-chip>{{ t.icon }} {{ t.name }}</mat-chip>
+      }
+    </mat-chip-set>
+  </ng-template>
+
+</div>

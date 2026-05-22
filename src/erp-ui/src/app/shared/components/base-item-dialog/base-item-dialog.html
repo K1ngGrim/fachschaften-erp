@@ -3,52 +3,55 @@
 <mat-dialog-content class="pt-2">
   <div class="d-flex flex-column gap-3">
     <form [formGroup]="form">
-      @for (field of config.fields; track field.key) {
+      <div class="d-flex row g-2">
+        @for (field of config.fields; track field.key) {
+          <div [class]="field.cssClasses + ' d-flex flex-column gap-2'">
 
-        @if (field.type === 'text') {
-          <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
-            <mat-label>{{ field.label }}</mat-label>
-            <input matInput [formControlName]="field.key"
-                   [placeholder]="asText(field).placeholder ?? ''"
-                   [readonly]="config.readonly" />
-          </mat-form-field>
+            @if (field.type === 'text') {
+              <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
+                <mat-label>{{ field.label }}</mat-label>
+                <input matInput [formControlName]="field.key"
+                       [placeholder]="asText(field).placeholder ?? ''"
+                       [readonly]="config.readonly" />
+              </mat-form-field>
+            }
+
+            @if (field.type === 'number') {
+              <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
+                <mat-label>{{ field.label }}</mat-label>
+                <input matInput type="number" [formControlName]="field.key"
+                       [placeholder]="asNumber(field).placeholder ?? ''"
+                       [readonly]="config.readonly" />
+              </mat-form-field>
+            }
+
+            @if (field.type === 'date') {
+              <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
+                <mat-label>{{ field.label }}</mat-label>
+                <input matInput type="date" [formControlName]="field.key"
+                       [readonly]="config.readonly" />
+              </mat-form-field>
+            }
+
+            @if (field.type === 'select') {
+              <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
+                <mat-label>{{ field.label }}</mat-label>
+                <mat-select [formControlName]="field.key">
+                  @for (opt of asSelect(field).options; track opt.value) {
+                    <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            }
+
+            @if (field.type === 'boolean') {
+              <mat-slide-toggle [formControlName]="field.key">
+                {{ field.label }}
+              </mat-slide-toggle>
+            }
+          </div>
         }
-
-        @if (field.type === 'number') {
-          <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
-            <mat-label>{{ field.label }}</mat-label>
-            <input matInput type="number" [formControlName]="field.key"
-                   [placeholder]="asNumber(field).placeholder ?? ''"
-                   [readonly]="config.readonly" />
-          </mat-form-field>
-        }
-
-        @if (field.type === 'date') {
-          <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
-            <mat-label>{{ field.label }}</mat-label>
-            <input matInput type="date" [formControlName]="field.key"
-                   [readonly]="config.readonly" />
-          </mat-form-field>
-        }
-
-        @if (field.type === 'select') {
-          <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
-            <mat-label>{{ field.label }}</mat-label>
-            <mat-select [formControlName]="field.key">
-              @for (opt of asSelect(field).options; track opt.value) {
-                <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
-        }
-
-        @if (field.type === 'boolean') {
-          <mat-slide-toggle [formControlName]="field.key">
-            {{ field.label }}
-          </mat-slide-toggle>
-        }
-
-      }
+      </div>
     </form>
   </div>
 </mat-dialog-content>

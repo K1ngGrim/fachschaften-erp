@@ -40,13 +40,13 @@ public class SuppliersController(CoreContext db) : ControllerBase
         return entity is null ? NotFound() : Ok(entity);
     }
 
-    [HttpPut("{id:guid?}")]
-    public async Task<ActionResult<SupplierDto>> Upsert(Guid? id, UpsertSupplierRequest request)
+    [HttpPost]
+    public async Task<ActionResult<SupplierDto>> Upsert(UpsertSupplierRequest request)
     {
 
         var invoker = (Invoker)User;
 
-        if (id is null)
+        if (request.Id is null)
         {
             var entity = new SupplierEntity
             {
@@ -66,7 +66,7 @@ public class SuppliersController(CoreContext db) : ControllerBase
         }
         else
         {
-            var entity = await db.Suppliers.FirstOrDefaultAsync(x => x.Id == id && x.IsActive);
+            var entity = await db.Suppliers.FirstOrDefaultAsync(x => x.Id == request.Id && x.IsActive);
             if (entity is null) return NotFound();
 
             entity.Name = request.Name;
@@ -74,7 +74,11 @@ public class SuppliersController(CoreContext db) : ControllerBase
             entity.ModifierId = invoker.UserId;
 
             await db.SaveChangesAsync();
-            return Ok(entity);
+            return Ok(new SupplierDto
+            {
+                Id = entity.Id,
+                Name = entity.Name
+            });
         }
     }
 
@@ -96,4 +100,4 @@ public class SuppliersController(CoreContext db) : ControllerBase
 }
 
 public class SupplierDto : SupplierBase;
-public record UpsertSupplierRequest(string Name);
+public record UpsertSupplierRequest(Guid? Id, string Name);

@@ -32,8 +32,11 @@ model/accept-invite-result.ts
 model/change-password-request.ts
 model/create-role-request.ts
 model/custom-field-dto.ts
+model/custom-field-type.ts
 model/invite-request.ts
+model/item-type-base.ts
 model/item-type-dto.ts
+model/item-upsert-request-of-custom-field-dto.ts
 model/login-request.ts
 model/login-result.ts
 model/login2-fa-request.ts

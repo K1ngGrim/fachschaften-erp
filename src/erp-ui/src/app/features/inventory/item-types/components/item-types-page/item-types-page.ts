@@ -2,12 +2,20 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
-import type { ItemType } from '../../../../../shared/models';
-import { DataGrid, GridActionCellDirective, GridColumn } from '../../../../../shared/components/data-grid/data-grid';
+import {
+  DataGrid,
+  GridActionCellDirective,
+  GridColumn,
+} from '../../../../../shared/components/data-grid/data-grid';
 import { MatTooltip } from '@angular/material/tooltip';
 import { PageHeader } from '../../../../../shared/components/page-header/page-header';
-import { ItemTypeDto } from '../../../../../../../projects/api/src/lib';
-import { BaseItemDialog, ItemDialogConfig } from '../../../../../shared/components/base-item-dialog/base-item-dialog';
+import { ItemTypeDto, ItemTypesService } from '../../../../../../../projects/api/src/lib';
+import {
+  BaseItemDialog,
+  ItemDialogConfig,
+} from '../../../../../shared/components/base-item-dialog/base-item-dialog';
+import { lastValueFrom } from 'rxjs';
+import { DialogService } from '../../../../../core/services/dialog-service';
 
 @Component({
   selector: 'app-item-types-page',
@@ -25,48 +33,102 @@ import { BaseItemDialog, ItemDialogConfig } from '../../../../../shared/componen
 })
 export class ItemTypesPage implements OnInit {
   private readonly dialog = inject(MatDialog);
+  private readonly dialogService = inject(DialogService);
+
+  readonly itemTypesController = inject(ItemTypesService);
 
   readonly itemTypes = signal<Array<ItemTypeDto>>([]);
   public readonly columns = signal<Array<GridColumn<ItemTypeDto>>>([]);
 
   public async ngOnInit() {
     this.columns.set([{ key: 'name', label: 'Name' }]);
+    await this.fetchItemTypes();
+  }
+
+  private async fetchItemTypes() {
+    const types = await lastValueFrom(this.itemTypesController.apiItemTypesGet());
+    this.itemTypes.set(types);
   }
 
   openAdd() {
     this.dialog
       .open(BaseItemDialog<ItemTypeDto>, {
-        data: {
-          title: 'Item Type',
-          data: null,
-          fields: [
-            { key: 'name', label: 'Name', type: 'text', required: true },
-            { key: 'icon', label: 'Icon', type: 'text' },
-          ],
-        } satisfies ItemDialogConfig<ItemTypeDto>,
+        data: this.getDialogConfig(false),
       })
       .afterClosed()
-      .subscribe((result) => {
+      .subscribe(async (result) => {
         if (result) {
-          // Handle the result, e.g., save the new item type
-          console.log('New Item Type:', result);
+          await lastValueFrom(
+            this.itemTypesController.apiItemTypesPost({
+              upsertItemTypeRequest: {
+                icon: result.icon,
+                name: result.name,
+                id: result.id,
+              },
+            }),
+          );
+
+          await this.fetchItemTypes();
         }
       });
-
-    /*const ref = this.dialog.open(ItemTypeDialogComponent, { width: '420px', data: { type: null } });
-    ref.afterClosed().subscribe((t: ItemType | undefined) => {
-      if (t) this.data.addItemType(t);
-    });**/
   }
 
-  openEdit(t: ItemType) {
-    /*const ref = this.dialog.open(ItemTypeDialogComponent, { width: '420px', data: { type: t } });
-    ref.afterClosed().subscribe((updated: ItemType | undefined) => {
-      if (updated) this.data.updateItemType(updated);
-    });*/
+  openEdit(t: ItemTypeDto) {
+    this.dialog
+      .open(BaseItemDialog<ItemTypeDto>, {
+        data: this.getDialogConfig(false, t),
+      })
+      .afterClosed()
+      .subscribe(async (result) => {
+        if (result) {
+          await lastValueFrom(
+            this.itemTypesController.apiItemTypesPost({
+              upsertItemTypeRequest: {
+                icon: result.icon,
+                name: result.name,
+                id: result.id,
+              },
+            }),
+          );
+
+          await this.fetchItemTypes();
+        }
+      });
   }
 
-  toggleActive(t: ItemType) {
-    //this.data.updateItemType({ ...t, active: !t.active });
+  openView(type: ItemTypeDto) {
+    this.dialog.open(BaseItemDialog<ItemTypeDto>, {
+      data: this.getDialogConfig(true, type),
+    });
+  }
+
+  deleteItem(type: ItemTypeDto) {
+    this.dialogService.openDeleteDialog().then(async (confirmed) => {
+      if (!confirmed) return;
+      await lastValueFrom(
+        this.itemTypesController.apiItemTypesIdDelete({
+          id: type.id,
+        }),
+      );
+      await this.fetchItemTypes();
+    });
+  }
+
+  public getDialogConfig(readonly: boolean, existing?: ItemTypeDto) {
+    return {
+      title: 'Item Type',
+      data: existing ?? null,
+      readonly: readonly,
+      fields: [
+        {
+          key: 'name',
+          label: 'Name',
+          type: 'text',
+          required: true,
+          cssClasses: 'col-12 col-sm-6',
+        },
+        { key: 'icon', label: 'Icon', type: 'text', cssClasses: 'col-12 col-sm-6' },
+      ],
+    } satisfies ItemDialogConfig<ItemTypeDto>;
   }
 }

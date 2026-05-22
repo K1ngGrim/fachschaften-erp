@@ -71,6 +71,20 @@ export const routes: Routes = [
             (m) => m.ItemTypesPage,
           ),
       },
+      {
+        path: 'suppliers',
+        loadComponent: () =>
+          import('./features/inventory/suppliers/components/suppliers-page/suppliers-page').then(
+            (m) => m.SuppliersPage,
+          ),
+      },
+      {
+        path: 'custom-fields',
+        loadComponent: () =>
+          import('./features/inventory/custom-fields/components/custom-fields-page/custom-fields-page').then(
+            (m) => m.CustomFieldsPage,
+          ),
+      },
 
       {
         path: '',
@@ -106,14 +120,6 @@ export const routes: Routes = [
     path: 'reports',
     loadComponent: () =>
       import('./pages/reports/reports-page/reports-page').then((m) => m.ReportsPage),
-  },
-
-  {
-    path: 'custom-fields',
-    loadComponent: () =>
-      import('./pages/custom-fields/custom-fields-page/custom-fields-page').then(
-        (m) => m.CustomFieldsPage,
-      ),
   },
   { path: '**', redirectTo: '' },
 ];

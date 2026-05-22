@@ -1,4 +1,6 @@
+using System.Reflection;
 using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
 using Fachschaften_ERP.Api.Models;
 using Fachschaften_ERP.Api.Provider;
 using Fachschaften_ERP.Api.Services;
@@ -36,6 +38,31 @@ builder.Services.AddOpenApi(options =>
         schema.Enum = Enum.GetValues<PermissionType>()
             .Select(p => JsonNode.Parse($"\"{p.GetDescription()}\""))
             .ToList()!;
+
+        return Task.CompletedTask;
+    });
+    
+    options.AddSchemaTransformer((schema, context, ct) =>
+    {
+        if (schema.Properties is null) return Task.CompletedTask;
+
+        var type = context.JsonTypeInfo.Type;
+        var nullabilityContext = new NullabilityInfoContext();
+
+        schema.Required ??= new HashSet<string>();
+
+        foreach (var property in type.GetProperties())
+        {
+            var nullability = nullabilityContext.Create(property);
+            var isNullable = nullability.WriteState == NullabilityState.Nullable
+                             || nullability.ReadState == NullabilityState.Nullable;
+
+            var jsonName = property.GetCustomAttribute<JsonPropertyNameAttribute>()?.Name
+                           ?? char.ToLower(property.Name[0]) + property.Name[1..];
+
+            if (!isNullable && schema.Properties.ContainsKey(jsonName))
+                schema.Required.Add(jsonName);
+        }
 
         return Task.CompletedTask;
     });

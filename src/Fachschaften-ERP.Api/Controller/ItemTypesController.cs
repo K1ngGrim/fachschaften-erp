@@ -29,6 +29,43 @@ public class ItemTypesController(CoreContext db) : ControllerBase
         return entity is null ? NotFound() : Ok(entity);
     }
 
+    [HttpPost]
+    public async Task<ActionResult<ItemTypeDto>> Upsert([FromBody] UpsertItemTypeRequest request)
+    {
+        if (request.Id is null)
+        {
+            var entity = new ItemTypeEntity
+            {
+                Id = Guid.NewGuid(),
+                Name = request.Name,
+                Icon = request.Icon,
+                Created = DateTimeOffset.UtcNow,
+                CreatorId = GetUserId(),
+                IsActive = true,
+            };
+            db.ItemTypes.Add(entity);
+            await db.SaveChangesAsync();
+            return CreatedAtAction(
+                nameof(Get), 
+                new { id = entity.Id }, 
+                new ItemTypeDto(entity.Id, entity.Name, entity.Icon)
+                );
+        }
+        else
+        {
+            var entity = await db.ItemTypes.FirstOrDefaultAsync(x => x.Id == request.Id && x.IsActive);
+            if (entity is null) return NotFound();
+
+            entity.Name = request.Name;
+            entity.Icon = request.Icon;
+            entity.Modified = DateTimeOffset.UtcNow;
+            entity.ModifierId = GetUserId();
+
+            await db.SaveChangesAsync();
+            return Ok(new ItemTypeDto(entity.Id, entity.Name, entity.Icon));
+        }
+    }
+
     [HttpPut("{id:guid?}")]
     public async Task<IActionResult> Upsert(Guid? id, UpsertItemTypeRequest request)
     {
@@ -81,4 +118,4 @@ public class ItemTypesController(CoreContext db) : ControllerBase
 }
 
 public record ItemTypeDto(Guid Id, string Name, string? Icon);
-public record UpsertItemTypeRequest(string Name, string? Icon);
+public record UpsertItemTypeRequest(Guid? Id, string Name, string? Icon);

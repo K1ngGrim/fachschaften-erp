@@ -23,13 +23,13 @@
     <!-- Action Column via Directive -->
     <ng-template gridActionCell let-p>
       <div class="d-flex gap-1 justify-content-end">
-        <button mat-icon-button matTooltip="View" (click)="null">
+        <button mat-icon-button matTooltip="View" (click)="openView(p)">
           <mat-icon>visibility</mat-icon>
         </button>
         <button mat-icon-button matTooltip="Edit" (click)="openEdit(p)">
           <mat-icon>edit</mat-icon>
         </button>
-        <button mat-icon-button matTooltip="Delete" color="warn" (click)="null">
+        <button mat-icon-button matTooltip="Delete" color="warn" (click)="deleteItem(p)">
           <mat-icon>delete</mat-icon>
         </button>
       </div>

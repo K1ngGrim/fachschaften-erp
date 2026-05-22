@@ -16,7 +16,7 @@
     <ng-template #gridHeaderActions>
       <button mat-flat-button color="primary" class="d-flex" (click)="openAdd()">
         <mat-icon svgIcon="plus" class="d-flex"></mat-icon>
-        <span>Add User</span>
+        <span>Add</span>
       </button>
     </ng-template>
 
@@ -29,7 +29,7 @@
         <button mat-icon-button matTooltip="Edit" color="accent" (click)="openEdit(p)">
           <mat-icon>edit</mat-icon>
         </button>
-        <button mat-icon-button matTooltip="Delete" color="warn" (click)="null">
+        <button mat-icon-button matTooltip="Delete" color="warn" (click)="openDelete(p)">
           <mat-icon>delete</mat-icon>
         </button>
       </div>

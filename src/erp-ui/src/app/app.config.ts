@@ -14,6 +14,7 @@ import { registerLocaleData } from '@angular/common';
 import localeDe from '@angular/common/locales/de';
 import { BASE_PATH } from '../../projects/api/src/lib';
 import { Auth } from './core/services/auth';
+import { loadingInterceptor } from './shared/services/loading-service';
 
 registerLocaleData(localeDe);
 
@@ -30,7 +31,10 @@ export const appConfig: ApplicationConfig = {
     // provideClientHydration(withEventReplay()), weil kein ssr
     provideHttpClient(
       withFetch(),
-      withInterceptors([(req, next) => next(req.clone({ withCredentials: true }))]),
+      withInterceptors([
+        loadingInterceptor,
+        (req, next) => next(req.clone({ withCredentials: true })),
+      ]),
     ),
     { provide: BASE_PATH, useValue: '' },
     provideAppInitializer(initAppFn),

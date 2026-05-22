@@ -4,7 +4,7 @@ import {
   MatDialogActions,
   MatDialogContent,
   MatDialogRef,
-  MatDialogTitle,
+  MatDialogTitle
 } from '@angular/material/dialog';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatFormField, MatInput, MatLabel } from '@angular/material/input';
@@ -69,6 +69,7 @@ export interface BaseDialogField {
   label: string;
   key: string;
   required?: boolean;
+  cssClasses?: string;
 }
 
 export interface TextDialogField extends BaseDialogField {
