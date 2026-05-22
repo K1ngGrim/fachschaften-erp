@@ -9,15 +9,16 @@
  */
 
 
-export interface UpsertProductRequest { 
+export interface ProductDto { 
+    id: string;
     name: string;
-    itemTypeId: string;
-    supplierId: string | null;
     purchasePrice: number;
     sellingPrice: number;
     stock: number;
     lowStockThreshold: number;
     trackStock: boolean;
-    customFieldValues: string | null;
+    customFieldValues: any | null;
+    itemTypeId: string;
+    supplierId?: string | null;
 }
 

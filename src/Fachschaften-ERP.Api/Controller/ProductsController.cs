@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using System.Text.Json;
+using Fachschaften_ERP.Api.Models.Generic;
 using Fachschaften_ERP.Models;
 using Fachschaften_ERP.Models.Entities;
 using Microsoft.AspNetCore.Mvc;
@@ -12,12 +13,63 @@ namespace Fachschaften_ERP.Api.Controller;
 public class ProductsController(CoreContext db) : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> GetAll() =>
-        Ok(await db.Products
-            .Where(x => x.IsActive)
+    public async Task<ActionResult<IList<ProductDto>>> GetAll()
+    {
+        var items = await db.Products
             .Include(x => x.ItemType)
             .Include(x => x.Supplier)
-            .ToListAsync());
+            .Where(x => x.IsActive)
+            .Select(x => new ProductDto
+            {
+                Id = x.Id,
+                Name = x.Name,
+                ItemTypeId = x.ItemTypeId,
+                SupplierId = x.SupplierId,
+                PurchasePrice = x.PurchasePrice,
+                SellingPrice = x.SellingPrice,
+                Stock = x.Stock,
+                LowStockThreshold = x.LowStockThreshold,
+                TrackStock = x.TrackStock,
+                CustomFieldValues = x.CustomFieldValues,
+            })
+            .ToListAsync();
+        
+        return Ok(items);
+    }
+    
+    [HttpGet("{id:guid}/custom-fields")]
+    public async Task<ActionResult<IList<CustomFieldDto>>> GetCustomFields(Guid id)
+    {
+        var product = await db.Products
+            .Include(x => x.ItemType)
+            .ThenInclude(it => it.CustomFields)
+            .FirstOrDefaultAsync(x => x.Id == id && x.IsActive);
+
+        if (product is null) return NotFound();
+
+        var customFields = product.ItemType.CustomFields
+            .Select(x => new CustomFieldDto
+            {
+                Id = x.Id,
+                Name = x.Name,
+                Label = x.Label,
+                Type = x.Type,
+                Required = x.Required,
+                Order = x.Order,
+                SelectOptions = x.SelectOptions,
+                ItemTypes = db.ItemTypes
+                    .Where(y => y.IsActive)
+                    .Select(t => new ItemTypeBase
+                {
+                    Id = t.Id,
+                    Name = t.Name,
+                }).ToList(),
+            })
+            .OrderBy(cf => cf.Order)
+            .ToList();
+
+        return Ok(customFields);
+    }
 
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> Get(Guid id)
@@ -31,33 +83,31 @@ public class ProductsController(CoreContext db) : ControllerBase
     }
 
     [HttpPut("{id:guid?}")]
-    public async Task<IActionResult> Upsert(Guid? id, UpsertProductRequest request)
+    public async Task<IActionResult> Upsert(ItemUpsertRequest<ProductDto> request)
     {
-        var itemTypeExists = await db.ItemTypes.AnyAsync(x => x.Id == request.ItemTypeId && x.IsActive);
+        var itemTypeExists = await db.ItemTypes.AnyAsync(x => x.Id == request.Value.ItemTypeId && x.IsActive);
         if (!itemTypeExists) return BadRequest("Invalid ItemTypeId.");
 
-        if (request.SupplierId is not null)
+        if (request.Value.SupplierId is not null)
         {
-            var supplierExists = await db.Suppliers.AnyAsync(x => x.Id == request.SupplierId && x.IsActive);
+            var supplierExists = await db.Suppliers.AnyAsync(x => x.Id == request.Value.SupplierId && x.IsActive);
             if (!supplierExists) return BadRequest("Invalid SupplierId.");
         }
 
-        if (id is null)
+        if (request.Id is null)
         {
             var entity = new ProductEntity
             {
                 Id = Guid.NewGuid(),
-                Name = request.Name,
-                ItemTypeId = request.ItemTypeId,
-                SupplierId = request.SupplierId,
-                PurchasePrice = request.PurchasePrice,
-                SellingPrice = request.SellingPrice,
-                Stock = request.Stock,
-                LowStockThreshold = request.LowStockThreshold,
-                TrackStock = request.TrackStock,
-                CustomFieldValues = request.CustomFieldValues is not null
-                    ? JsonDocument.Parse(request.CustomFieldValues)
-                    : JsonDocument.Parse("{}"),
+                Name = request.Value.Name,
+                ItemTypeId = request.Value.ItemTypeId,
+                SupplierId = request.Value.SupplierId,
+                PurchasePrice = request.Value.PurchasePrice,
+                SellingPrice = request.Value.SellingPrice,
+                Stock = request.Value.Stock,
+                LowStockThreshold = request.Value.LowStockThreshold,
+                TrackStock = request.Value.TrackStock,
+                CustomFieldValues = JsonDocument.Parse(request.Value.CustomFieldValues.ToString() ?? "{}"),
                 Created = DateTimeOffset.UtcNow,
                 CreatorId = GetUserId(),
                 IsActive = true,
@@ -68,20 +118,18 @@ public class ProductsController(CoreContext db) : ControllerBase
         }
         else
         {
-            var entity = await db.Products.FirstOrDefaultAsync(x => x.Id == id && x.IsActive);
+            var entity = await db.Products.FirstOrDefaultAsync(x => x.Id == request.Id && x.IsActive);
             if (entity is null) return NotFound();
 
-            entity.Name = request.Name;
-            entity.ItemTypeId = request.ItemTypeId;
-            entity.SupplierId = request.SupplierId;
-            entity.PurchasePrice = request.PurchasePrice;
-            entity.SellingPrice = request.SellingPrice;
-            entity.Stock = request.Stock;
-            entity.LowStockThreshold = request.LowStockThreshold;
-            entity.TrackStock = request.TrackStock;
-            entity.CustomFieldValues = request.CustomFieldValues is not null
-                ? JsonDocument.Parse(request.CustomFieldValues)
-                : JsonDocument.Parse("{}");
+            entity.Name = request.Value.Name;
+            entity.ItemTypeId = request.Value.ItemTypeId;
+            entity.SupplierId = request.Value.SupplierId;
+            entity.PurchasePrice = request.Value.PurchasePrice;
+            entity.SellingPrice = request.Value.SellingPrice;
+            entity.Stock = request.Value.Stock;
+            entity.LowStockThreshold = request.Value.LowStockThreshold;
+            entity.TrackStock = request.Value.TrackStock;
+            entity.CustomFieldValues = JsonDocument.Parse(request.Value.CustomFieldValues.ToString() ?? "{}");
             entity.Modified = DateTimeOffset.UtcNow;
             entity.ModifierId = GetUserId();
 
@@ -107,15 +155,4 @@ public class ProductsController(CoreContext db) : ControllerBase
     private Guid GetUserId() =>
         Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? Guid.Empty.ToString());
 }
-
-public record UpsertProductRequest(
-    string Name,
-    Guid ItemTypeId,
-    Guid? SupplierId,
-    decimal PurchasePrice,
-    decimal SellingPrice,
-    int Stock,
-    int LowStockThreshold,
-    bool TrackStock,
-    string? CustomFieldValues  // JSON string, z.B. "{\"color\":\"black\"}"
-);
+public class ProductDto : ProductBase;

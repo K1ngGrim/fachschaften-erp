@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import {
   MAT_DIALOG_DATA,
   MatDialogActions,
@@ -8,16 +8,25 @@ import {
 } from '@angular/material/dialog';
 import { MatFormField, MatInput, MatLabel } from '@angular/material/input';
 import { MatOption, MatSelect } from '@angular/material/select';
-import { FormsModule } from '@angular/forms';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
-import type { Product } from '../../../../../shared/models';
+import type { CustomField, Product } from '../../../../../shared/models';
 import { MatButton } from '@angular/material/button';
 import {
+  CustomFieldDto,
   CustomFieldsService,
+  CustomFieldType,
   ItemTypeDto,
   ItemTypesService,
+  ProductDto,
+  ProductsService,
+  SupplierDto,
+  SuppliersService,
 } from '../../../../../../../projects/api/src/lib';
 import { lastValueFrom } from 'rxjs';
+import { MatDivider } from '@angular/material/list';
+import { MatCheckbox } from '@angular/material/checkbox';
+import { TitleCasePipe } from '@angular/common';
 
 @Component({
   selector: 'app-item-dialog',
@@ -33,20 +42,24 @@ import { lastValueFrom } from 'rxjs';
     MatSlideToggle,
     MatDialogActions,
     MatButton,
+    MatDivider,
+    MatCheckbox,
+    ReactiveFormsModule,
+    TitleCasePipe,
   ],
   templateUrl: './item-dialog.html',
   styleUrl: './item-dialog.scss',
 })
 export class ItemDialog {
   readonly dialogRef = inject(MatDialogRef<ItemDialog>);
-  readonly dialogData = inject<{ product: Product | null }>(MAT_DIALOG_DATA);
+  readonly dialogData = inject<{ product: ProductDto | null }>(MAT_DIALOG_DATA);
 
   readonly itemTypes = signal<Array<ItemTypeDto>>([]);
 
   private readonly typesController = inject(ItemTypesService);
+  private readonly productController = inject(ProductsService);
   private readonly customFieldsController = inject(CustomFieldsService);
-
-  readonly isEdit = !!this.dialogData.product;
+  private readonly supplierController = inject(SuppliersService);
 
   public readonly selectedTypeId = signal(this.dialogData.product?.itemTypeId ?? '');
   public readonly trackStock = signal(this.dialogData.product?.trackStock ?? true);
@@ -56,25 +69,40 @@ export class ItemDialog {
       : {},
   );
 
-  public name = signal(this.dialogData.product?.name ?? '');
-  public supplier = signal(this.dialogData.product?.supplier ?? '');
-  public purchasePrice = signal(this.dialogData.product?.purchasePrice ?? 0);
-  public sellingPrice = signal(this.dialogData.product?.sellingPrice ?? 0);
-  public stock = signal(this.dialogData.product?.stock ?? 0);
-  public threshold = signal(this.dialogData.product?.lowStockThreshold ?? 12);
+  public form = new FormGroup({
+    name: new FormControl(this.dialogData.product?.name ?? '', Validators.required),
+    supplier: new FormControl(
+      this.supplierController.apiSuppliersIdGet({
+        id: this.dialogData.product?.supplierId ?? '',
+      }),
+      Validators.required,
+    ),
+    purchasePrice: new FormControl(this.dialogData.product?.purchasePrice ?? 0, Validators.min(0)),
+    sellingPrice: new FormControl(this.dialogData.product?.sellingPrice ?? 0, Validators.min(0)),
+    stock: new FormControl(this.dialogData.product?.stock ?? 0, Validators.min(0)),
+    threshold: new FormControl(this.dialogData.product?.lowStockThreshold ?? 12, Validators.min(0)),
+  });
 
-  //TODO refactor to backend controller (custom fields)
-  /**readonly typeCustomFields = computed<CustomField[]>(() =>
-
-    this.customFieldsController.apiCustomFieldsTypeTypeIdGet()
-
-    this.data
-      .customFields()
-      .filter((f) => f.active && f.itemTypeIds.includes(this.selectedTypeId())),
-  );**/
+  public readonly suppliers = signal<SupplierDto[]>([]);
+  readonly typeCustomFields = signal<CustomFieldDto[]>([]);
+  public readonly isView = signal(false);
+  public readonly isEdit = signal(!!this.dialogData.product);
 
   async ngOnInit() {
     this.itemTypes.set(await lastValueFrom(this.typesController.apiItemTypesGet()));
+
+    this.suppliers.set(
+      await lastValueFrom(this.supplierController.apiSuppliersGet()
+    ));
+
+    const res = await lastValueFrom(
+      this.productController.apiProductsIdCustomFieldsGet({
+        id: this.dialogData.product?.id ?? '',
+      }),
+    );
+
+    this.typeCustomFields.set(res);
+
     /**if (!this.selectedTypeId() && this.activeTypes().length) {
       this.selectedTypeId.set(this.activeTypes()[0].id);
     }**/
@@ -93,4 +121,6 @@ export class ItemDialog {
   cancel() {
     this.dialogRef.close();
   }
+
+  protected readonly CustomFieldType = CustomFieldType;
 }

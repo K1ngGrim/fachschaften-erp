@@ -63,7 +63,7 @@ export class CustomFieldDialog implements OnInit {
   public readonly isEdit = signal(this.dialogData.mode === 'edit');
   public readonly isView = signal(this.dialogData.mode === 'view');
 
-  form = new FormGroup({
+  public form = new FormGroup({
     label: new FormControl(this.dialogData.field?.label ?? '', Validators.required,),
     name: new FormControl(this.dialogData.field?.name ?? '', Validators.required),
     type: new FormControl<CustomFieldType>(

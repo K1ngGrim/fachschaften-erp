@@ -14,6 +14,8 @@ import {
 } from '../../../../../shared/components/data-grid/data-grid';
 import { MatTooltip } from '@angular/material/tooltip';
 import { ItemDialog } from '../item-dialog/item-dialog';
+import { ItemTypeDto, ProductDto } from '../../../../../../../projects/api/src/lib';
+import { ItemDialogConfig } from '../../../../../shared/components/base-item-dialog/base-item-dialog';
 
 @Component({
   selector: 'app-items-page',

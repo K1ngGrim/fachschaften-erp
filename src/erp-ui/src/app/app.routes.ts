@@ -59,12 +59,6 @@ export const routes: Routes = [
           ),
       },
       {
-        path: 'inventory',
-        //canActivate: [permissionGuard('users.canread')],
-        loadComponent: () =>
-          import('./pages/inventory/inventory-page/inventory-page').then((m) => m.InventoryPage),
-      },
-      {
         path: 'item-types',
         loadComponent: () =>
           import('./features/inventory/item-types/components/item-types-page/item-types-page').then(
