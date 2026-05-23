@@ -10,7 +10,7 @@
 
 
 export interface ProductDto { 
-    id: string;
+    id: string | null;
     name: string;
     purchasePrice: number;
     sellingPrice: number;

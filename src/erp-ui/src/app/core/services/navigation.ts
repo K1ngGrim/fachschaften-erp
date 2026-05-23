@@ -12,19 +12,19 @@ export class Navigation {
         {
           label: 'Lager',
           route: '/inventory',
-          icon: 'inventory',
+          icon: 'apps-box',
           permissions: [PermissionType.ProductsCanRead],
         },
         {
           label: 'Lieferungen',
           route: '/deliveries',
-          icon: 'local_shipping',
+          icon: 'truck-delivery',
           permissions: [PermissionType.ProductsCanRead],
         },
         {
           label: 'Kasseneinnahmen',
           route: '/incomes',
-          icon: 'point_of_sale',
+          icon: 'cash-register',
           permissions: [PermissionType.ProductsCanRead],
         },
       ],
@@ -35,13 +35,13 @@ export class Navigation {
         {
           label: 'Übersicht',
           route: '/finances',
-          icon: 'bar_chart',
+          icon: 'finance',
           permissions: [PermissionType.ProductsCanRead],
         },
         {
           label: 'Kassenbücher',
           route: '/books',
-          icon: 'description',
+          icon: 'book-open-page-variant',
           permissions: [PermissionType.ProductsCanRead],
         },
       ],

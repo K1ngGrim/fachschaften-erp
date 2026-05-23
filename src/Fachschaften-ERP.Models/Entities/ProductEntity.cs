@@ -4,14 +4,13 @@ using Fachschaften_ERP.Models.Core;
 
 namespace Fachschaften_ERP.Models.Entities;
 
+[NotMapped]
 public class ProductBase
 {
-    public Guid Id { get; set; }
     public string Name { get; set; } = null!;
     
     public decimal PurchasePrice { get; set; }
     public decimal SellingPrice { get; set; }
-    public int Stock { get; set; }
     public int LowStockThreshold { get; set; }
     public bool TrackStock { get; set; }
     
@@ -23,6 +22,7 @@ public class ProductBase
 
 public class ProductEntity : ProductBase, IBaseEntity
 {
+    public Guid Id { get; set; }
     public ItemTypeEntity ItemType { get; set; } = null!;
 
     public SupplierEntity? Supplier { get; set; }

@@ -11,17 +11,12 @@ import { HttpHeaders }                                       from '@angular/comm
 
 import { Observable }                                        from 'rxjs';
 
-import { CustomFieldDto } from '../model/models';
 import { ItemUpsertRequestOfProductDto } from '../model/models';
 import { ProductDto } from '../model/models';
 
 
 import { Configuration }                                     from '../configuration';
 
-
-export interface ApiProductsIdCustomFieldsGetRequestParams {
-    id: string;
-}
 
 export interface ApiProductsIdDeleteRequestParams {
     id: string;
@@ -31,8 +26,7 @@ export interface ApiProductsIdGetRequestParams {
     id: string;
 }
 
-export interface ApiProductsIdPutRequestParams {
-    id: string;
+export interface ApiProductsPostRequestParams {
     itemUpsertRequestOfProductDto: ItemUpsertRequestOfProductDto;
 }
 
@@ -46,13 +40,6 @@ export interface ProductsServiceInterface {
      * 
 */
     apiProductsGet(extraHttpRequestParams?: any): Observable<Array<ProductDto>>;
-
-    /**
-     * 
-     * 
-* @param requestParameters
-     */
-    apiProductsIdCustomFieldsGet(requestParameters: ApiProductsIdCustomFieldsGetRequestParams, extraHttpRequestParams?: any): Observable<Array<CustomFieldDto>>;
 
     /**
      * 
@@ -73,6 +60,6 @@ export interface ProductsServiceInterface {
      * 
 * @param requestParameters
      */
-    apiProductsIdPut(requestParameters: ApiProductsIdPutRequestParams, extraHttpRequestParams?: any): Observable<{}>;
+    apiProductsPost(requestParameters: ApiProductsPostRequestParams, extraHttpRequestParams?: any): Observable<{}>;
 
 }

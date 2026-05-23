@@ -10,7 +10,8 @@ public partial class CoreContext
     public DbSet<ProductEntity> Products => Set<ProductEntity>();
     public DbSet<SupplierEntity> Suppliers => Set<SupplierEntity>();
     public DbSet<CustomFieldEntity> CustomFields => Set<CustomFieldEntity>();
-
+    public DbSet<InventoryTransactionEntity> InventoryTransactions => Set<InventoryTransactionEntity>();
+    
     private static void OnErpCreating(ModelBuilder modelBuilder)
     {
 
@@ -89,7 +90,19 @@ public partial class CoreContext
                 .UsingEntity(j => j.ToTable("ItemTypeCustomFields"));
         });
 
+        modelBuilder.Entity<InventoryTransactionEntity>(entity => 
+        {
+            entity.HasKey(i => i.Id);
+            entity.HasOne(i => i.Product);
 
+            entity.Property(i => i.Note)
+                .HasMaxLength(255);
+
+            entity.Property(i => i.ProductId)
+                .IsRequired();
+        });
+        
+        modelBuilder.Ignore<ProductBase>();
 
     }
 

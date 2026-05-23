@@ -11,6 +11,7 @@ import { HttpHeaders }                                       from '@angular/comm
 
 import { Observable }                                        from 'rxjs';
 
+import { CustomFieldDto } from '../model/models';
 import { ItemTypeDto } from '../model/models';
 import { UpsertItemTypeRequest } from '../model/models';
 
@@ -33,6 +34,10 @@ export interface ApiItemTypesIdPutRequestParams {
 
 export interface ApiItemTypesPostRequestParams {
     upsertItemTypeRequest: UpsertItemTypeRequest;
+}
+
+export interface ApiItemTypesTypeIdCustomFieldsGetRequestParams {
+    typeId: string;
 }
 
 
@@ -73,5 +78,12 @@ export interface ItemTypesServiceInterface {
 * @param requestParameters
      */
     apiItemTypesPost(requestParameters: ApiItemTypesPostRequestParams, extraHttpRequestParams?: any): Observable<ItemTypeDto>;
+
+    /**
+     * 
+     * 
+* @param requestParameters
+     */
+    apiItemTypesTypeIdCustomFieldsGet(requestParameters: ApiItemTypesTypeIdCustomFieldsGetRequestParams, extraHttpRequestParams?: any): Observable<Array<CustomFieldDto>>;
 
 }

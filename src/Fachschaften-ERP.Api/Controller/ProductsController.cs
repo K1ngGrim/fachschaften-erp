@@ -27,7 +27,7 @@ public class ProductsController(CoreContext db) : ControllerBase
                 SupplierId = x.SupplierId,
                 PurchasePrice = x.PurchasePrice,
                 SellingPrice = x.SellingPrice,
-                Stock = x.Stock,
+                Stock = 0,
                 LowStockThreshold = x.LowStockThreshold,
                 TrackStock = x.TrackStock,
                 CustomFieldValues = x.CustomFieldValues,
@@ -35,40 +35,6 @@ public class ProductsController(CoreContext db) : ControllerBase
             .ToListAsync();
         
         return Ok(items);
-    }
-    
-    [HttpGet("{id:guid}/custom-fields")]
-    public async Task<ActionResult<IList<CustomFieldDto>>> GetCustomFields(Guid id)
-    {
-        var product = await db.Products
-            .Include(x => x.ItemType)
-            .ThenInclude(it => it.CustomFields)
-            .FirstOrDefaultAsync(x => x.Id == id && x.IsActive);
-
-        if (product is null) return NotFound();
-
-        var customFields = product.ItemType.CustomFields
-            .Select(x => new CustomFieldDto
-            {
-                Id = x.Id,
-                Name = x.Name,
-                Label = x.Label,
-                Type = x.Type,
-                Required = x.Required,
-                Order = x.Order,
-                SelectOptions = x.SelectOptions,
-                ItemTypes = db.ItemTypes
-                    .Where(y => y.IsActive)
-                    .Select(t => new ItemTypeBase
-                {
-                    Id = t.Id,
-                    Name = t.Name,
-                }).ToList(),
-            })
-            .OrderBy(cf => cf.Order)
-            .ToList();
-
-        return Ok(customFields);
     }
 
     [HttpGet("{id:guid}")]
@@ -82,7 +48,7 @@ public class ProductsController(CoreContext db) : ControllerBase
         return entity is null ? NotFound() : Ok(entity);
     }
 
-    [HttpPut("{id:guid?}")]
+    [HttpPost]
     public async Task<IActionResult> Upsert(ItemUpsertRequest<ProductDto> request)
     {
         var itemTypeExists = await db.ItemTypes.AnyAsync(x => x.Id == request.Value.ItemTypeId && x.IsActive);
@@ -104,10 +70,9 @@ public class ProductsController(CoreContext db) : ControllerBase
                 SupplierId = request.Value.SupplierId,
                 PurchasePrice = request.Value.PurchasePrice,
                 SellingPrice = request.Value.SellingPrice,
-                Stock = request.Value.Stock,
                 LowStockThreshold = request.Value.LowStockThreshold,
                 TrackStock = request.Value.TrackStock,
-                CustomFieldValues = JsonDocument.Parse(request.Value.CustomFieldValues.ToString() ?? "{}"),
+                CustomFieldValues = request.Value.CustomFieldValues,
                 Created = DateTimeOffset.UtcNow,
                 CreatorId = GetUserId(),
                 IsActive = true,
@@ -126,7 +91,6 @@ public class ProductsController(CoreContext db) : ControllerBase
             entity.SupplierId = request.Value.SupplierId;
             entity.PurchasePrice = request.Value.PurchasePrice;
             entity.SellingPrice = request.Value.SellingPrice;
-            entity.Stock = request.Value.Stock;
             entity.LowStockThreshold = request.Value.LowStockThreshold;
             entity.TrackStock = request.Value.TrackStock;
             entity.CustomFieldValues = JsonDocument.Parse(request.Value.CustomFieldValues.ToString() ?? "{}");
@@ -155,4 +119,9 @@ public class ProductsController(CoreContext db) : ControllerBase
     private Guid GetUserId() =>
         Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? Guid.Empty.ToString());
 }
-public class ProductDto : ProductBase;
+
+public class ProductDto : ProductBase
+{
+    public new Guid? Id { get; set; }
+    public int Stock { get; set; }
+}

@@ -6,8 +6,8 @@
   </app-page-header>
 
   <app-data-grid
-    [columns]="columns"
-    [data]="data.products()"
+    [columns]="columns()"
+    [data]="products()"
     [searchable]="true"
     [searchKeys]="['name', 'supplier']"
     [toolbarTemplate]="gridHeaderActions"
@@ -20,7 +20,6 @@
       </button>
     </ng-template>
 
-    <!-- Action Column via Directive -->
     <ng-template gridActionCell let-p>
       <div class="d-flex gap-1 justify-content-end">
         <button mat-icon-button matTooltip="View" (click)="viewDetail(p.id)">
