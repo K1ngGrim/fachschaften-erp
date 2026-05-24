@@ -28,7 +28,7 @@ import { filter, Subscription } from 'rxjs';
 import { FilterNavigationPipe } from '../../pipes/filter-navigation-pipe';
 import { MatProgressBar } from '@angular/material/progress-bar';
 import { Auth } from '../../../core/services/auth';
-import { LoadingService } from '../../services/loading-service';
+import { LoadingService } from '../../../core/services/loading-service';
 
 @Component({
   selector: 'app-nav-bar',

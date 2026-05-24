@@ -7,6 +7,8 @@ api/auth.service.ts
 api/auth.serviceInterface.ts
 api/custom-fields.service.ts
 api/custom-fields.serviceInterface.ts
+api/inventory-transactions.service.ts
+api/inventory-transactions.serviceInterface.ts
 api/invite.service.ts
 api/invite.serviceInterface.ts
 api/item-types.service.ts
@@ -17,6 +19,8 @@ api/products.service.ts
 api/products.serviceInterface.ts
 api/roles.service.ts
 api/roles.serviceInterface.ts
+api/stock.service.ts
+api/stock.serviceInterface.ts
 api/suppliers.service.ts
 api/suppliers.serviceInterface.ts
 api/two-factor.service.ts
@@ -33,10 +37,12 @@ model/change-password-request.ts
 model/create-role-request.ts
 model/custom-field-dto.ts
 model/custom-field-type.ts
+model/inventory-transaction-dto.ts
 model/invite-request.ts
 model/item-type-base.ts
 model/item-type-dto.ts
 model/item-upsert-request-of-custom-field-dto.ts
+model/item-upsert-request-of-inventory-transaction-dto.ts
 model/item-upsert-request-of-product-dto.ts
 model/login-request.ts
 model/login-result.ts
@@ -48,6 +54,8 @@ model/register-request.ts
 model/role-dto.ts
 model/setup2-fa-request.ts
 model/setup2-fa-result.ts
+model/simple-inventory-transaction-dto.ts
+model/stock-overview-dto.ts
 model/supplier-dto.ts
 model/upsert-item-type-request.ts
 model/upsert-supplier-request.ts

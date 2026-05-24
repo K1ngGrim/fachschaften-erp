@@ -26,7 +26,7 @@ public partial class CoreContext
             entity.Property(p => p.PurchasePrice)
                 .HasColumnType("numeric(10,2)");
 
-            entity.Property(p => p.SellingPrice)
+            entity.Property(p => p.InternalSellingPrice)
                 .HasColumnType("numeric(10,2)");
 
             entity.Property(p => p.CustomFieldValues)
@@ -102,7 +102,7 @@ public partial class CoreContext
                 .IsRequired();
         });
         
-        modelBuilder.Ignore<ProductBase>();
+        //modelBuilder.Ignore<ProductBase>();
 
     }
 

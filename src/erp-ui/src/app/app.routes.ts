@@ -79,6 +79,13 @@ export const routes: Routes = [
             (m) => m.CustomFieldsPage,
           ),
       },
+      {
+        path: 'warehouse',
+        loadComponent: () =>
+          import('./features/inventory/warehouse/components/warehouse-page/warehouse-page').then(
+            (m) => m.WarehousePage,
+          ),
+      },
 
       {
         path: '',

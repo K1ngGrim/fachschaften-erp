@@ -71,10 +71,10 @@
     <div class="content-wrapper content">
       <mat-toolbar class="toolbar ">
         <div class="d-flex w-100 h-100 align-items-center">
-          <button mat-icon-button class="collapse-btn" (click)="toggleCollapse()"
+          <button mat-icon-button class="collapse-btn " (click)="toggleCollapse()"
                   [matTooltip]="collapsed() ? 'Expand' : 'Collapse'"
                   matTooltipPosition="right">
-            <mat-icon>{{ collapsed() ? 'last_page' : 'first_page' }}</mat-icon>
+            <mat-icon class="mt-1">{{ collapsed() ? 'last_page' : 'first_page' }}</mat-icon>
           </button>
 
           <button matMiniFab class="ms-auto" (click)="switchTheme()">

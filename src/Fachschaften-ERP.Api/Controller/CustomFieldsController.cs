@@ -123,35 +123,33 @@ public class CustomFieldsController(
                 }).ToList(),
             });
         }
-        else
-        {
-            existing.Name = request.Value.Name;
-            existing.Label = request.Value.Label;
-            existing.Type = request.Value.Type;
-            existing.Required = request.Value.Required;
-            existing.Order = request.Value.Order;
-            existing.SelectOptions = request.Value.SelectOptions ?? [];
-            existing.ItemTypes = itemTypes;
-            existing.Modified = DateTimeOffset.UtcNow;
-            existing.ModifierId = invoker.UserId;
 
-            await db.SaveChangesAsync();
-            return Ok(new CustomFieldDto
+        existing.Name = request.Value.Name;
+        existing.Label = request.Value.Label;
+        existing.Type = request.Value.Type;
+        existing.Required = request.Value.Required;
+        existing.Order = request.Value.Order;
+        existing.SelectOptions = request.Value.SelectOptions ?? [];
+        existing.ItemTypes = itemTypes;
+        existing.Modified = DateTimeOffset.UtcNow;
+        existing.ModifierId = invoker.UserId;
+
+        await db.SaveChangesAsync();
+        return Ok(new CustomFieldDto
+        {
+            Id = existing.Id,
+            Name = existing.Name,
+            Label = existing.Label,
+            Type = existing.Type,
+            Required = existing.Required,
+            Order = existing.Order,
+            SelectOptions = existing.SelectOptions,
+            ItemTypes = existing.ItemTypes.Select(t => new ItemTypeBase
             {
-                Id = existing.Id,
-                Name = existing.Name,
-                Label = existing.Label,
-                Type = existing.Type,
-                Required = existing.Required,
-                Order = existing.Order,
-                SelectOptions = existing.SelectOptions,
-                ItemTypes = existing.ItemTypes.Select(t => new ItemTypeBase
-                {
-                    Id = t.Id,
-                    Name = t.Name,
-                }).ToList(),
-            });
-        }
+                Id = t.Id,
+                Name = t.Name,
+            }).ToList(),
+        });
     }
 
     [HttpDelete("{id:guid}")]

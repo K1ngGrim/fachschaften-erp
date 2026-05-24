@@ -26,7 +26,7 @@ public class ProductsController(CoreContext db) : ControllerBase
                 ItemTypeId = x.ItemTypeId,
                 SupplierId = x.SupplierId,
                 PurchasePrice = x.PurchasePrice,
-                SellingPrice = x.SellingPrice,
+                InternalSellingPrice = x.InternalSellingPrice,
                 Stock = 0,
                 LowStockThreshold = x.LowStockThreshold,
                 TrackStock = x.TrackStock,
@@ -69,7 +69,7 @@ public class ProductsController(CoreContext db) : ControllerBase
                 ItemTypeId = request.Value.ItemTypeId,
                 SupplierId = request.Value.SupplierId,
                 PurchasePrice = request.Value.PurchasePrice,
-                SellingPrice = request.Value.SellingPrice,
+                InternalSellingPrice = request.Value.InternalSellingPrice,
                 LowStockThreshold = request.Value.LowStockThreshold,
                 TrackStock = request.Value.TrackStock,
                 CustomFieldValues = request.Value.CustomFieldValues,
@@ -90,7 +90,7 @@ public class ProductsController(CoreContext db) : ControllerBase
             entity.ItemTypeId = request.Value.ItemTypeId;
             entity.SupplierId = request.Value.SupplierId;
             entity.PurchasePrice = request.Value.PurchasePrice;
-            entity.SellingPrice = request.Value.SellingPrice;
+            entity.InternalSellingPrice = request.Value.InternalSellingPrice;
             entity.LowStockThreshold = request.Value.LowStockThreshold;
             entity.TrackStock = request.Value.TrackStock;
             entity.CustomFieldValues = JsonDocument.Parse(request.Value.CustomFieldValues.ToString() ?? "{}");

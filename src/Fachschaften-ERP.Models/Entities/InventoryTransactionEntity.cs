@@ -10,9 +10,12 @@ public class InventoryTransactionEntity : IBaseEntity
     
     [NotNull]
     public Guid ProductId { get; set; }
-    public ProductBase Product { get; set; } = null!;
+    public ProductEntity Product { get; set; } = null!;
 
     public int Quantity { get; set; } = 0;
+    
+    public decimal UnitPurchasePrice { get; set; }
+    public decimal UnitSellingPrice { get; set; }
     
     public InventoryTransactionType Type { get; set; }
     public Guid? ReferenceId { get; set; }

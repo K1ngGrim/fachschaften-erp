@@ -1,0 +1,49 @@
+<div class="container-fluid p-4">
+  <app-page-header
+    [title]="'Custom Fields'"
+    [subtitle]="'Manage custom fields for inventory items.'"
+  >
+  </app-page-header>
+
+  <app-data-grid
+    [columns]="columns()"
+    [data]="rows()"
+    [searchable]="true"
+    [searchKeys]="['name']">
+
+    <!--
+    <ng-template #gridHeaderActions>
+      <button mat-flat-button color="primary" class="d-flex" (click)="openAdd()">
+        <mat-icon svgIcon="plus" class="d-flex"></mat-icon>
+        <span>Add</span>
+      </button>
+    </ng-template>
+
+    <ng-template gridActionCell let-p>
+      <div class="d-flex gap-1 justify-content-end">
+        <button mat-icon-button matTooltip="View" color="primary" (click)="openView(p)">
+          <mat-icon>visibility</mat-icon>
+        </button>
+        <button mat-icon-button matTooltip="Edit" color="accent" (click)="openEdit(p)">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button matTooltip="Delete" color="warn" (click)="openDelete(p)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+    </ng-template>
+
+    -->
+  </app-data-grid>
+
+</div>
+
+<ng-template #stockTemplate let-row let-stock="value">
+
+  <mat-chip-set>
+    <mat-chip [class]="'mat-warn'" selected highlighted [color]="stock < row.threshold? 'warning':'primary'">
+      {{ stock }}
+    </mat-chip>
+  </mat-chip-set>
+
+</ng-template>

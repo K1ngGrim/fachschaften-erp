@@ -10,11 +10,12 @@
 
 
 export interface ProductDto { 
-    id: string | null;
+    id?: string | null;
+    stock: number;
     name: string;
     purchasePrice: number;
-    sellingPrice: number;
-    stock: number;
+    internalSellingPrice: number;
+    externalSellingPrice: number;
     lowStockThreshold: number;
     trackStock: boolean;
     customFieldValues: any | null;

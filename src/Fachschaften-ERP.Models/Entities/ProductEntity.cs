@@ -10,7 +10,8 @@ public class ProductBase
     public string Name { get; set; } = null!;
     
     public decimal PurchasePrice { get; set; }
-    public decimal SellingPrice { get; set; }
+    public decimal InternalSellingPrice { get; set; }
+    public decimal ExternalSellingPrice { get; set; }
     public int LowStockThreshold { get; set; }
     public bool TrackStock { get; set; }
     

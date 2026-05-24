@@ -27,11 +27,6 @@ export interface ApiItemTypesIdGetRequestParams {
     id: string;
 }
 
-export interface ApiItemTypesIdPutRequestParams {
-    id: string;
-    upsertItemTypeRequest: UpsertItemTypeRequest;
-}
-
 export interface ApiItemTypesPostRequestParams {
     upsertItemTypeRequest: UpsertItemTypeRequest;
 }
@@ -64,13 +59,6 @@ export interface ItemTypesServiceInterface {
 * @param requestParameters
      */
     apiItemTypesIdGet(requestParameters: ApiItemTypesIdGetRequestParams, extraHttpRequestParams?: any): Observable<{}>;
-
-    /**
-     * 
-     * 
-* @param requestParameters
-     */
-    apiItemTypesIdPut(requestParameters: ApiItemTypesIdPutRequestParams, extraHttpRequestParams?: any): Observable<{}>;
 
     /**
      * 

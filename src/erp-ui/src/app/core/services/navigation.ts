@@ -11,7 +11,13 @@ export class Navigation {
       items: [
         {
           label: 'Lager',
-          route: '/inventory',
+          route: '/warehouse',
+          icon: 'apps-box',
+          permissions: [PermissionType.ProductsCanRead],
+        },
+        {
+          label: 'Purchases',
+          route: '/purchases',
           icon: 'apps-box',
           permissions: [PermissionType.ProductsCanRead],
         },
@@ -21,15 +27,15 @@ export class Navigation {
           icon: 'truck-delivery',
           permissions: [PermissionType.ProductsCanRead],
         },
-        {
+        /*{
           label: 'Kasseneinnahmen',
           route: '/incomes',
           icon: 'cash-register',
           permissions: [PermissionType.ProductsCanRead],
-        },
+        },*/
       ],
     },
-    {
+    /*{
       label: 'Finanzen',
       items: [
         {
@@ -45,7 +51,7 @@ export class Navigation {
           permissions: [PermissionType.ProductsCanRead],
         },
       ],
-    },
+    },*/
     {
       label: 'Stammdaten',
       items: [

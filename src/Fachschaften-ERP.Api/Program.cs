@@ -163,6 +163,7 @@ var dbContext = scope.ServiceProvider.GetRequiredService<CoreContext>();
 dbContext.Database.Migrate();
 
 await DatabaseSeeder.SeedAsync(scope.ServiceProvider);
+await DemoDataSeeder.SeedAsync(scope.ServiceProvider, app.Environment);
 
 app.MapOpenApi();
 app.MapSwaggerUI();

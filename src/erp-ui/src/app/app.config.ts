@@ -14,7 +14,7 @@ import { registerLocaleData } from '@angular/common';
 import localeDe from '@angular/common/locales/de';
 import { BASE_PATH } from '../../projects/api/src/lib';
 import { Auth } from './core/services/auth';
-import { loadingInterceptor } from './shared/services/loading-service';
+import { loadingInterceptor } from './core/services/loading-service';
 
 registerLocaleData(localeDe);
 
