@@ -43,45 +43,48 @@
 
     <!-- Body Table -->
     <div class="data-grid__body">
-      <table class="grid-table">
-        <colgroup>
-          @for (col of columns(); track col.key) {
-            <col [style.width]="col.width ?? 'auto'">
-          }
-          @if (actionCellDirective) {
-            <col class="col-actions">
-          }
-        </colgroup>
-        <tbody>
-          @for (row of filteredData(); track row) {
-            <tr class="grid-row">
-              @for (col of columns(); track col.key) {
-                <td [class]="'grid-td ' + cellClass(col)">
-                  @if (col.cellTemplate) {
-                    <ng-container *ngTemplateOutlet="col.cellTemplate; context: { $implicit: row, value: col.value ? col.value(row) : row[col.key] }"/>
-                  } @else {
-                    {{ col.value ? col.value(row) : row[col.key] }}
-                  }
-                </td>
-              }
-              @if (actionCellDirective) {
-                <td class="grid-td col-actions">
-                  <ng-container *ngTemplateOutlet="actionCellDirective.templateRef; context: { $implicit: row }"/>
-                </td>
-              }
-            </tr>
-          }
 
-          @if (filteredData().length === 0) {
-            <tr>
-              <td [attr.colspan]="displayedColumns().length" class="grid-td grid-empty">
-                <mat-icon>inbox</mat-icon>
-                <span>No data</span>
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
+      @if (filteredData().length === 0) {
+        <div class="d-flex w-100 h-100 justify-content-center">
+          <span class="grid-empty">
+             <mat-icon>inbox</mat-icon>
+            <span>No data</span>
+          </span>
+        </div>
+      } @else {
+        <table class="grid-table">
+          <colgroup>
+            @for (col of columns(); track col.key) {
+              <col [style.width]="col.width ?? 'auto'">
+            }
+            @if (actionCellDirective) {
+              <col class="col-actions">
+            }
+          </colgroup>
+          <tbody>
+            @for (row of filteredData(); track row) {
+              <tr class="grid-row">
+                @for (col of columns(); track col.key) {
+                  <td [class]="'grid-td ' + cellClass(col)">
+                    @if (col.cellTemplate) {
+                      <ng-container *ngTemplateOutlet="col.cellTemplate; context: { $implicit: row, value: col.value ? col.value(row) : row[col.key] }"/>
+                    } @else {
+                      {{ col.value ? col.value(row) : row[col.key] }}
+                    }
+                  </td>
+                }
+                @if (actionCellDirective) {
+                  <td class="grid-td col-actions">
+                    <ng-container *ngTemplateOutlet="actionCellDirective.templateRef; context: { $implicit: row }"/>
+                  </td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+
+
     </div>
 
   </div>

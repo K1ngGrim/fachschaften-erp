@@ -103,11 +103,17 @@
   gap: 0.5rem;
 
   mat-icon {
-    font-size: 2rem;
-    width: 2rem;
-    height: 2rem;
+    font-size: 4rem;
+    width: 4rem;
+    height: 4rem;
     opacity: 0.4;
   }
+}
+
+.no-data-icon {
+  font-size: 100px;
+  height: 100px;
+  width: 100px;
 }
 
 .text-end { text-align: right; }
