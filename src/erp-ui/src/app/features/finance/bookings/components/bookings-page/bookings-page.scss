@@ -1,0 +1,182 @@
+.year-select {
+  width: 6.5rem;
+}
+
+.month-select {
+  width: 11rem;
+}
+
+// ── Steuerbereichs-Karten ────────────────────────────────────────────────────
+.area-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  width: 100%;
+  height: 100%;
+  padding: 1.4rem 1.25rem 1.15rem;
+  text-align: left;
+  background: var(--app-card);
+  border: 1px solid var(--app-border);
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+
+  // Farbiger Streifen oben, je Steuerbereich
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 4px;
+    border-radius: 0.75rem 0.75rem 0 0;
+    background: var(--area-color);
+  }
+
+  &[data-area='Ideell'] {
+    --area-color: #14b8a6;
+    --area-tint: rgba(20, 184, 166, 0.12);
+  }
+
+  &[data-area='Zweckbetrieb'] {
+    --area-color: #3b82f6;
+    --area-tint: rgba(59, 130, 246, 0.12);
+  }
+
+  &[data-area='Wirtschaftsbetrieb'] {
+    --area-color: var(--brand-accent);
+    --area-tint: var(--brand-accent-soft);
+  }
+
+  .icon-tile {
+    background: var(--area-tint);
+    color: var(--area-color);
+  }
+
+  &:hover {
+    border-color: var(--app-border-strong);
+  }
+
+  &--active {
+    border-color: var(--area-color);
+    box-shadow: 0 0 0 1px var(--area-color);
+  }
+}
+
+.area-card__head {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.area-card__title {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.area-card__name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--app-text);
+}
+
+.area-card__hint {
+  font-size: 0.75rem;
+  color: var(--app-text-muted);
+}
+
+.area-card__figures {
+  display: flex;
+  gap: 2.5rem;
+
+  > div {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+.area-card__label {
+  font-size: 0.75rem;
+  color: var(--app-text-muted);
+}
+
+.area-card__value {
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.area-card__footer {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--app-border);
+}
+
+.area-card__balance {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--brand-positive);
+}
+
+.area-card__count {
+  font-size: 0.75rem;
+  color: var(--app-text-muted);
+}
+
+// ── Summenleiste ─────────────────────────────────────────────────────────────
+.totals-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: var(--app-card);
+  border: 1px solid var(--app-border);
+  border-radius: 0.75rem;
+}
+
+.totals-bar__item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1 1 12rem;
+
+  > div {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+.totals-bar__label {
+  font-size: 0.75rem;
+  color: var(--app-text-muted);
+}
+
+.totals-bar__value {
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.icon-tile--positive {
+  background: rgba(22, 163, 74, 0.12);
+  color: var(--brand-positive);
+}
+
+.icon-tile--negative {
+  background: rgba(220, 38, 38, 0.12);
+  color: var(--brand-negative);
+}
+
+// ── Filter ───────────────────────────────────────────────────────────────────
+.filter-toggle {
+  --mat-standard-button-toggle-height: 2.5rem;
+  border-radius: 0.6rem;
+  overflow: hidden;
+
+  .mat-button-toggle-checked {
+    background: var(--brand-accent);
+    color: #fff;
+  }
+}

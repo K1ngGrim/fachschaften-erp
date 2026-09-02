@@ -15,6 +15,7 @@ import localeDe from '@angular/common/locales/de';
 import { BASE_PATH } from '../../projects/api/src/lib';
 import { Auth } from './core/services/auth';
 import { loadingInterceptor } from './core/services/loading-service';
+import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
 
 registerLocaleData(localeDe);
 
@@ -37,6 +38,7 @@ export const appConfig: ApplicationConfig = {
       ]),
     ),
     { provide: BASE_PATH, useValue: '' },
+    provideCharts(withDefaultRegisterables()),
     provideAppInitializer(initAppFn),
   ],
 };

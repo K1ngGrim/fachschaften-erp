@@ -1,13 +1,16 @@
 <mat-sidenav-container class="sidenav-container">
-  <mat-sidenav #snav [mode]="isMobile() ? 'over' : 'side'"
-               [fixedInViewport]="isMobile()" [opened]="true"
-               [style.width]="collapsed() ? '56px' : '260px'"
-               [class.collapsed]="collapsed()"
-               class="sidenav">
-
+  <mat-sidenav
+    #snav
+    [mode]="isMobile() ? 'over' : 'side'"
+    [fixedInViewport]="isMobile()"
+    [opened]="true"
+    [style.width]="collapsed() ? '64px' : '240px'"
+    [class.collapsed]="collapsed()"
+    class="sidenav"
+  >
     <div class="sidenav-header">
       <div class="logo-icon">
-        <mat-icon>grid_view</mat-icon>
+        <mat-icon svgIcon="fridge-outline"></mat-icon>
       </div>
       <div class="org-info" [class.collapsed]="collapsed()">
         <span class="org-name">FachschaftERP</span>
@@ -16,22 +19,24 @@
     </div>
 
     <mat-nav-list class="nav-list flex-grow-1 d-flex flex-column">
-      @for (group of navItems(); track group) {
+      @for (group of navItems(); track group.label) {
         @if ((group.items | filterNavigation).length !== 0) {
           <div class="nav-section">
             @if (!collapsed()) {
               <span class="section-label">{{ group.label }}</span>
             }
             @for (item of group.items | filterNavigation; track item.route) {
-              <a mat-list-item
-                 [routerLink]="item.route"
-                 routerLinkActive="active"
-                 [routerLinkActiveOptions]="{ exact: item.route === '/' }"
-                 (click)="isMobile() && snav.close()"
-                 class="nav-item gap-2 align-items-center"
-                 [matTooltip]="collapsed() ? item.label : ''"
-                 matTooltipPosition="right">
-                <mat-icon [svgIcon]="item.icon??''" matListItemIcon/>
+              <a
+                mat-list-item
+                [routerLink]="item.route"
+                routerLinkActive="active"
+                [routerLinkActiveOptions]="{ exact: item.route === '/' }"
+                (click)="isMobile() && snav.close()"
+                class="nav-item"
+                [matTooltip]="collapsed() ? item.label : ''"
+                matTooltipPosition="right"
+              >
+                <mat-icon [svgIcon]="item.icon ?? ''" matListItemIcon />
                 @if (!collapsed()) {
                   <span matListItemTitle>{{ item.label }}</span>
                 }
@@ -41,56 +46,56 @@
         }
       }
 
-      @if (!collapsed()) {
-        <div class="nav-footer flex-grow-1 d-flex flex-column justify-content-end">
-          <a mat-list-item
-             (click)="logout()"
-             class="nav-item gap-2 align-items-center"
-             [matTooltip]="collapsed() ? 'log out' : ''"
-             matTooltipPosition="right">
-            <mat-icon svgIcon="logout" matListItemIcon/>
-            @if (!collapsed()) {
-              <span matListItemTitle>
-              Log out
-            </span>
-            }
-          </a>
-
-        </div>
-      }
-
-
+      <div class="nav-footer flex-grow-1 d-flex flex-column justify-content-end">
+        <a
+          mat-list-item
+          (click)="logout()"
+          class="nav-item"
+          [matTooltip]="collapsed() ? 'Abmelden' : ''"
+          matTooltipPosition="right"
+        >
+          <mat-icon svgIcon="logout" matListItemIcon />
+          @if (!collapsed()) {
+            <span matListItemTitle>Abmelden</span>
+          }
+        </a>
+      </div>
     </mat-nav-list>
   </mat-sidenav>
 
-  <mat-sidenav-content
-    #content
-    class="sidenav-content"
-    [class.collapsed]="collapsed()"
-  >
+  <mat-sidenav-content #content class="sidenav-content" [class.collapsed]="collapsed()">
     <div class="content-wrapper content">
-      <mat-toolbar class="toolbar ">
-        <div class="d-flex w-100 h-100 align-items-center">
-          <button mat-icon-button class="collapse-btn " (click)="toggleCollapse()"
-                  [matTooltip]="collapsed() ? 'Expand' : 'Collapse'"
-                  matTooltipPosition="right">
-            <mat-icon class="mt-1">{{ collapsed() ? 'last_page' : 'first_page' }}</mat-icon>
-          </button>
+      <mat-toolbar class="toolbar">
+        <button
+          mat-icon-button
+          class="toolbar-btn"
+          (click)="toggleCollapse()"
+          [matTooltip]="collapsed() ? 'Menü ausklappen' : 'Menü einklappen'"
+        >
+          <mat-icon svgIcon="dock-left"></mat-icon>
+        </button>
 
-          <button matMiniFab class="ms-auto" (click)="switchTheme()">
-            @if (isDarkMode()) {
-              <mat-icon>light_mode</mat-icon>
-            } @else {
-              <mat-icon>dark_mode</mat-icon>
-            }
-          </button>
-        </div>
+        <span class="flex-grow-1"></span>
+
+        <button
+          mat-icon-button
+          class="toolbar-btn"
+          (click)="switchTheme()"
+          [matTooltip]="isDarkMode() ? 'Helles Design' : 'Dunkles Design'"
+        >
+          <mat-icon [svgIcon]="isDarkMode() ? 'white-balance-sunny' : 'weather-night'"></mat-icon>
+        </button>
+
+        <span class="avatar" [matTooltip]="userName()">{{ initials() }}</span>
       </mat-toolbar>
+
       @if (routeLoading()) {
-        <mat-progress-bar mode="indeterminate" style="position: fixed; top: 0; z-index: 9999;" />
+        <mat-progress-bar mode="indeterminate" class="route-progress" />
       }
 
-      <ng-content></ng-content>
+      <div class="page-scroll">
+        <ng-content></ng-content>
+      </div>
     </div>
   </mat-sidenav-content>
 </mat-sidenav-container>

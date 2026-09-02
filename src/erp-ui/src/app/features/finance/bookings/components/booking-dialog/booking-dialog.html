@@ -1,0 +1,115 @@
+<h2 mat-dialog-title>{{ isEdit ? 'Buchung bearbeiten' : 'Neue Buchung' }}</h2>
+
+<mat-dialog-content>
+  <div class="row g-3">
+    <div class="col-12">
+      <mat-button-toggle-group
+        [value]="direction()"
+        (change)="direction.set($event.value)"
+        class="w-100"
+        hideSingleSelectionIndicator
+      >
+        <mat-button-toggle value="income" class="w-50">Einnahme</mat-button-toggle>
+        <mat-button-toggle value="expense" class="w-50">Ausgabe</mat-button-toggle>
+      </mat-button-toggle-group>
+    </div>
+
+    <div class="col-12 col-md-6">
+      <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
+        <mat-label>Betrag (€)</mat-label>
+        <input
+          matInput
+          type="number"
+          step="0.01"
+          [ngModel]="amount()"
+          (ngModelChange)="setAmount($event)"
+        />
+      </mat-form-field>
+    </div>
+
+    <div class="col-12 col-md-6">
+      <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
+        <mat-label>Datum</mat-label>
+        <input matInput type="date" [ngModel]="date()" (ngModelChange)="date.set($event)" />
+      </mat-form-field>
+    </div>
+
+    <div class="col-12">
+      <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
+        <mat-label>Beschreibung</mat-label>
+        <input
+          matInput
+          [ngModel]="description()"
+          (ngModelChange)="description.set($event)"
+        />
+      </mat-form-field>
+    </div>
+
+    <div class="col-12 col-md-6">
+      <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
+        <mat-label>Steuerbereich</mat-label>
+        <mat-select [ngModel]="taxArea()" (ngModelChange)="setTaxArea($event)">
+          @for (area of taxAreas; track area.value) {
+            <mat-option [value]="area.value">{{ area.label }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <small class="text-hint d-block mt-1">{{ taxAreaHints[taxArea()] }}</small>
+    </div>
+
+    <div class="col-12 col-md-6">
+      <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
+        <mat-label>Kategorie</mat-label>
+        <mat-select [ngModel]="categoryId()" (ngModelChange)="categoryId.set($event)">
+          <mat-option [value]="null">Ohne Kategorie</mat-option>
+          @for (category of availableCategories(); track category.id) {
+            <mat-option [value]="category.id">{{ category.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      @if (availableCategories().length === 0) {
+        <small class="text-hint d-block mt-1">
+          Für diesen Steuerbereich sind noch keine Kategorien angelegt.
+        </small>
+      }
+    </div>
+
+    <div class="col-12 col-md-6">
+      <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
+        <mat-label>Kassenbuch</mat-label>
+        <mat-select [ngModel]="cashBookId()" (ngModelChange)="cashBookId.set($event)">
+          <mat-option [value]="null">Kein Bargeld (Bank / SumUp)</mat-option>
+          @for (book of cashBooks(); track book.id) {
+            <mat-option [value]="book.id">{{ book.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <div class="col-12 col-md-6">
+      <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
+        <mat-label>Beleg-Link</mat-label>
+        <input
+          matInput
+          [ngModel]="receiptUrl()"
+          (ngModelChange)="receiptUrl.set($event)"
+          placeholder="https://…"
+        />
+      </mat-form-field>
+    </div>
+  </div>
+
+  <div class="d-flex justify-content-between fw-bold fs-6 mt-4">
+    <span>Wirkt sich aus mit</span>
+    <span [class.text-success]="signedAmount() > 0" [class.text-danger]="signedAmount() < 0">
+      {{ formatCurrency(signedAmount()) }}
+    </span>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-stroked-button (click)="cancel()">Abbrechen</button>
+  <button mat-flat-button [disabled]="!isValid()" (click)="save()">
+    Speichern
+  </button>
+</mat-dialog-actions>

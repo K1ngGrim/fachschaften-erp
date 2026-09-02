@@ -1,0 +1,125 @@
+<h2 mat-dialog-title>Kasseneinnahmen erfassen</h2>
+
+<mat-dialog-content>
+  <p class="text-hint mb-3">
+    Abrechnung eines Zeitraums. Jeder Betrag über null wird als eigene Einnahme gebucht.
+  </p>
+
+  <div class="row g-3">
+    <div class="col-12 col-md-4">
+      <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
+        <mat-label>Datum</mat-label>
+        <input matInput type="date" [ngModel]="date()" (ngModelChange)="date.set($event)" />
+      </mat-form-field>
+    </div>
+
+    <div class="col-12 col-md-8">
+      <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
+        <mat-label>Bezeichnung</mat-label>
+        <input
+          matInput
+          [ngModel]="description()"
+          (ngModelChange)="description.set($event)"
+          placeholder="z. B. Abrechnung KW 35"
+        />
+      </mat-form-field>
+    </div>
+
+    <div class="col-12 col-md-6">
+      <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
+        <mat-label>Steuerbereich</mat-label>
+        <mat-select [ngModel]="taxArea()" (ngModelChange)="setTaxArea($event)">
+          @for (area of taxAreas; track area.value) {
+            <mat-option [value]="area.value">{{ area.label }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <div class="col-12 col-md-6">
+      <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
+        <mat-label>Kategorie</mat-label>
+        <mat-select [ngModel]="categoryId()" (ngModelChange)="categoryId.set($event)">
+          <mat-option [value]="null">Ohne Kategorie</mat-option>
+          @for (category of availableCategories(); track category.id) {
+            <mat-option [value]="category.id">{{ category.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
+  </div>
+
+  <h3 class="fs-6 fw-bold mt-4 mb-2">Beträge</h3>
+
+  <div class="row g-3">
+    <div class="col-12 col-md-4">
+      <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
+        <mat-label>Bar in der Kasse (€)</mat-label>
+        <input
+          matInput
+          type="number"
+          step="0.01"
+          [ngModel]="cashAmount()"
+          (ngModelChange)="setAmount('cash', $event)"
+        />
+      </mat-form-field>
+    </div>
+
+    <div class="col-12 col-md-4">
+      <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
+        <mat-label>Strichliste / SEPA (€)</mat-label>
+        <input
+          matInput
+          type="number"
+          step="0.01"
+          [ngModel]="tallyListAmount()"
+          (ngModelChange)="setAmount('tally', $event)"
+        />
+      </mat-form-field>
+    </div>
+
+    <div class="col-12 col-md-4">
+      <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
+        <mat-label>SumUp (€)</mat-label>
+        <input
+          matInput
+          type="number"
+          step="0.01"
+          [ngModel]="sumUpAmount()"
+          (ngModelChange)="setAmount('sumUp', $event)"
+        />
+      </mat-form-field>
+    </div>
+
+    <div class="col-12">
+      <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
+        <mat-label>Bargeldkasse</mat-label>
+        <mat-select [ngModel]="cashBookId()" (ngModelChange)="cashBookId.set($event)">
+          <mat-option [value]="null">Keine</mat-option>
+          @for (book of cashBooks(); track book.id) {
+            <mat-option [value]="book.id">{{ book.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      @if (needsCashBook()) {
+        <small class="text-danger d-block mt-1">
+          Für Bargeld muss eine Kasse ausgewählt sein.
+        </small>
+      } @else {
+        <small class="text-hint d-block mt-1">
+          Strichliste und SumUp laufen über die Bank und berühren keine Bargeldkasse.
+        </small>
+      }
+    </div>
+  </div>
+
+  <div class="d-flex justify-content-between fw-bold fs-6 mt-4">
+    <span>Summe</span>
+    <span>{{ formatCurrency(total()) }}</span>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-stroked-button (click)="cancel()">Abbrechen</button>
+  <button mat-flat-button [disabled]="!isValid()" (click)="save()">Buchen</button>
+</mat-dialog-actions>

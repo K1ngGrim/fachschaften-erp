@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { MatToolbar } from '@angular/material/toolbar';
-import { MatIconButton, MatMiniFabButton } from '@angular/material/button';
+import { MatIconButton } from '@angular/material/button';
 import { MatSidenav, MatSidenavContainer, MatSidenavContent } from '@angular/material/sidenav';
 import { MatListItem, MatNavList } from '@angular/material/list';
 import { MatIcon } from '@angular/material/icon';
@@ -44,7 +44,6 @@ import { LoadingService } from '../../../core/services/loading-service';
     MatTooltip,
     RouterLink,
     RouterLinkActive,
-    MatMiniFabButton,
     FilterNavigationPipe,
     MatProgressBar,
   ],
@@ -57,6 +56,9 @@ export class NavBar implements OnInit, OnDestroy {
   private readonly loadingService = inject(LoadingService);
   private readonly navigation = inject(Navigation);
   private readonly auth = inject(Auth);
+
+  readonly initials = this.auth.initials;
+  readonly userName = this.auth.userName;
   private readonly breakpointObserver = inject(BreakpointObserver);
   private sub?: Subscription;
 

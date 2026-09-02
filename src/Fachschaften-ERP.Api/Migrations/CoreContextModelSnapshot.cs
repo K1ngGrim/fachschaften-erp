@@ -38,6 +38,146 @@ namespace Fachschaften_ERP.Api.Migrations
                     b.ToTable("ItemTypeCustomFields", "erp");
                 });
 
+            modelBuilder.Entity("Fachschaften_ERP.Models.Entities.BookingCategoryEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("Created")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("CreatorId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTimeOffset?>("Modified")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("ModifierId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("TaxArea")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("BookingCategories", "erp");
+                });
+
+            modelBuilder.Entity("Fachschaften_ERP.Models.Entities.BookingEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("numeric(10,2)");
+
+                    b.Property<Guid?>("CashBookId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("CategoryId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("Created")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("CreatorId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("Date")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTimeOffset?>("Modified")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("ModifierId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ReceiptUrl")
+                        .HasMaxLength(2048)
+                        .HasColumnType("character varying(2048)");
+
+                    b.Property<string>("Source")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("TaxArea")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<Guid?>("TransferGroupId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CashBookId");
+
+                    b.HasIndex("CategoryId");
+
+                    b.ToTable("Bookings", "erp");
+                });
+
+            modelBuilder.Entity("Fachschaften_ERP.Models.Entities.CashBookEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("ClosedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("Created")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("CreatorId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsClosed")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTimeOffset?>("Modified")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("ModifierId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<Guid?>("ParentId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ParentId");
+
+                    b.ToTable("CashBooks", "erp");
+                });
+
             modelBuilder.Entity("Fachschaften_ERP.Models.Entities.CustomFieldEntity", b =>
                 {
                     b.Property<Guid>("Id")
@@ -85,6 +225,79 @@ namespace Fachschaften_ERP.Api.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("CustomFields", "erp");
+                });
+
+            modelBuilder.Entity("Fachschaften_ERP.Models.Entities.DeliveryEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("Created")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("CreatorId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("DeliveryDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DocumentNumber")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTimeOffset?>("Modified")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("ModifierId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("ReceiptUrl")
+                        .HasMaxLength(2048)
+                        .HasColumnType("character varying(2048)");
+
+                    b.Property<Guid>("SupplierId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SupplierId");
+
+                    b.ToTable("Deliveries", "erp");
+                });
+
+            modelBuilder.Entity("Fachschaften_ERP.Models.Entities.DeliveryPositionEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("DeliveryId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("UnitPurchasePrice")
+                        .HasColumnType("numeric(10,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DeliveryId");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("DeliveryPositions", "erp");
                 });
 
             modelBuilder.Entity("Fachschaften_ERP.Models.Entities.Identity.IdentityRoleEntity", b =>
@@ -496,6 +709,63 @@ namespace Fachschaften_ERP.Api.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Fachschaften_ERP.Models.Entities.BookingEntity", b =>
+                {
+                    b.HasOne("Fachschaften_ERP.Models.Entities.CashBookEntity", "CashBook")
+                        .WithMany("Bookings")
+                        .HasForeignKey("CashBookId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Fachschaften_ERP.Models.Entities.BookingCategoryEntity", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("CashBook");
+
+                    b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("Fachschaften_ERP.Models.Entities.CashBookEntity", b =>
+                {
+                    b.HasOne("Fachschaften_ERP.Models.Entities.CashBookEntity", "Parent")
+                        .WithMany("Children")
+                        .HasForeignKey("ParentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Parent");
+                });
+
+            modelBuilder.Entity("Fachschaften_ERP.Models.Entities.DeliveryEntity", b =>
+                {
+                    b.HasOne("Fachschaften_ERP.Models.Entities.SupplierEntity", "Supplier")
+                        .WithMany()
+                        .HasForeignKey("SupplierId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Supplier");
+                });
+
+            modelBuilder.Entity("Fachschaften_ERP.Models.Entities.DeliveryPositionEntity", b =>
+                {
+                    b.HasOne("Fachschaften_ERP.Models.Entities.DeliveryEntity", "Delivery")
+                        .WithMany("Positions")
+                        .HasForeignKey("DeliveryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Fachschaften_ERP.Models.Entities.ProductEntity", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Delivery");
+
+                    b.Navigation("Product");
+                });
+
             modelBuilder.Entity("Fachschaften_ERP.Models.Entities.InventoryTransactionEntity", b =>
                 {
                     b.HasOne("Fachschaften_ERP.Models.Entities.ProductEntity", "Product")
@@ -573,6 +843,18 @@ namespace Fachschaften_ERP.Api.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Fachschaften_ERP.Models.Entities.CashBookEntity", b =>
+                {
+                    b.Navigation("Bookings");
+
+                    b.Navigation("Children");
+                });
+
+            modelBuilder.Entity("Fachschaften_ERP.Models.Entities.DeliveryEntity", b =>
+                {
+                    b.Navigation("Positions");
                 });
 
             modelBuilder.Entity("Fachschaften_ERP.Models.Entities.ItemTypeEntity", b =>

@@ -1,0 +1,14 @@
+<div class="metric-card">
+  <div class="metric-card__row">
+    <span class="metric-card__title">{{ title() }}</span>
+    <span class="icon-tile">
+      <mat-icon>{{ icon() }}</mat-icon>
+    </span>
+  </div>
+
+  <div class="metric-card__value">{{ value() }}</div>
+
+  @if (subtitle()) {
+    <p class="metric-card__subtitle" [ngClass]="getTrendClass()">{{ subtitle() }}</p>
+  }
+</div>

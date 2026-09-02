@@ -1,64 +1,66 @@
 <div class="data-grid">
+  @if (title() || searchable() || toolbarTemplate()) {
+    <div class="data-grid__head">
+      @if (title()) {
+        <span class="data-grid__title">{{ title() }}</span>
+      }
 
-  @if (searchable()) {
-    <div class="data-grid__toolbar gap-3">
-      <ng-container *ngTemplateOutlet="toolbarTemplate()"></ng-container>
-      <mat-form-field appearance="outline" class="search-field">
-        <mat-icon matPrefix>search</mat-icon>
-        <input matInput [(ngModel)]="searchQuery" placeholder="Search...">
-        @if (searchQuery()) {
-          <button matSuffix mat-icon-button (click)="searchQuery.set('')">
-            <mat-icon>close</mat-icon>
-          </button>
+      <div class="data-grid__head-actions">
+        <ng-container *ngTemplateOutlet="toolbarTemplate()"></ng-container>
+
+        @if (searchable()) {
+          <mat-form-field appearance="outline" class="search-field" subscriptSizing="dynamic">
+            <mat-icon matPrefix svgIcon="magnify"></mat-icon>
+            <input matInput [(ngModel)]="searchQuery" placeholder="Suchen …" />
+            @if (searchQuery()) {
+              <button matSuffix mat-icon-button (click)="searchQuery.set('')">
+                <mat-icon svgIcon="close"></mat-icon>
+              </button>
+            }
+          </mat-form-field>
         }
-      </mat-form-field>
+      </div>
     </div>
   }
 
   <div class="data-grid__wrapper">
-
-    <!-- Header Table -->
     <div class="data-grid__header">
       <table class="grid-table">
         <colgroup>
           @for (col of columns(); track col.key) {
-            <col [style.width]="col.width ?? 'auto'">
+            <col [style.width]="col.width ?? 'auto'" />
           }
           @if (actionCellDirective) {
-            <col class="col-actions">
+            <col class="col-actions" />
           }
         </colgroup>
         <thead>
-        <tr>
-          @for (col of columns(); track col.key) {
-            <th [class]="'grid-th ' + headerClass(col)">{{ col.label }}</th>
-          }
-          @if (actionCellDirective) {
-            <th class="grid-th col-actions"></th>
-          }
-        </tr>
+          <tr>
+            @for (col of columns(); track col.key) {
+              <th [class]="'grid-th ' + headerClass(col)">{{ col.label }}</th>
+            }
+            @if (actionCellDirective) {
+              <th class="grid-th col-actions"></th>
+            }
+          </tr>
         </thead>
       </table>
     </div>
 
-    <!-- Body Table -->
     <div class="data-grid__body">
-
       @if (filteredData().length === 0) {
-        <div class="d-flex w-100 h-100 justify-content-center">
-          <span class="grid-empty">
-             <mat-icon>inbox</mat-icon>
-            <span>No data</span>
-          </span>
+        <div class="grid-empty">
+          <mat-icon svgIcon="tray"></mat-icon>
+          <span>Keine Einträge</span>
         </div>
       } @else {
         <table class="grid-table">
           <colgroup>
             @for (col of columns(); track col.key) {
-              <col [style.width]="col.width ?? 'auto'">
+              <col [style.width]="col.width ?? 'auto'" />
             }
             @if (actionCellDirective) {
-              <col class="col-actions">
+              <col class="col-actions" />
             }
           </colgroup>
           <tbody>
@@ -67,7 +69,15 @@
                 @for (col of columns(); track col.key) {
                   <td [class]="'grid-td ' + cellClass(col)">
                     @if (col.cellTemplate) {
-                      <ng-container *ngTemplateOutlet="col.cellTemplate; context: { $implicit: row, value: col.value ? col.value(row) : row[col.key] }"/>
+                      <ng-container
+                        *ngTemplateOutlet="
+                          col.cellTemplate;
+                          context: {
+                            $implicit: row,
+                            value: col.value ? col.value(row) : row[col.key],
+                          }
+                        "
+                      />
                     } @else {
                       {{ col.value ? col.value(row) : row[col.key] }}
                     }
@@ -75,7 +85,12 @@
                 }
                 @if (actionCellDirective) {
                   <td class="grid-td col-actions">
-                    <ng-container *ngTemplateOutlet="actionCellDirective.templateRef; context: { $implicit: row }"/>
+                    <ng-container
+                      *ngTemplateOutlet="
+                        actionCellDirective.templateRef;
+                        context: { $implicit: row }
+                      "
+                    />
                   </td>
                 }
               </tr>
@@ -83,9 +98,6 @@
           </tbody>
         </table>
       }
-
-
     </div>
-
   </div>
 </div>

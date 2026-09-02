@@ -1,90 +1,273 @@
-// Include theming for Angular Material with `mat.theme()`.
-// This Sass mixin will define CSS variables that are used for styling Angular Material
-// components according to the Material 3 design spec.
-// Learn more about theming and how to use it for your application's
-// custom components at https://material.angular.dev/guide/theming
 @use '@angular/material' as mat;
 
-// Variable overrides first
-$primary: #900;
-$enable-shadows: true;
-$prefix: "mo-";
-
-// Then import Bootstrap
-@use "../node_modules/bootstrap/scss/bootstrap";
-
-$dark-theme: mat.define-theme((
-  color: (
-    theme-type: dark,
-    primary: mat.$azure-palette,
-  )
-));
-
-$light-theme: mat.define-theme((
-  color: (theme-type: light, primary: mat.$azure-palette)
-));
-
-@mixin create-dark-theme() {
-  @include mat.all-component-themes($dark-theme);
-}
-
-@mixin create-light-theme() {
-  @include mat.all-component-themes($light-theme);
-}
-
-html.dark {
-  color-scheme: dark;
-  @include create-dark-theme();
-
-  --data-grid-background: #292929;
-  --data-grid-border: #616161;
-}
+// Bootstrap wird nur für Layout- und Utility-Klassen genutzt, die Farben kommen
+// aus dem Material-Theme unten.
+@use '../node_modules/bootstrap/scss/bootstrap' with (
+  $primary: #e8912a,
+  $secondary: #1f2437,
+  $success: #16a34a,
+  $danger: #dc2626,
+  $warning: #d97706,
+  $body-color: #16181d,
+  $border-radius: 0.625rem
+);
 
 html {
-  @include create-light-theme();
-
-  --data-grid-background: #fff;
-  --data-grid-border: #e0e0e0;
-}
-
-html {
-
-  color-scheme: light;
   height: 100%;
+  color-scheme: light;
+
   @include mat.theme(
     (
-
       color: (
-        primary: mat.$azure-palette,
+        primary: mat.$orange-palette,
         tertiary: mat.$blue-palette,
       ),
       typography: Roboto,
       density: 0,
     )
   );
+
+  // ── Markenfarben ───────────────────────────────────────────────────────────
+  --brand-accent: #e8912a;
+  --brand-accent-strong: #d47f18;
+  --brand-accent-soft: #fdefda;
+  --brand-dark: #1f2437;
+  --brand-dark-strong: #12151f;
+  --brand-positive: #16a34a;
+  --brand-negative: #dc2626;
+
+  // ── Flächen und Linien ─────────────────────────────────────────────────────
+  --app-canvas: #f7f7f8;
+  --app-card: #ffffff;
+  --app-border: #ececef;
+  --app-border-strong: #dedee2;
+  --app-text: #16181d;
+  --app-text-muted: #6b7280;
+  --app-hover: #fafafb;
+
+  // ── Sidebar ────────────────────────────────────────────────────────────────
+  --nav-bg: #151823;
+  --nav-text: #c3c7d4;
+  --nav-text-muted: #6e7488;
+  --nav-text-active: #ffffff;
+  --nav-active-bg: rgba(255, 255, 255, 0.08);
+
+  // Material-Systemfarben auf die Marke ziehen, damit Buttons, Selects und
+  // Dialoge ohne Einzelüberschreibungen passen.
+  --mat-sys-primary: var(--brand-accent);
+  --mat-sys-on-primary: #ffffff;
+  --mat-sys-surface: var(--app-canvas);
+  --mat-sys-on-surface: var(--app-text);
+  --mat-sys-on-surface-variant: var(--app-text-muted);
+  --mat-sys-surface-container-low: var(--app-card);
+  --mat-sys-surface-container: var(--app-card);
+  --mat-sys-surface-container-high: var(--app-hover);
+  --mat-sys-outline-variant: var(--app-border);
+  --mat-sys-corner-medium: 0.625rem;
+  --mat-sys-corner-large: 0.75rem;
+}
+
+html.dark {
+  color-scheme: dark;
+
+  --app-canvas: #11131a;
+  --app-card: #191c25;
+  --app-border: #262a35;
+  --app-border-strong: #333846;
+  --app-text: #e8eaf0;
+  --app-text-muted: #969cad;
+  --app-hover: #1f2330;
+
+  --nav-bg: #0d0f16;
+  --nav-active-bg: rgba(255, 255, 255, 0.1);
+
+  --mat-sys-on-primary: #1a1205;
 }
 
 body {
-
-  // Set a default background, font and text colors for the application using
-  // Angular Material's system-level CSS variables. Learn more about these
-  // variables at https://material.angular.dev/guide/system-variables
-  background-color: var(--mat-sys-surface);
-  color: var(--mat-sys-on-surface);
-  font: var(--mat-sys-body-medium);
-
-  // Reset the user agent margin.
   margin: 0;
   height: 100%;
+  background-color: var(--app-canvas);
+  color: var(--app-text);
+  font: var(--mat-sys-body-medium);
 }
 
-.text-on-surface { color: var(--mat-sys-on-surface); }
-.text-hint { color: var(--mat-sys-inverse-surface); }
-
-.toolbar {
-  background: var(--mat-sys-surface-container) !important;
+// ── Textfarben ───────────────────────────────────────────────────────────────
+.text-on-surface {
+  color: var(--app-text);
 }
 
-.content {
-  background: var(--mat-sys-surface);
+.text-hint {
+  color: var(--app-text-muted);
+}
+
+.text-positive {
+  color: var(--brand-positive);
+}
+
+.text-negative {
+  color: var(--brand-negative);
+}
+
+// ── Karten ───────────────────────────────────────────────────────────────────
+.app-card {
+  background: var(--app-card);
+  border: 1px solid var(--app-border);
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+
+.app-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.15rem 1.25rem 0.75rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--app-text);
+}
+
+.app-card__body {
+  padding: 0 1.25rem 1.25rem;
+}
+
+// Material-Karten an denselben Look angleichen.
+.mat-mdc-card.mat-mdc-card-outlined {
+  background: var(--app-card);
+  border-color: var(--app-border);
+  border-radius: 0.75rem;
+}
+
+// ── Statuspillen ─────────────────────────────────────────────────────────────
+.pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.25rem;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.4;
+  background: var(--app-border);
+  color: var(--app-text);
+  white-space: nowrap;
+}
+
+.pill--danger {
+  background: var(--brand-negative);
+  color: #ffffff;
+}
+
+.pill--warn {
+  background: var(--brand-accent);
+  color: #ffffff;
+}
+
+.pill--positive {
+  background: rgba(22, 163, 74, 0.12);
+  color: var(--brand-positive);
+}
+
+.pill--muted {
+  background: var(--app-border);
+  color: var(--app-text-muted);
+}
+
+// ── Icon-Kachel (Kennzahlen, Bereichskarten) ────────────────────────────────
+.icon-tile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.6rem;
+  background: var(--brand-accent-soft);
+  color: var(--brand-accent-strong);
+  flex-shrink: 0;
+
+  mat-icon {
+    font-size: 1.15rem;
+    width: 1.15rem;
+    height: 1.15rem;
+  }
+}
+
+// ── Aktionsbuttons oben rechts: dunkel wie im Entwurf ───────────────────────
+.page-header__actions,
+.data-grid__head-actions {
+  .mat-mdc-unelevated-button {
+    --mat-button-filled-container-color: var(--brand-dark);
+    --mat-button-filled-label-text-color: #ffffff;
+    --mat-button-filled-icon-color: #ffffff;
+    border-radius: 0.6rem;
+    height: 2.5rem;
+    font-size: 0.85rem;
+
+    &:hover {
+      --mat-button-filled-container-color: var(--brand-dark-strong);
+    }
+  }
+
+  .mat-mdc-outlined-button {
+    --mat-button-outlined-outline-color: var(--app-border-strong);
+    --mat-button-outlined-label-text-color: var(--app-text);
+    --mat-button-outlined-icon-color: var(--app-text);
+    border-radius: 0.6rem;
+    height: 2.5rem;
+    font-size: 0.85rem;
+  }
+
+  mat-icon {
+    font-size: 1.05rem;
+    width: 1.05rem;
+    height: 1.05rem;
+  }
+}
+
+html.dark {
+  .page-header__actions,
+  .data-grid__head-actions {
+    .mat-mdc-unelevated-button {
+      --mat-button-filled-container-color: var(--brand-accent);
+      --mat-button-filled-label-text-color: #17120a;
+      --mat-button-filled-icon-color: #17120a;
+
+      &:hover {
+        --mat-button-filled-container-color: var(--brand-accent-strong);
+      }
+    }
+  }
+}
+
+// ── Tabellen innerhalb von Karten ───────────────────────────────────────────
+.app-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th {
+    padding: 0.75rem 1.25rem;
+    text-align: left;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--app-text-muted);
+    border-bottom: 1px solid var(--app-border);
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 0.85rem 1.25rem;
+    font-size: 0.875rem;
+    border-bottom: 1px solid var(--app-border);
+  }
+
+  tbody tr:last-child td {
+    border-bottom: none;
+  }
+}
+
+// ── Formularfelder etwas kompakter ──────────────────────────────────────────
+.mat-mdc-form-field {
+  --mat-form-field-container-vertical-padding: 0.6rem;
 }

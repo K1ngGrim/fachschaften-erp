@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { DeleteDialog } from '../../shared/components/delete-dialog/delete-dialog';
+import { DeleteDialog, DeleteDialogData } from '../../shared/components/delete-dialog/delete-dialog';
 import {
   BaseItemDialog,
   ItemDialogConfig,
@@ -18,10 +18,14 @@ import { CustomFieldDto, ItemTypeDto } from '../../../../projects/api/src/lib';
 export class DialogService {
   private readonly dialog = inject(MatDialog);
 
-  public async openDeleteDialog() {
+  public async openDeleteDialog(data?: DeleteDialogData) {
     return await this.dialog
       .open(DeleteDialog, {
-        data: { title: 'Delete Item', message: 'Are you sure you want to delete this item?' },
+        data: {
+          title: data?.title ?? 'Delete Item',
+          message: data?.message ?? 'Are you sure you want to delete this item?',
+          confirmLabel: data?.confirmLabel,
+        },
       })
       .afterClosed()
       .toPromise();

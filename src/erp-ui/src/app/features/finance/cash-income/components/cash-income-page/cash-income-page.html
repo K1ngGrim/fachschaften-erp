@@ -1,0 +1,80 @@
+<div class="container-fluid p-4">
+  <app-page-header
+    [title]="'Kasseneinnahmen'"
+    [subtitle]="'SEPA-Mitgliederabrechnung, Barkasse und SumUp-Auszahlungen.'"
+  >
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="year-select">
+      <mat-select [ngModel]="year()" (ngModelChange)="year.set($event); fetchItems()">
+        @for (value of years; track value) {
+          <mat-option [value]="value">{{ value }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <button mat-flat-button class="d-flex" (click)="openAdd()">
+      <mat-icon svgIcon="cash-register" class="d-flex"></mat-icon>
+      <span>Einnahme eintragen</span>
+    </button>
+  </app-page-header>
+
+  @if (error(); as message) {
+    <div class="alert alert-warning" role="alert">{{ message }}</div>
+  }
+
+  @if (monthSummaries().length > 0) {
+    <span class="section-label">Monatsübersicht</span>
+
+    <div class="row g-3 mb-4">
+      @for (summary of monthSummaries(); track summary.month) {
+        <div class="col-12 col-lg-4">
+          <div class="month-card">
+            <span class="month-card__title">{{ summary.label }}</span>
+
+            @for (entry of summary.sources; track entry.source) {
+              <div class="month-card__row">
+                <span class="month-card__source">
+                  <span class="dot" [attr.data-source]="entry.source"></span>
+                  {{ entry.label }}
+                </span>
+                <span>{{ formatCurrency(entry.amount) }}</span>
+              </div>
+            }
+
+            <div class="month-card__total">
+              <span>Gesamt</span>
+              <span class="month-card__total-value">{{ formatCurrency(summary.total) }}</span>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <app-data-grid
+    [title]="'Alle Einnahmen'"
+    [columns]="columns()"
+    [data]="entries()"
+    [searchable]="true"
+    [searchKeys]="['description']"
+  >
+    <ng-template gridActionCell let-row>
+      <div class="d-flex gap-1 justify-content-end">
+        <button mat-icon-button matTooltip="Löschen" (click)="openDelete(row)">
+          <mat-icon svgIcon="delete"></mat-icon>
+        </button>
+      </div>
+    </ng-template>
+  </app-data-grid>
+
+  <div class="grand-total">
+    <span>Gesamt</span>
+    <span class="grand-total__value">{{ formatCurrency(total()) }}</span>
+  </div>
+</div>
+
+<ng-template #sourceTemplate let-row let-source="value">
+  @if (source) {
+    <span class="source-chip" [attr.data-source]="source">{{ sourceLabel(source) }}</span>
+  } @else {
+    <span class="text-hint">—</span>
+  }
+</ng-template>

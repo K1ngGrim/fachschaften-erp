@@ -1,129 +1,107 @@
 <div class="container-fluid p-4">
-  <header class="mb-4">
-    <h1 class="display-6 fw-bold m-0">Dashboard</h1>
-    <p class="text-muted">Overview of your operations</p>
-  </header>
+  <app-page-header [title]="'Dashboard'" [subtitle]="'Überblick über Lager und Kasse.'">
+    <div class="d-flex gap-2">
+      <button mat-stroked-button class="d-flex" (click)="goTo('/warehouse')">
+        <mat-icon svgIcon="clipboard-list" class="d-flex"></mat-icon>
+        <span>Lager</span>
+      </button>
+      <button mat-flat-button class="d-flex" (click)="goTo('/cash-income')">
+        <mat-icon svgIcon="cash-register" class="d-flex"></mat-icon>
+        <span>Kasseneinnahmen</span>
+      </button>
+    </div>
+  </app-page-header>
 
   <div class="row g-4 mb-4">
     <div class="col-12 col-sm-6 col-lg-3">
       <app-metric-card
-        title="Revenue (Month)"
-        [value]="formatCurrency(currentMonth().revenue)"
-        [subtitle]="currentMonth().month"
-        icon="payments">
-      </app-metric-card>
-    </div>
-    <div class="col-12 col-sm-6 col-lg-3">
-      <app-metric-card
-        title="Expenses (Month)"
-        [value]="formatCurrency(currentMonth().expenses)"
-        [subtitle]="currentMonth().month"
-        icon="trending_down">
-      </app-metric-card>
-    </div>
-    <div class="col-12 col-sm-6 col-lg-3">
-      <app-metric-card
-        title="Profit (Total)"
-        [value]="formatCurrency(totalRevenue() - totalExpenses())"
-        [subtitle]="'Revenue: ' + formatCurrency(totalRevenue())"
-        icon="account_balance_wallet"
-        trend="up">
-      </app-metric-card>
-    </div>
-    <div class="col-12 col-sm-6 col-lg-3">
-      <app-metric-card
-        title="Inventory Value"
+        title="Lagerwert"
         [value]="formatCurrency(inventoryValue())"
-        [subtitle]="totalStockUnits() + ' units in stock'"
-        icon="inventory_2">
-      </app-metric-card>
+        [subtitle]="totalUnits() + ' Einheiten im Bestand'"
+        icon="inventory_2"
+      />
     </div>
-  </div>
-
-  <div class="row g-4 mb-4">
-    <div class="col-12 col-lg-6">
-      <mat-card appearance="outlined" class="h-100">
-        <mat-card-header><mat-card-title class="fs-6">Revenue vs Expenses</mat-card-title></mat-card-header>
-        <mat-card-content>
-<!--          <canvas baseChart [data]="barChartData()" [options]="chartOptions" type="bar" style="max-height:260px"></canvas>-->
-        </mat-card-content>
-      </mat-card>
+    <div class="col-12 col-sm-6 col-lg-3">
+      <app-metric-card
+        title="Unter Mindestbestand"
+        [value]="lowStock().length.toString()"
+        [subtitle]="
+          lowStock().length === 0 ? 'Alles ausreichend bevorratet' : 'Artikel nachbestellen'
+        "
+        icon="warning"
+        [trend]="lowStock().length === 0 ? 'up' : 'down'"
+      />
     </div>
-    <div class="col-12 col-lg-6">
-      <mat-card appearance="outlined" class="h-100">
-        <mat-card-header><mat-card-title class="fs-6">Profit Trend</mat-card-title></mat-card-header>
-        <mat-card-content>
-<!--          <canvas baseChart [data]="lineChartData()" [options]="chartOptions" type="line" style="max-height:260px"></canvas>-->
-        </mat-card-content>
-      </mat-card>
+    <div class="col-12 col-sm-6 col-lg-3">
+      <app-metric-card
+        title="Bargeld"
+        [value]="formatCurrency(cashTotal())"
+        subtitle="Summe aller offenen Kassen"
+        icon="savings"
+      />
+    </div>
+    <div class="col-12 col-sm-6 col-lg-3">
+      @if (summary(); as data) {
+        <app-metric-card
+          title="Saldo laufendes Jahr"
+          [value]="formatCurrency(data.balance)"
+          [subtitle]="'Einnahmen ' + formatCurrency(data.income)"
+          icon="account_balance_wallet"
+          [trend]="data.balance >= 0 ? 'up' : 'down'"
+        />
+      }
     </div>
   </div>
 
   <div class="row g-4">
     <div class="col-12 col-lg-6">
-      <mat-card appearance="outlined">
+      <mat-card appearance="outlined" class="h-100">
         <mat-card-header class="mb-2">
-          <div mat-card-avatar class="d-flex align-items-center">
-            <mat-icon color="accent">emoji_events</mat-icon>
-          </div>
-          <mat-card-title>Top Selling Items</mat-card-title>
+          <mat-card-title class="fs-6">
+            Mindestbestand unterschritten
+            @if (lowStock().length > 0) {
+              <span class="pill pill--danger ms-2">{{ lowStock().length }}</span>
+            }
+          </mat-card-title>
         </mat-card-header>
         <mat-card-content>
-          <div class="list-group list-group-flush">
-            @for (item of topSelling(); track item.id; let i = $index) {
-              <div class="list-group-item d-flex justify-content-between align-items-center border-0 px-0">
-                <div class="d-flex align-items-center">
-                  <span class="badge rounded-pill bg-light text-dark me-3 border">{{ i + 1 }}</span>
-                  <div>
-                    <div class="fw-bold">{{ item.name }}</div>
-                    <small class="text-muted">{{ item.quantity }} units sold</small>
-                  </div>
-                </div>
-                <div class="fw-bold text-primary">{{ formatCurrency(item.revenue) }}</div>
+          @for (entry of lowStock(); track entry.productId) {
+            <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+              <div>
+                <div class="fw-medium">{{ entry.name }}</div>
+                <small class="text-hint">
+                  Mindestbestand {{ entry.threshold }} {{ entry.unit }}
+                </small>
               </div>
-            }
-          </div>
+              <span class="pill" [class.pill--danger]="isCritical(entry)">
+                {{ entry.stock }} {{ entry.unit }}
+              </span>
+            </div>
+          } @empty {
+            <p class="text-hint text-center py-5 mb-0">Alle Artikel sind ausreichend bevorratet.</p>
+          }
         </mat-card-content>
       </mat-card>
     </div>
 
     <div class="col-12 col-lg-6">
-      <mat-card appearance="outlined" class="w-100 h-100">
+      <mat-card appearance="outlined" class="h-100">
         <mat-card-header class="mb-2">
-          <div mat-card-avatar class="d-flex align-items-center">
-            <mat-icon color="warn">warning</mat-icon>
-          </div>
-          <mat-card-title>
-            Low Stock Warnings
-            @if (lowStockProducts().length > 0) {
-              <span class="badge bg-danger ms-2 fs-6">{{ lowStockProducts().length }}</span>
-            }
-          </mat-card-title>
+          <mat-card-title class="fs-6">Letzte Lieferungen</mat-card-title>
         </mat-card-header>
         <mat-card-content>
-          @if (lowStockProducts().length === 0) {
-            <p class="text-center text-muted py-5">All items are well stocked.</p>
-          } @else {
-            <div class="row g-2">
-              @for (p of lowStockProducts(); track p.id) {
-                <div class="col-12">
-                  <div class="border rounded p-3 d-flex justify-content-between align-items-center">
-                    <div>
-                      <div class="fw-bold">{{ p.name }}</div>
-                      <small class="text-muted">{{ p.supplier }}</small>
-                    </div>
-                    <div class="text-end">
-                      <mat-chip-set>
-                        <mat-chip [color]="p.stock <= p.lowStockThreshold / 2 ? 'warn' : ''" selected>
-                          {{ p.stock }} left
-                        </mat-chip>
-                      </mat-chip-set>
-                      <div class="small text-muted mt-1">Min: {{ p.lowStockThreshold }}</div>
-                    </div>
-                  </div>
-                </div>
-              }
+          @for (delivery of recentDeliveries(); track delivery.id) {
+            <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+              <div>
+                <div class="fw-medium">{{ delivery.supplierName }}</div>
+                <small class="text-hint">
+                  {{ formatDate(delivery.deliveryDate) }} · {{ delivery.totalQuantity }} Einheiten
+                </small>
+              </div>
+              <span class="fw-bold">{{ formatCurrency(delivery.totalAmount) }}</span>
             </div>
+          } @empty {
+            <p class="text-hint text-center py-5 mb-0">Noch keine Lieferungen erfasst.</p>
           }
         </mat-card-content>
       </mat-card>

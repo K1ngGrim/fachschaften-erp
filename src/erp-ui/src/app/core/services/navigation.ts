@@ -7,18 +7,22 @@ import { PermissionType } from '../../shared/models/permission-type';
 export class Navigation {
   readonly navItems = signal<NavigationGroup[]>([
     {
-      label: 'Operation',
+      label: 'Übersicht',
+      items: [
+        {
+          label: 'Dashboard',
+          route: '/',
+          icon: 'view-dashboard',
+        },
+      ],
+    },
+    {
+      label: 'Operations',
       items: [
         {
           label: 'Lager',
           route: '/warehouse',
-          icon: 'apps-box',
-          permissions: [PermissionType.ProductsCanRead],
-        },
-        {
-          label: 'Purchases',
-          route: '/purchases',
-          icon: 'apps-box',
+          icon: 'warehouse',
           permissions: [PermissionType.ProductsCanRead],
         },
         {
@@ -27,31 +31,33 @@ export class Navigation {
           icon: 'truck-delivery',
           permissions: [PermissionType.ProductsCanRead],
         },
-        /*{
+        {
           label: 'Kasseneinnahmen',
-          route: '/incomes',
+          route: '/cash-income',
           icon: 'cash-register',
-          permissions: [PermissionType.ProductsCanRead],
-        },*/
+        },
       ],
     },
-    /*{
+    {
       label: 'Finanzen',
       items: [
         {
           label: 'Übersicht',
-          route: '/finances',
+          route: '/finance',
           icon: 'finance',
-          permissions: [PermissionType.ProductsCanRead],
         },
         {
-          label: 'Kassenbücher',
-          route: '/books',
+          label: 'Buchungen',
+          route: '/finance/bookings',
+          icon: 'swap-horizontal',
+        },
+        {
+          label: 'Kassenbuch',
+          route: '/cash-books',
           icon: 'book-open-page-variant',
-          permissions: [PermissionType.ProductsCanRead],
         },
       ],
-    },*/
+    },
     {
       label: 'Stammdaten',
       items: [
@@ -79,6 +85,11 @@ export class Navigation {
           icon: 'tune',
           permissions: [PermissionType.ItemTypesCanRead],
         },
+        {
+          label: 'Finanzkategorien',
+          route: '/booking-categories',
+          icon: 'shape',
+        },
       ],
     },
     {
@@ -87,13 +98,13 @@ export class Navigation {
         {
           label: 'Benutzer',
           route: '/users',
-          icon: 'group',
+          icon: 'account-group',
           permissions: [PermissionType.UsersCanRead],
         },
         {
           label: 'Rollen',
           route: '/roles',
-          icon: 'shield',
+          icon: 'shield-account',
           permissions: [PermissionType.RolesCanRead],
         },
       ],
@@ -105,7 +116,6 @@ export interface NavigationGroup {
   label: string;
   items: NavigationItem[];
 }
-
 
 export interface NavigationItem {
   label: string;

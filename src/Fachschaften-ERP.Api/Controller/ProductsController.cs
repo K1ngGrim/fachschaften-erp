@@ -27,6 +27,7 @@ public class ProductsController(CoreContext db) : ControllerBase
                 SupplierId = x.SupplierId,
                 PurchasePrice = x.PurchasePrice,
                 InternalSellingPrice = x.InternalSellingPrice,
+                ExternalSellingPrice = x.ExternalSellingPrice,
                 Stock = 0,
                 LowStockThreshold = x.LowStockThreshold,
                 TrackStock = x.TrackStock,

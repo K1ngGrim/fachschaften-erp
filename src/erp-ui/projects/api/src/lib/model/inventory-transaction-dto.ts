@@ -7,15 +7,18 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
+import { InventoryTransactionType } from './inventory-transaction-type';
 
 
 export interface InventoryTransactionDto { 
     id: string;
     productId: string;
     date: string;
-    type: number;
+    type: InventoryTransactionType;
     quantity: number;
     amount: number;
     note: string | null;
 }
+
+
 

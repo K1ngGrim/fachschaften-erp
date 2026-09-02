@@ -1,40 +1,28 @@
-.list-item {
-  border-radius: 0.5rem !important;
-}
+$sidenav-width: 240px;
+$sidenav-collapsed-width: 64px;
 
-$sidenav-bg: #1a1d2e;
-$sidenav-width: 260px;
-$sidenav-collapsed-width: 56px;
-
-::ng-deep {
-  .mat-drawer-inner-container{
-    display: flex;
-    flex-direction: column;
-  }
+::ng-deep .mat-drawer-inner-container {
+  display: flex;
+  flex-direction: column;
 }
 
 .sidenav-container {
   width: 100%;
-  height: 100vh; // change from 100% to 100vh
+  height: 100vh;
 }
 
+// ── Sidebar ──────────────────────────────────────────────────────────────────
 .sidenav {
   border-radius: 0 !important;
-  background-color: $sidenav-bg;
+  background-color: var(--nav-bg);
   border-right: none;
-  transition: width 0.5s ease;
+  transition: width 0.25s ease;
   overflow: hidden;
 
   &.collapsed {
     .sidenav-header {
-      padding: 16px 8px;
+      padding: 18px 12px;
       justify-content: center;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-
-    .collapse-btn {
-      margin-left: 0;
     }
 
     .nav-section {
@@ -47,7 +35,7 @@ $sidenav-collapsed-width: 56px;
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 16px 12px 12px;
+  padding: 18px 16px 16px;
   transition: padding 0.25s ease;
 }
 
@@ -55,24 +43,23 @@ $sidenav-collapsed-width: 56px;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  background-color: #e07b2a;
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background-color: var(--brand-accent);
   flex-shrink: 0;
 
   mat-icon {
     color: #fff;
-    font-size: 20px;
-    width: 20px;
-    height: 20px;
+    font-size: 19px;
+    width: 19px;
+    height: 19px;
   }
 }
 
 .org-info {
   display: flex;
   flex-direction: column;
-  gap: 2px;
   flex: 1;
   overflow: hidden;
 
@@ -83,90 +70,93 @@ $sidenav-collapsed-width: 56px;
 }
 
 .org-name {
-  font-size: 15px;
-  font-weight: 600;
-  color: #ffffff;
-  line-height: 1.2;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--nav-text-active);
+  line-height: 1.25;
   white-space: nowrap;
 }
 
 .org-subtitle {
-  font-size: 12px;
-  color: #8b8fa8;
-  line-height: 1.2;
+  font-size: 11px;
+  color: var(--nav-text-muted);
+  line-height: 1.25;
   white-space: nowrap;
 }
 
-.collapse-btn {
-  color: #6b6f85 !important;
-  flex-shrink: 0;
-  padding: 0 !important;
-  width: 32px;
-  height: 32px;
-
-  &:hover {
-    color: #c0c4d8 !important;
-  }
-}
-
 .nav-list {
-  padding: 4px 0;
+  padding: 4px 0 12px;
 }
 
 .nav-section {
-  padding: 6px 0;
+  padding: 8px 0 2px;
 }
 
 .section-label {
   display: block;
   font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #6b6f85;
-  padding: 6px 20px 4px;
+  font-weight: 500;
+  color: var(--nav-text-muted);
+  padding: 6px 20px 6px;
   white-space: nowrap;
 }
 
 .nav-item {
-  border-radius: 0 !important;
-  color: #c0c4d8 !important;
-  transition: margin 0.25s ease;
+  --mat-list-list-item-leading-icon-color: var(--nav-text-muted);
+  --mat-list-list-item-label-text-color: var(--nav-text);
+  --mat-list-list-item-label-text-size: 13px;
+
+  height: 38px !important;
+  margin: 1px 8px;
+  width: auto !important;
+  border-radius: 8px !important;
+  color: var(--nav-text) !important;
+  cursor: pointer;
 
   mat-icon {
     overflow: visible;
-    color: #8b8fa8 !important;
-    font-size: 20px;
-    width: 20px;
-    height: 20px;
+    color: var(--nav-text-muted) !important;
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+
+  span[matListItemTitle] {
+    font-size: 13px;
+    font-weight: 500;
   }
 
   &:hover {
-    background-color: rgba(255, 255, 255, 0.06) !important;
-    color: #ffffff !important;
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    color: var(--nav-text-active) !important;
 
     mat-icon {
-      color: #c0c4d8 !important;
+      color: var(--nav-text) !important;
     }
   }
 
   &.active {
-    background-color: rgba(255, 255, 255, 0.1) !important;
-    color: #ffffff !important;
+    background-color: var(--nav-active-bg) !important;
+    color: var(--nav-text-active) !important;
 
     mat-icon {
-      color: #ffffff !important;
+      color: var(--nav-text-active) !important;
     }
   }
 }
 
+.nav-footer {
+  padding-bottom: 4px;
+}
+
+// ── Inhaltsbereich ───────────────────────────────────────────────────────────
 .sidenav-content {
-  background-color: #f5f6fa;
+  background-color: var(--app-canvas);
   margin-left: $sidenav-width !important;
-  transition: margin-left 0.5s ease;
-  height: 100vh;        // add
-  display: flex;        // add
-  flex-direction: column; // add
+  transition: margin-left 0.25s ease;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
 
   &.collapsed {
     margin-left: $sidenav-collapsed-width !important;
@@ -179,15 +169,61 @@ $sidenav-collapsed-width: 56px;
   flex: 1;
   overflow: hidden;
   height: 100%;
+  background: var(--app-canvas);
 }
 
+.page-scroll {
+  flex: 1;
+  overflow-y: auto;
+}
+
+// ── Kopfleiste ───────────────────────────────────────────────────────────────
 .toolbar {
-  min-height: var(--mat-toolbar-standard-height);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 56px;
+  height: 56px;
+  padding: 0 20px 0 12px;
+  background: var(--app-canvas) !important;
+  color: var(--app-text);
   position: sticky;
   top: 0;
   z-index: 10;
 }
 
-.content-container {
-  background-color: var(--mat-sys-surface-container-low);
+.toolbar-btn {
+  color: var(--app-text-muted) !important;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+
+  &:hover {
+    color: var(--app-text) !important;
+  }
+}
+
+.avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  margin-left: 8px;
+  border-radius: 50%;
+  background: var(--brand-accent);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  user-select: none;
+}
+
+.route-progress {
+  position: fixed;
+  top: 0;
+  z-index: 9999;
 }

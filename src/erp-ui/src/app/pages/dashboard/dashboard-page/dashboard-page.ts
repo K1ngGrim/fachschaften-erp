@@ -1,107 +1,96 @@
-import { Component, computed, inject } from '@angular/core';
-import { MetricCard } from '../metric-card/metric-card';
+import { Component, computed, inject, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import { MatCard, MatCardContent, MatCardHeader, MatCardTitle } from '@angular/material/card';
+import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
-import { MatChip, MatChipSet } from '@angular/material/chips';
+import { lastValueFrom } from 'rxjs';
+import { PageHeader } from '../../../shared/components/page-header/page-header';
+import { MetricCard } from '../../../shared/components/metric-card/metric-card';
 import {
-  BarElement,
-  CategoryScale,
-  Chart,
-  ChartData,
-  ChartOptions,
-  Filler,
-  Legend,
-  LinearScale,
-  LineElement,
-  PointElement,
-  Tooltip,
-} from 'chart.js';
-import { DataService } from '../../../shared/services/data.service';
-
-Chart.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  PointElement,
-  LineElement,
-  Filler,
-  Tooltip,
-  Legend,
-);
+  BookingsService,
+  BookingSummaryDto,
+  CashBookDto,
+  CashBooksService,
+  DeliveriesService,
+  DeliveryOverviewDto,
+  StockOverviewDto,
+  StockService,
+} from '../../../../../projects/api/src/lib';
+import { formatCurrency, formatDate } from '../../../shared/models/finance';
 
 @Component({
   selector: 'app-dashboard-page',
   imports: [
-    MetricCard,
     MatCard,
     MatCardContent,
     MatCardHeader,
     MatCardTitle,
+    MatButton,
     MatIcon,
-    MatChip,
-    MatChipSet,
+    MetricCard,
+    PageHeader,
   ],
   templateUrl: './dashboard-page.html',
   styleUrl: './dashboard-page.scss',
 })
 export class DashboardPage {
-  readonly data = inject(DataService);
+  private readonly stockController = inject(StockService);
+  private readonly deliveryController = inject(DeliveriesService);
+  private readonly cashBookController = inject(CashBooksService);
+  private readonly bookingController = inject(BookingsService);
+  private readonly router = inject(Router);
 
-  readonly monthly = this.data.monthlyData;
-  readonly currentMonth = computed(() => this.monthly()[this.monthly().length - 1]);
-  readonly totalRevenue = computed(() => this.monthly().reduce((s, m) => s + m.revenue, 0));
-  readonly totalExpenses = computed(() => this.monthly().reduce((s, m) => s + m.expenses, 0));
-  readonly inventoryValue = computed(() =>
-    this.data.products().reduce((s, p) => s + p.stock * p.purchasePrice, 0),
+  public readonly stock = signal<StockOverviewDto[]>([]);
+  public readonly deliveries = signal<DeliveryOverviewDto[]>([]);
+  public readonly cashBooks = signal<CashBookDto[]>([]);
+  public readonly summary = signal<BookingSummaryDto | null>(null);
+
+  public readonly formatCurrency = formatCurrency;
+  public readonly formatDate = formatDate;
+
+  public readonly inventoryValue = computed(() =>
+    this.stock().reduce((sum, entry) => sum + entry.stock * entry.purchasePrice, 0),
   );
-  readonly totalStockUnits = computed(() => this.data.products().reduce((s, p) => s + p.stock, 0));
-  readonly lowStockProducts = computed(() =>
-    this.data.products().filter((p) => p.trackStock && p.stock <= p.lowStockThreshold),
+
+  public readonly totalUnits = computed(() =>
+    this.stock().reduce((sum, entry) => sum + entry.stock, 0),
   );
-  readonly topSelling = computed(() => this.data.getTopSellingItems(5));
 
-  formatCurrency = (v: number) => this.data.formatCurrency(v);
+  public readonly lowStock = computed(() =>
+    this.stock()
+      .filter((entry) => entry.stock <= entry.threshold)
+      .sort((a, b) => a.stock - a.threshold - (b.stock - b.threshold)),
+  );
 
-  readonly barChartData = computed<ChartData<'bar'>>(() => ({
-    labels: this.monthly().map((m) => m.month),
-    datasets: [
-      {
-        label: 'Revenue',
-        data: this.monthly().map((m) => m.revenue),
-        backgroundColor: '#e07b2a',
-        borderRadius: 4,
-      },
-      {
-        label: 'Expenses',
-        data: this.monthly().map((m) => m.expenses),
-        backgroundColor: '#1a1d2e',
-        borderRadius: 4,
-      },
-    ],
-  }));
+  public readonly cashTotal = computed(() =>
+    this.cashBooks()
+      .filter((book) => !book.isClosed)
+      .reduce((sum, book) => sum + book.balance, 0),
+  );
 
-  readonly lineChartData = computed<ChartData<'line'>>(() => ({
-    labels: this.monthly().map((m) => m.month),
-    datasets: [
-      {
-        label: 'Profit',
-        data: this.monthly().map((m) => m.revenue - m.expenses),
-        borderColor: '#2e7d32',
-        backgroundColor: 'rgba(46,125,50,0.12)',
-        fill: true,
-        tension: 0.4,
-        borderWidth: 2,
-        pointRadius: 4,
-      },
-    ],
-  }));
+  public readonly recentDeliveries = computed(() => this.deliveries().slice(0, 5));
 
-  readonly chartOptions: ChartOptions = {
-    responsive: true,
-    plugins: {
-      legend: { position: 'top' },
-      tooltip: { callbacks: { label: (ctx) => this.formatCurrency(ctx.parsed.y ?? 0) } },
-    },
-    scales: { y: { ticks: { callback: (v: string | number) => this.formatCurrency(Number(v)) } } },
-  };
+  public async ngOnInit() {
+    const [stock, deliveries, cashBooks, summary] = await Promise.all([
+      lastValueFrom(this.stockController.apiStockGet()),
+      lastValueFrom(this.deliveryController.apiDeliveriesGet()),
+      lastValueFrom(this.cashBookController.apiCashBooksGet()),
+      lastValueFrom(
+        this.bookingController.apiBookingsSummaryGet({ year: new Date().getFullYear() }),
+      ),
+    ]);
+
+    this.stock.set(stock);
+    this.deliveries.set(deliveries);
+    this.cashBooks.set(cashBooks);
+    this.summary.set(summary);
+  }
+
+  public isCritical(entry: StockOverviewDto): boolean {
+    return entry.stock <= entry.threshold / 2;
+  }
+
+  public async goTo(route: string) {
+    await this.router.navigate([route]);
+  }
 }

@@ -1,0 +1,146 @@
+<div class="container-fluid p-4">
+  <app-page-header
+    [title]="'Finanzen'"
+    [subtitle]="'Buchhaltung nach steuerlichen Bereichen.'"
+  >
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="year-select">
+      <mat-select [ngModel]="year()" (ngModelChange)="year.set($event); fetchItems()">
+        @for (value of years; track value) {
+          <mat-option [value]="value">{{ value }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <button mat-flat-button class="d-flex" (click)="openAdd()">
+      <mat-icon svgIcon="plus" class="d-flex"></mat-icon>
+      <span>Neue Buchung</span>
+    </button>
+  </app-page-header>
+
+  @if (error(); as message) {
+    <div class="alert alert-warning" role="alert">{{ message }}</div>
+  }
+
+  <div class="row g-3 mb-3">
+    @for (card of taxAreaCards(); track card.taxArea) {
+      <div class="col-12 col-lg-4">
+        <button
+          type="button"
+          class="area-card"
+          [class.area-card--active]="taxAreaFilter() === card.taxArea"
+          [attr.data-area]="card.taxArea"
+          (click)="toggleTaxArea(card.taxArea)"
+        >
+          <div class="area-card__head">
+            <span class="icon-tile">
+              <mat-icon [svgIcon]="card.icon"></mat-icon>
+            </span>
+            <div class="area-card__title">
+              <span class="area-card__name">{{ card.label }}</span>
+              <span class="area-card__hint">{{ card.hint }}</span>
+            </div>
+          </div>
+
+          <div class="area-card__figures">
+            <div>
+              <span class="area-card__label">Einnahmen</span>
+              <span class="area-card__value text-positive">{{ formatCurrency(card.income) }}</span>
+            </div>
+            <div>
+              <span class="area-card__label">Ausgaben</span>
+              <span class="area-card__value text-negative">{{ formatCurrency(card.expense) }}</span>
+            </div>
+          </div>
+
+          <div class="area-card__footer">
+            <span class="area-card__label">Saldo</span>
+            <span class="area-card__balance">{{ formatCurrency(card.balance) }}</span>
+          </div>
+
+          <span class="area-card__count">{{ card.count }} Buchungen</span>
+        </button>
+      </div>
+    }
+  </div>
+
+  <div class="totals-bar mb-3">
+    <div class="totals-bar__item">
+      <span class="icon-tile icon-tile--positive"><mat-icon svgIcon="trending-up"></mat-icon></span>
+      <div>
+        <span class="totals-bar__label">Einnahmen gesamt</span>
+        <span class="totals-bar__value text-positive">{{ formatCurrency(income()) }}</span>
+      </div>
+    </div>
+    <div class="totals-bar__item">
+      <span class="icon-tile icon-tile--negative">
+        <mat-icon svgIcon="trending-down"></mat-icon>
+      </span>
+      <div>
+        <span class="totals-bar__label">Ausgaben gesamt</span>
+        <span class="totals-bar__value text-negative">{{ formatCurrency(expense()) }}</span>
+      </div>
+    </div>
+    <div class="totals-bar__item">
+      <span class="icon-tile"><mat-icon svgIcon="calculator"></mat-icon></span>
+      <div>
+        <span class="totals-bar__label">Saldo</span>
+        <span class="totals-bar__value">{{ formatCurrency(balance()) }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="d-flex flex-wrap align-items-center gap-3 mb-3">
+    <mat-button-toggle-group
+      [value]="direction()"
+      (change)="direction.set($event.value)"
+      class="filter-toggle"
+      hideSingleSelectionIndicator
+    >
+      <mat-button-toggle value="all">Alle</mat-button-toggle>
+      <mat-button-toggle value="income">Einnahmen</mat-button-toggle>
+      <mat-button-toggle value="expense">Ausgaben</mat-button-toggle>
+    </mat-button-toggle-group>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="month-select">
+      <mat-label>Monat</mat-label>
+      <mat-select [ngModel]="month()" (ngModelChange)="month.set($event)">
+        <mat-option [value]="null">Alle Monate</mat-option>
+        @for (entry of months; track entry.value) {
+          <mat-option [value]="entry.value">{{ entry.label }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    @if (taxAreaFilter(); as area) {
+      <button mat-stroked-button (click)="taxAreaFilter.set(null)">
+        <mat-icon svgIcon="close"></mat-icon>
+        <span>{{ taxAreaLabels[area] }}</span>
+      </button>
+    }
+  </div>
+
+  <app-data-grid
+    [title]="'Buchungen'"
+    [columns]="columns()"
+    [data]="bookings()"
+    [searchable]="true"
+    [searchKeys]="['description', 'categoryName', 'cashBookName']"
+  >
+    <ng-template gridActionCell let-row>
+      <div class="d-flex gap-1 justify-content-end">
+        @if (row.receiptUrl) {
+          <button mat-icon-button matTooltip="Beleg öffnen" (click)="openReceipt(row)">
+            <mat-icon svgIcon="open-in-new"></mat-icon>
+          </button>
+        }
+        @if (!row.transferGroupId) {
+          <button mat-icon-button matTooltip="Bearbeiten" (click)="openEdit(row)">
+            <mat-icon svgIcon="pencil"></mat-icon>
+          </button>
+        }
+        <button mat-icon-button matTooltip="Löschen" (click)="openDelete(row)">
+          <mat-icon svgIcon="delete"></mat-icon>
+        </button>
+      </div>
+    </ng-template>
+  </app-data-grid>
+</div>

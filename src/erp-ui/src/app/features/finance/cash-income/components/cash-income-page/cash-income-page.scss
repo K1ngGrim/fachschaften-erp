@@ -1,0 +1,129 @@
+// Farben je Einnahmequelle, wie im Entwurf
+:host {
+  --source-TallyList: #3b82f6;
+  --source-Cash: #16a34a;
+  --source-SumUp: #8b5cf6;
+}
+
+.year-select {
+  width: 6.5rem;
+}
+
+.section-label {
+  display: block;
+  margin-bottom: 0.6rem;
+  font-size: 0.75rem;
+  color: var(--app-text-muted);
+}
+
+// ── Monatskarten ─────────────────────────────────────────────────────────────
+.month-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  height: 100%;
+  padding: 1.15rem 1.25rem;
+  background: var(--app-card);
+  border: 1px solid var(--app-border);
+  border-radius: 0.75rem;
+}
+
+.month-card__title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+}
+
+.month-card__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: var(--app-text);
+}
+
+.month-card__source {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--app-text-muted);
+}
+
+.month-card__total {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-top: 0.6rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--app-border);
+  font-weight: 600;
+}
+
+.month-card__total-value {
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--app-border-strong);
+
+  &[data-source='Cash'] {
+    background: var(--source-Cash);
+  }
+
+  &[data-source='TallyList'] {
+    background: var(--source-TallyList);
+  }
+
+  &[data-source='SumUp'] {
+    background: var(--source-SumUp);
+  }
+}
+
+// ── Typ-Chip in der Tabelle ──────────────────────────────────────────────────
+.source-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: var(--app-border);
+  color: var(--app-text-muted);
+
+  &[data-source='Cash'] {
+    background: rgba(22, 163, 74, 0.12);
+    color: var(--source-Cash);
+  }
+
+  &[data-source='TallyList'] {
+    background: rgba(59, 130, 246, 0.12);
+    color: var(--source-TallyList);
+  }
+
+  &[data-source='SumUp'] {
+    background: rgba(139, 92, 246, 0.14);
+    color: var(--source-SumUp);
+  }
+}
+
+// ── Gesamtsumme unter der Tabelle ────────────────────────────────────────────
+.grand-total {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-top: -1px;
+  padding: 0.9rem 1.25rem;
+  background: var(--app-hover);
+  border: 1px solid var(--app-border);
+  border-radius: 0 0 0.75rem 0.75rem;
+  font-weight: 600;
+}
+
+.grand-total__value {
+  font-size: 1.05rem;
+  font-weight: 700;
+}

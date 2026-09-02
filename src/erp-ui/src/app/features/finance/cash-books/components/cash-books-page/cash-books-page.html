@@ -1,0 +1,123 @@
+<div class="container-fluid p-4">
+  <app-page-header
+    [title]="'Kassenbücher'"
+    [subtitle]="'Bargeldkassen mit laufendem Saldo und hierarchischer Struktur.'"
+  >
+    <button mat-flat-button class="d-flex" (click)="openAdd()">
+      <mat-icon svgIcon="plus" class="d-flex"></mat-icon>
+      <span>Neues Kassenbuch</span>
+    </button>
+  </app-page-header>
+
+  @if (error(); as message) {
+    <div class="alert alert-warning" role="alert">{{ message }}</div>
+  }
+
+  <div class="section-label">
+    Aktive Kassenbücher
+    <span class="section-label__total">{{ formatCurrency(totalBalance()) }} gesamt</span>
+  </div>
+
+  <div class="d-flex flex-column gap-3">
+    @for (group of groups(); track group.book.id) {
+      <div class="book-group">
+        <ng-container
+          *ngTemplateOutlet="bookCard; context: { $implicit: group.book, children: group.children }"
+        />
+
+        @if (group.children.length > 0) {
+          <div class="book-children">
+            @for (child of group.children; track child.id) {
+              <ng-container
+                *ngTemplateOutlet="bookCard; context: { $implicit: child, children: [] }"
+              />
+            }
+          </div>
+        }
+      </div>
+    } @empty {
+      <div class="book-card book-card--empty">
+        Noch kein Kassenbuch angelegt. Lege zuerst eine Hauptkasse an.
+      </div>
+    }
+  </div>
+
+  @if (closedBooks().length > 0) {
+    <button type="button" class="section-label section-label--button" (click)="showClosed.set(!showClosed())">
+      <span>Geschlossene Kassenbücher ({{ closedBooks().length }})</span>
+      <mat-icon [svgIcon]="showClosed() ? 'chevron-up' : 'chevron-down'"></mat-icon>
+    </button>
+
+    @if (showClosed()) {
+      <div class="d-flex flex-column gap-3">
+        @for (book of closedBooks(); track book.id) {
+          <div class="book-card book-card--closed">
+            <div class="book-card__main">
+              <span class="icon-tile"><mat-icon svgIcon="lock-outline"></mat-icon></span>
+              <div class="book-card__title">
+                <span class="book-card__name">{{ book.name }}</span>
+                <span class="book-card__meta">
+                  Geschlossen@if (book.parentName) { · Unterkasse von {{ book.parentName }} }
+                </span>
+              </div>
+            </div>
+            <div class="book-card__balance">
+              <span class="book-card__balance-label">Saldo</span>
+              <span class="book-card__balance-value">{{ formatCurrency(book.balance) }}</span>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  }
+</div>
+
+<ng-template #bookCard let-book let-children="children">
+  <div class="book-card" [class.book-card--child]="book.parentId">
+    <div class="book-card__main">
+      <span class="icon-tile">
+        <mat-icon [svgIcon]="book.parentId ? 'wallet-outline' : 'bank-outline'"></mat-icon>
+      </span>
+      <div class="book-card__title">
+        <div class="d-flex align-items-center gap-2">
+          <span class="book-card__name">{{ book.name }}</span>
+          @if (children.length > 0) {
+            <span class="pill pill--muted">{{ children.length }} Unterkassen</span>
+          }
+        </div>
+        @if (book.parentName) {
+          <span class="book-card__meta">Unterkasse von {{ book.parentName }}</span>
+        }
+      </div>
+    </div>
+
+    <div class="book-card__actions">
+      <button mat-stroked-button (click)="openTransfer(book)">
+        <mat-icon svgIcon="swap-horizontal"></mat-icon>
+        <span>Umbuchen</span>
+      </button>
+      @if (!book.parentId) {
+        <button mat-stroked-button (click)="openAdd(book)">
+          <mat-icon svgIcon="plus"></mat-icon>
+          <span>Unterkasse</span>
+        </button>
+      }
+      <button mat-icon-button matTooltip="Bearbeiten" (click)="openEdit(book)">
+        <mat-icon svgIcon="pencil"></mat-icon>
+      </button>
+      <button mat-icon-button matTooltip="Abschließen" (click)="close(book)">
+        <mat-icon svgIcon="lock-outline"></mat-icon>
+      </button>
+      <button mat-icon-button matTooltip="Löschen" (click)="openDelete(book)">
+        <mat-icon svgIcon="delete"></mat-icon>
+      </button>
+    </div>
+
+    <div class="book-card__balance">
+      <span class="book-card__balance-label">Saldo</span>
+      <span class="book-card__balance-value" [class.text-negative]="book.balance < 0">
+        {{ formatCurrency(book.balance) }}
+      </span>
+    </div>
+  </div>
+</ng-template>

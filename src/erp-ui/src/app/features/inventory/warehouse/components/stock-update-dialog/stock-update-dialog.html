@@ -1,0 +1,98 @@
+<h2 mat-dialog-title>Lagerupdate</h2>
+
+<mat-dialog-content>
+  <p class="text-hint mb-3">
+    Neuen Bestand eintragen — nur geänderte Zeilen werden gebucht.
+  </p>
+
+  <div class="row g-3 mb-3">
+    <div class="col-12 col-md-6">
+      <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
+        <mat-label>Artikel suchen</mat-label>
+        <mat-icon matPrefix svgIcon="magnify" class="d-flex me-2"></mat-icon>
+        <input matInput [ngModel]="search()" (ngModelChange)="search.set($event)" />
+      </mat-form-field>
+    </div>
+    <div class="col-12 col-md-6">
+      <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
+        <mat-label>Notiz (optional)</mat-label>
+        <input matInput [ngModel]="note()" (ngModelChange)="note.set($event)" />
+      </mat-form-field>
+    </div>
+  </div>
+
+  <div class="table-responsive stock-update-table">
+    <table class="table align-middle mb-0">
+      <thead>
+        <tr>
+          <th>Artikel</th>
+          <th class="text-end">Alter Bestand</th>
+          <th class="text-center new-stock-col">Neuer Bestand</th>
+          <th class="text-end">Differenz</th>
+          <th class="type-col">Bewegung</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of visibleRows(); track row.productId) {
+          <tr [class.changed]="difference(row) !== 0">
+            <td class="fw-medium">{{ row.name }}</td>
+            <td class="text-end text-hint">{{ row.currentStock }} {{ row.unit }}</td>
+            <td class="text-center">
+              <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-100">
+                <input
+                  matInput
+                  type="number"
+                  class="text-end"
+                  [ngModel]="row.newStock"
+                  (ngModelChange)="setNewStock(row.productId, $event)"
+                />
+              </mat-form-field>
+            </td>
+            <td class="text-end fw-bold">
+              @if (difference(row) > 0) {
+                <span class="text-success">+{{ difference(row) }}</span>
+              } @else if (difference(row) < 0) {
+                <span class="text-danger">{{ difference(row) }}</span>
+              } @else {
+                <span class="text-hint">—</span>
+              }
+            </td>
+            <td>
+              @if (difference(row) !== 0) {
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-100">
+                  <mat-select
+                    [ngModel]="row.type"
+                    (ngModelChange)="setType(row.productId, $event)"
+                  >
+                    @for (type of types(); track type.value) {
+                      <mat-option [value]="type.value">{{ type.label }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+              }
+            </td>
+            <td class="text-end">
+              @if (difference(row) !== 0) {
+                <button mat-icon-button matTooltip="Zurücksetzen" (click)="resetRow(row.productId)">
+                  <mat-icon svgIcon="undo"></mat-icon>
+                </button>
+              }
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="6" class="text-center text-hint py-5">Keine Artikel gefunden.</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-stroked-button (click)="cancel()">Abbrechen</button>
+  <button mat-flat-button [disabled]="changedRows().length === 0" (click)="save()">
+    {{ changedRows().length }} Änderung(en) buchen
+  </button>
+</mat-dialog-actions>

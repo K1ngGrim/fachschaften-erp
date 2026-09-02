@@ -1,0 +1,39 @@
+<div class="container-fluid p-4">
+  <app-page-header
+    [title]="'Lieferungen'"
+    [subtitle]="'Wareneingänge erfassen — jede Lieferung bucht den Bestand automatisch zu.'"
+  >
+    <button mat-flat-button class="d-flex" (click)="openAdd()">
+      <mat-icon svgIcon="plus" class="d-flex"></mat-icon>
+      <span>Neue Lieferung</span>
+    </button>
+  </app-page-header>
+
+  @if (error(); as message) {
+    <div class="alert alert-warning" role="alert">{{ message }}</div>
+  }
+
+  <app-data-grid
+    [title]="'Lieferhistorie'"
+    [columns]="columns()"
+    [data]="deliveries()"
+    [searchable]="true"
+    [searchKeys]="['supplierName', 'documentNumber']"
+  >
+    <ng-template gridActionCell let-row>
+      <div class="d-flex gap-1 justify-content-end">
+        @if (row.receiptUrl) {
+          <button mat-icon-button matTooltip="Beleg öffnen" (click)="openReceipt(row)">
+            <mat-icon svgIcon="open-in-new"></mat-icon>
+          </button>
+        }
+        <button mat-icon-button matTooltip="Bearbeiten" color="accent" (click)="openEdit(row)">
+          <mat-icon svgIcon="pencil"></mat-icon>
+        </button>
+        <button mat-icon-button matTooltip="Löschen" color="warn" (click)="openDelete(row)">
+          <mat-icon svgIcon="delete"></mat-icon>
+        </button>
+      </div>
+    </ng-template>
+  </app-data-grid>
+</div>

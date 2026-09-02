@@ -1,46 +1,34 @@
 <div class="container-fluid p-4">
-  <app-page-header
-    [title]="'Items'"
-    [subtitle]="'Manage your inventory items here'"
-  >
+  <app-page-header [title]="'Artikel'" [subtitle]="'Stammdaten der Artikel verwalten.'">
+    <button mat-flat-button class="d-flex" (click)="openAdd()">
+      <mat-icon svgIcon="plus" class="d-flex"></mat-icon>
+      <span>Neuer Artikel</span>
+    </button>
   </app-page-header>
 
   <app-data-grid
+    [title]="'Artikel'"
     [columns]="columns()"
     [data]="products()"
     [searchable]="true"
-    [searchKeys]="['name', 'supplier']"
-    [toolbarTemplate]="gridHeaderActions"
+    [searchKeys]="['name']"
   >
-
-    <ng-template #gridHeaderActions>
-      <button mat-flat-button color="primary" class="d-flex" (click)="openAdd()">
-        <mat-icon svgIcon="plus" class="d-flex"></mat-icon>
-        <span>Add Item</span>
-      </button>
-    </ng-template>
-
     <ng-template gridActionCell let-p>
       <div class="d-flex gap-1 justify-content-end">
-        <button mat-icon-button matTooltip="View" (click)="viewDetail(p.id)">
-          <mat-icon>visibility</mat-icon>
+        <button mat-icon-button matTooltip="Details" (click)="viewDetail(p.id)">
+          <mat-icon svgIcon="eye"></mat-icon>
         </button>
-        <button mat-icon-button matTooltip="Edit" (click)="openEdit(p)">
-          <mat-icon>edit</mat-icon>
+        <button mat-icon-button matTooltip="Bearbeiten" (click)="openEdit(p)">
+          <mat-icon svgIcon="pencil"></mat-icon>
         </button>
-        <button mat-icon-button matTooltip="Delete" color="warn" (click)="delete(p.id)">
-          <mat-icon>delete</mat-icon>
+        <button mat-icon-button matTooltip="Löschen" (click)="delete(p.id)">
+          <mat-icon svgIcon="delete"></mat-icon>
         </button>
       </div>
     </ng-template>
   </app-data-grid>
-
-  <!-- Custom Cell Template (z.B. für Stock mit Badge) -->
-  <ng-template #stockTpl let-p>
-    <span [class.text-danger]="isLowStock(p)">{{ p.stock }}</span>
-    @if (isLowStock(p)) {
-      <span class="badge bg-danger ms-2">Low</span>
-    }
-  </ng-template>
-
 </div>
+
+<ng-template #typeTemplate let-row let-type="value">
+  <span class="type-chip">{{ type }}</span>
+</ng-template>

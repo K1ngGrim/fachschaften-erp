@@ -38,6 +38,7 @@ export class GridActionCellDirective {
 })
 export class DataGrid<T extends Record<string, any>> implements AfterContentInit {
   public columns = input.required<GridColumn<T>[]>();
+  public title = input<string>();
   public data = input.required<T[]>();
   public toolbarTemplate = input<TemplateRef<any>>();
 

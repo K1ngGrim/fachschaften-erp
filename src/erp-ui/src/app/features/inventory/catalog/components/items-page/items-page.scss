@@ -1,20 +1,10 @@
-.cursor-pointer { cursor: pointer; }
-
-.table-row-hover:hover { background-color: rgba(0,0,0,.04); cursor: pointer; }
-
-// in your items page component
-:host {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  overflow: hidden;
-  height: 100%;
-}
-
-.container-fluid {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  overflow: hidden;
-  height: 100%;
+.type-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background: var(--app-border);
+  color: var(--app-text-muted);
 }

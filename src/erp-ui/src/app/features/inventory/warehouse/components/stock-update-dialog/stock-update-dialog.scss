@@ -1,0 +1,15 @@
+.stock-update-table {
+  max-height: 55vh;
+
+  tr.changed {
+    background: var(--mat-sys-surface-container-high);
+  }
+
+  .new-stock-col {
+    width: 140px;
+  }
+
+  .type-col {
+    width: 170px;
+  }
+}

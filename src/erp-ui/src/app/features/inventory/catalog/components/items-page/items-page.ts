@@ -1,109 +1,129 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, signal, TemplateRef, viewChild } from '@angular/core';
 import { Router } from '@angular/router';
-import { FormsModule } from '@angular/forms';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
-import { DataService } from '../../../../../shared/services/data.service';
-import type { Product } from '../../../../../shared/models';
+import { MatTooltip } from '@angular/material/tooltip';
+import { lastValueFrom } from 'rxjs';
 import { PageHeader } from '../../../../../shared/components/page-header/page-header';
 import {
   DataGrid,
   GridActionCellDirective,
   GridColumn,
 } from '../../../../../shared/components/data-grid/data-grid';
-import { MatTooltip } from '@angular/material/tooltip';
 import { ItemDialog } from '../item-dialog/item-dialog';
 import {
   ItemTypeDto,
+  ItemTypesService,
   ProductDto,
   ProductsService,
   SupplierDto,
   SuppliersService,
 } from '../../../../../../../projects/api/src/lib';
-import { ItemDialogConfig } from '../../../../../shared/components/base-item-dialog/base-item-dialog';
-import { lastValueFrom } from 'rxjs';
+import { formatCurrency } from '../../../../../shared/models/finance';
 
 @Component({
   selector: 'app-items-page',
   imports: [
-    FormsModule,
-    MatIcon,
-    PageHeader,
     DataGrid,
     GridActionCellDirective,
+    MatButton,
+    MatIcon,
     MatIconButton,
     MatTooltip,
-    MatButton,
+    PageHeader,
   ],
   templateUrl: './items-page.html',
   styleUrl: './items-page.scss',
 })
-export class ItemsPage implements OnInit {
+export class ItemsPage {
   private readonly dialog = inject(MatDialog);
   private readonly router = inject(Router);
-  private readonly productsController = inject(ProductsService);
+  private readonly productController = inject(ProductsService);
   private readonly supplierController = inject(SuppliersService);
+  private readonly itemTypeController = inject(ItemTypesService);
 
-  public columns = signal<GridColumn<ProductDto>[]>([]);
-  public products = signal<ProductDto[]>([]);
-  private suppliers = signal <SupplierDto[]>([]);
+  public readonly typeTemplate = viewChild<TemplateRef<any>>('typeTemplate');
+
+  public readonly columns = signal<GridColumn<ProductDto>[]>([]);
+  public readonly products = signal<ProductDto[]>([]);
+
+  private readonly suppliers = signal<SupplierDto[]>([]);
+  private readonly itemTypes = signal<ItemTypeDto[]>([]);
 
   public async ngOnInit() {
     this.columns.set([
       { key: 'name', label: 'Name' },
       {
-        key: 'supplier',
-        label: 'Supplier',
-        value: (row) => {
-          return this.suppliers().find((s) => s.id === row.supplierId)?.name ?? '';
-        },
+        key: 'itemTypeId',
+        label: 'Typ',
+        width: '10rem',
+        cellTemplate: this.typeTemplate(),
+        value: (row) => this.itemTypes().find((t) => t.id === row.itemTypeId)?.name ?? '—',
       },
       {
         key: 'purchasePrice',
-        label: 'Purchase',
+        label: 'EK',
+        align: 'end',
+        width: '8rem',
+        value: (row) => formatCurrency(row.purchasePrice),
       },
       {
-        key: 'stock',
-        label: 'Stock',
+        key: 'internalSellingPrice',
+        label: 'VK Mitglieder',
+        align: 'end',
+        width: '9rem',
+        value: (row) => formatCurrency(row.internalSellingPrice),
+      },
+      {
+        key: 'externalSellingPrice',
+        label: 'VK Gäste',
+        align: 'end',
+        width: '9rem',
+        value: (row) => formatCurrency(row.externalSellingPrice),
+      },
+      {
+        key: 'supplierId',
+        label: 'Lieferant',
+        value: (row) => this.suppliers().find((s) => s.id === row.supplierId)?.name ?? '—',
       },
     ]);
 
-    const suppliers = await lastValueFrom(this.supplierController.apiSuppliersGet());
+    const [suppliers, itemTypes] = await Promise.all([
+      lastValueFrom(this.supplierController.apiSuppliersGet()),
+      lastValueFrom(this.itemTypeController.apiItemTypesGet()),
+    ]);
+
     this.suppliers.set(suppliers);
+    this.itemTypes.set(itemTypes);
+
     await this.fetchProducts();
   }
 
   private async fetchProducts() {
-    const products = await lastValueFrom(this.productsController.apiProductsGet());
+    const products = await lastValueFrom(this.productController.apiProductsGet());
     this.products.set(products);
   }
 
-  isLowStock(p: Product) {
-    return p.trackStock && p.stock <= p.lowStockThreshold;
-  }
-
-  formatCurrency(amount: number): string {
-    return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(amount);
-  }
-
-  openAdd() {
-    const ref = this.dialog.open(ItemDialog, {
+  public openAdd() {
+    this.dialog.open(ItemDialog, {
       width: '520px',
+      maxWidth: '95vw',
       maxHeight: '90vh',
       data: { product: null },
     });
   }
 
-  openEdit(p: Product) {
-    const ref = this.dialog.open(ItemDialog, {
+  public openEdit(product: ProductDto) {
+    this.dialog.open(ItemDialog, {
       width: '520px',
+      maxWidth: '95vw',
       maxHeight: '90vh',
-      data: { product: p },
+      data: { product },
     });
   }
 
-  delete(id: string) {}
+  public delete(id: string) {}
 
   public async viewDetail(id: string) {
     await this.router.navigate(['/catalog/item', id]);

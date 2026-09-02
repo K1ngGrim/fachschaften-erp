@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Text.Json.Serialization;
 using Fachschaften_ERP.Models.Core;
 
 namespace Fachschaften_ERP.Models.Entities;
@@ -28,6 +29,7 @@ public class InventoryTransactionEntity : IBaseEntity
     public bool IsActive { get; set; }
 }
 
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum InventoryTransactionType
 {
     Delivery,

@@ -11,6 +11,19 @@ export class Auth {
   isLoaded = signal(false);
 
   isLoggedIn = computed(() => this.currentUser() !== null);
+
+  readonly userName = computed(() => this.currentUser()?.userName ?? '');
+
+  /** Kürzel für den Avatar in der Kopfleiste. */
+  readonly initials = computed(() => {
+    const name = this.userName().trim();
+    if (!name) return '?';
+
+    const parts = name.split(/[\s._@-]+/).filter(Boolean);
+    if (parts.length > 1) return (parts[0][0] + parts[1][0]).toUpperCase();
+
+    return name.substring(0, 2).toUpperCase();
+  });
   private permissions = computed(() => this.currentUser()?.permissions ?? []);
   private roles = computed(() => this.currentUser()?.roles ?? []);
 

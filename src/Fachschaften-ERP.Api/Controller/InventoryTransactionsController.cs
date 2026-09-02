@@ -89,6 +89,7 @@ public class InventoryTransactionsController(
                 Note = request.Value.Note,
                 CreatorId = invoker.UserId,
                 Created = DateTimeOffset.UtcNow,
+                IsActive = true,
             };
             
             db.InventoryTransactions.Add(entity);

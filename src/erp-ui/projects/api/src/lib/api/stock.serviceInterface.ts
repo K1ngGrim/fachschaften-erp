@@ -12,10 +12,15 @@ import { HttpHeaders }                                       from '@angular/comm
 import { Observable }                                        from 'rxjs';
 
 import { StockOverviewDto } from '../model/models';
+import { StockUpdateRequest } from '../model/models';
 
 
 import { Configuration }                                     from '../configuration';
 
+
+export interface ApiStockUpdatePostRequestParams {
+    stockUpdateRequest: StockUpdateRequest;
+}
 
 
 export interface StockServiceInterface {
@@ -27,5 +32,12 @@ export interface StockServiceInterface {
      * 
 */
     apiStockGet(extraHttpRequestParams?: any): Observable<Array<StockOverviewDto>>;
+
+    /**
+     * 
+     * 
+* @param requestParameters
+     */
+    apiStockUpdatePost(requestParameters: ApiStockUpdatePostRequestParams, extraHttpRequestParams?: any): Observable<Array<StockOverviewDto>>;
 
 }

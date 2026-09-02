@@ -1,0 +1,131 @@
+<div class="container-fluid p-4">
+  <app-page-header
+    [title]="'Finanzen'"
+    [subtitle]="'Jahresübersicht nach Steuerbereichen und Kassenbestände.'"
+  >
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="year-select">
+      <mat-label>Jahr</mat-label>
+      <mat-select [ngModel]="year()" (ngModelChange)="year.set($event); fetch()">
+        @for (value of years; track value) {
+          <mat-option [value]="value">{{ value }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </app-page-header>
+
+  @if (summary(); as data) {
+    <div class="row g-4 mb-4">
+      <div class="col-12 col-sm-6 col-lg-3">
+        <app-metric-card
+          title="Einnahmen"
+          [value]="formatCurrency(data.income)"
+          [subtitle]="'Jahr ' + data.year"
+          icon="payments"
+          trend="up"
+        />
+      </div>
+      <div class="col-12 col-sm-6 col-lg-3">
+        <app-metric-card
+          title="Ausgaben"
+          [value]="formatCurrency(data.expense)"
+          [subtitle]="'Jahr ' + data.year"
+          icon="trending_down"
+          trend="down"
+        />
+      </div>
+      <div class="col-12 col-sm-6 col-lg-3">
+        <app-metric-card
+          title="Saldo"
+          [value]="formatCurrency(data.balance)"
+          subtitle="Einnahmen abzüglich Ausgaben"
+          icon="account_balance_wallet"
+        />
+      </div>
+      <div class="col-12 col-sm-6 col-lg-3">
+        <app-metric-card
+          title="Bargeld"
+          [value]="formatCurrency(cashTotal())"
+          [subtitle]="openCashBooks().length + ' offene Kasse(n)'"
+          icon="savings"
+        />
+      </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+      <div class="col-12 col-lg-8">
+        <mat-card appearance="outlined" class="h-100">
+          <mat-card-header>
+            <mat-card-title class="fs-6">Einnahmen und Ausgaben je Monat</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="chart-wrapper">
+              <canvas baseChart type="bar" [data]="chartData()" [options]="chartOptions"></canvas>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <div class="col-12 col-lg-4">
+        <mat-card appearance="outlined" class="h-100">
+          <mat-card-header>
+            <mat-card-title class="fs-6">Kassenbestände</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            @for (book of openCashBooks(); track book.id) {
+              <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                <div>
+                  <div class="fw-medium">{{ book.name }}</div>
+                  @if (book.parentName) {
+                    <small class="text-hint">aus {{ book.parentName }}</small>
+                  }
+                </div>
+                <span class="fw-bold">{{ formatCurrency(book.balance) }}</span>
+              </div>
+            } @empty {
+              <p class="text-hint text-center py-4 mb-0">Noch keine Kassenbücher angelegt.</p>
+            }
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+
+    <mat-card appearance="outlined">
+      <mat-card-header>
+        <mat-card-title class="fs-6">Steuerbereiche</mat-card-title>
+      </mat-card-header>
+      <mat-card-content class="p-0">
+        <div class="table-responsive">
+          <table class="table align-middle mb-0">
+            <thead>
+              <tr>
+                <th>Bereich</th>
+                <th class="text-end">Einnahmen</th>
+                <th class="text-end">Ausgaben</th>
+                <th class="text-end">Saldo</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (area of data.byTaxArea; track area.taxArea) {
+                <tr>
+                  <td>
+                    <div class="fw-medium">{{ taxAreaLabels[area.taxArea] }}</div>
+                    <small class="text-hint">{{ taxAreaHints[area.taxArea] }}</small>
+                  </td>
+                  <td class="text-end">{{ formatCurrency(area.income) }}</td>
+                  <td class="text-end">{{ formatCurrency(area.expense) }}</td>
+                  <td
+                    class="text-end fw-bold"
+                    [class.text-success]="area.balance > 0"
+                    [class.text-danger]="area.balance < 0"
+                  >
+                    {{ formatCurrency(area.balance) }}
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  }
+</div>

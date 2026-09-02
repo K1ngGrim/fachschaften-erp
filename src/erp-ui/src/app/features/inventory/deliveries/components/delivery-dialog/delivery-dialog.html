@@ -1,0 +1,136 @@
+<h2 mat-dialog-title>{{ isEdit ? 'Lieferung bearbeiten' : 'Neue Lieferung' }}</h2>
+
+<mat-dialog-content>
+  <div class="row g-3">
+    <div class="col-12 col-md-6">
+      <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
+        <mat-label>Lieferant</mat-label>
+        <mat-select [ngModel]="supplierId()" (ngModelChange)="supplierId.set($event)">
+          @for (supplier of suppliers(); track supplier.id) {
+            <mat-option [value]="supplier.id">{{ supplier.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <div class="col-12 col-md-6">
+      <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
+        <mat-label>Lieferdatum</mat-label>
+        <input
+          matInput
+          type="date"
+          [ngModel]="deliveryDate()"
+          (ngModelChange)="deliveryDate.set($event)"
+        />
+      </mat-form-field>
+    </div>
+
+    <div class="col-12 col-md-6">
+      <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
+        <mat-label>Belegnummer</mat-label>
+        <input
+          matInput
+          [ngModel]="documentNumber()"
+          (ngModelChange)="documentNumber.set($event)"
+        />
+      </mat-form-field>
+    </div>
+
+    <div class="col-12 col-md-6">
+      <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
+        <mat-label>Beleg-Link</mat-label>
+        <input
+          matInput
+          [ngModel]="receiptUrl()"
+          (ngModelChange)="receiptUrl.set($event)"
+          placeholder="https://…"
+        />
+      </mat-form-field>
+    </div>
+
+    <div class="col-12">
+      <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
+        <mat-label>Notiz</mat-label>
+        <input matInput [ngModel]="note()" (ngModelChange)="note.set($event)" />
+      </mat-form-field>
+    </div>
+  </div>
+
+  <div class="d-flex align-items-center justify-content-between mt-4 mb-2">
+    <h3 class="fs-6 fw-bold m-0">Positionen</h3>
+    <button mat-stroked-button (click)="addPosition()">
+      <mat-icon svgIcon="plus" class="d-flex"></mat-icon>
+      <span>Position</span>
+    </button>
+  </div>
+
+  <div class="position-list d-flex flex-column gap-2">
+    @for (position of positions(); track position.key) {
+      <div class="row g-2 align-items-center">
+        <div class="col-12 col-md-6">
+          <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
+            <mat-label>Artikel</mat-label>
+            <mat-select
+              [ngModel]="position.productId"
+              (ngModelChange)="setProduct(position.key, $event)"
+            >
+              @for (product of products(); track product.id) {
+                <mat-option [value]="product.id">{{ product.name }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <div class="col-5 col-md-2">
+          <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
+            <mat-label>Menge</mat-label>
+            <input
+              matInput
+              type="number"
+              [ngModel]="position.quantity"
+              (ngModelChange)="setQuantity(position.key, $event)"
+            />
+          </mat-form-field>
+        </div>
+
+        <div class="col-5 col-md-3">
+          <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
+            <mat-label>EK / Stück</mat-label>
+            <input
+              matInput
+              type="number"
+              step="0.01"
+              [ngModel]="position.unitPurchasePrice"
+              (ngModelChange)="setPrice(position.key, $event)"
+            />
+          </mat-form-field>
+        </div>
+
+        <div class="col-2 col-md-1 text-end">
+          <button
+            mat-icon-button
+            matTooltip="Position entfernen"
+            color="warn"
+            (click)="removePosition(position.key)"
+          >
+            <mat-icon svgIcon="delete"></mat-icon>
+          </button>
+        </div>
+      </div>
+    } @empty {
+      <p class="text-hint text-center py-3 mb-0">Noch keine Positionen erfasst.</p>
+    }
+  </div>
+
+  <div class="d-flex justify-content-between fw-bold fs-6 mt-3">
+    <span>Gesamt</span>
+    <span>{{ formatCurrency(total()) }}</span>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-stroked-button (click)="cancel()">Abbrechen</button>
+  <button mat-flat-button [disabled]="!isValid()" (click)="save()">
+    Speichern
+  </button>
+</mat-dialog-actions>
