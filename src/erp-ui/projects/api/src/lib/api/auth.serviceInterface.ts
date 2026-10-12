@@ -11,15 +11,21 @@ import { HttpHeaders }                                       from '@angular/comm
 
 import { Observable }                                        from 'rxjs';
 
+import { ForgotPasswordRequest } from '../model/models';
 import { Login2FaRequest } from '../model/models';
 import { LoginRequest } from '../model/models';
 import { LoginResult } from '../model/models';
 import { MeDto } from '../model/models';
 import { PasswordPolicyDto } from '../model/models';
+import { ResetPasswordRequest } from '../model/models';
 
 
 import { Configuration }                                     from '../configuration';
 
+
+export interface ApiAuthForgotPasswordPostRequestParams {
+    forgotPasswordRequest: ForgotPasswordRequest;
+}
 
 export interface ApiAuthLogin2faPostRequestParams {
     login2FaRequest: Login2FaRequest;
@@ -29,10 +35,21 @@ export interface ApiAuthLoginPostRequestParams {
     loginRequest: LoginRequest;
 }
 
+export interface ApiAuthResetPasswordPostRequestParams {
+    resetPasswordRequest: ResetPasswordRequest;
+}
+
 
 export interface AuthServiceInterface {
     defaultHeaders: HttpHeaders;
     configuration: Configuration;
+
+    /**
+     * 
+     * 
+* @param requestParameters
+     */
+    apiAuthForgotPasswordPost(requestParameters: ApiAuthForgotPasswordPostRequestParams, extraHttpRequestParams?: any): Observable<{}>;
 
     /**
      * 
@@ -65,5 +82,12 @@ export interface AuthServiceInterface {
      * 
 */
     apiAuthPasswordPolicyGet(extraHttpRequestParams?: any): Observable<PasswordPolicyDto>;
+
+    /**
+     * 
+     * 
+* @param requestParameters
+     */
+    apiAuthResetPasswordPost(requestParameters: ApiAuthResetPasswordPostRequestParams, extraHttpRequestParams?: any): Observable<{}>;
 
 }

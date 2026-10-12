@@ -12,7 +12,7 @@ import {
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { lastValueFrom } from 'rxjs';
 import { Auth } from '../../../../core/services/auth';
@@ -34,6 +34,7 @@ import { AuthService } from '../../../../../../projects/api/src/lib';
     MatSuffix,
     ReactiveFormsModule,
     MatIconButton,
+    RouterLink,
   ],
   templateUrl: './login-page.html',
   styleUrl: './login-page.scss',

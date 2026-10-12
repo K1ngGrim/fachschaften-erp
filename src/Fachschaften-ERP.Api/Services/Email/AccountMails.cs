@@ -34,5 +34,32 @@ public class AccountMails(IEmailSender emailSender, IConfiguration config)
             """), cancellationToken);
     }
 
+    public Task SendPasswordResetAsync(IdentityUserEntity user, string token, CancellationToken cancellationToken)
+    {
+        var link = $"{BaseUrl}/reset-password?userId={user.Id}&token={Encode(token)}";
+        var name = user.DisplayName ?? user.Email ?? user.UserName ?? string.Empty;
+
+        return emailSender.SendAsync(new EmailMessage(
+            new EmailAddress(user.Email!, user.DisplayName),
+            "Passwort zurücksetzen",
+            $"""
+            <p>Hallo {WebUtility.HtmlEncode(name)},</p>
+            <p>für dein Konto im Fachschaften ERP wurde ein neues Passwort angefordert.</p>
+            <p><a href="{link}">Neues Passwort festlegen</a></p>
+            <p>Der Link ist 2 Stunden gültig. Wenn du das nicht warst, kannst du diese Mail ignorieren;
+            dein bisheriges Passwort bleibt dann bestehen.</p>
+            """,
+            $"""
+            Hallo {name},
+
+            für dein Konto im Fachschaften ERP wurde ein neues Passwort angefordert.
+            Neues Passwort festlegen:
+            {link}
+
+            Der Link ist 2 Stunden gültig. Wenn du das nicht warst, kannst du diese Mail ignorieren;
+            dein bisheriges Passwort bleibt dann bestehen.
+            """), cancellationToken);
+    }
+
     private static string Encode(string token) => WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
 }

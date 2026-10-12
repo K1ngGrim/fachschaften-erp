@@ -159,6 +159,11 @@ builder.Services.Configure<JsonOptions>(options =>
 
 builder.Services.AddSingleton<IAuthorizationHandler, PermissionHandler>();
 builder.Services.AddEmailSender(builder.Configuration);
+builder.Services.AddAppRateLimiting();
+
+// Links zum Zurücksetzen des Passworts (Standard-Token-Provider) sind 2 Stunden gültig.
+builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
+    options.TokenLifespan = TimeSpan.FromHours(2));
 
 // Schlüssel für Login-Cookies und Einladungs-Token. Im Container auf ein Volume legen,
 // sonst sind nach jedem Neustart alle Sitzungen und offenen Einladungen ungültig.
@@ -185,6 +190,7 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseRateLimiter();
 
 using var scope = app.Services.CreateScope();
 var dbContext = scope.ServiceProvider.GetRequiredService<CoreContext>();

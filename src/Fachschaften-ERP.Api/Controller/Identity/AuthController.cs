@@ -1,9 +1,14 @@
+using System.Security.Claims;
+using System.Text;
 using Fachschaften_ERP.Api.Services;
+using Fachschaften_ERP.Api.Services.Email;
 using Fachschaften_ERP.Models;
 using Fachschaften_ERP.Models.Entities.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fachschaften_ERP.Api.Controller.Identity;
@@ -14,7 +19,9 @@ public class AuthController(
     SignInManager<IdentityUserEntity> signInManager,
     UserManager<IdentityUserEntity> userManager,
     RoleManager<IdentityRoleEntity> roleManager,
-    CoreContext coreContext
+    CoreContext coreContext,
+    AccountMails accountMails,
+    ILogger<AuthController> logger
     ) : ControllerBase
 {
     [AllowAnonymous]
@@ -58,6 +65,69 @@ public class AuthController(
         await signInManager.SignOutAsync();
         return NoContent();
     }
+
+    /// <summary>
+    /// Schickt einen Link zum Zurücksetzen des Passworts. Antwortet immer gleich, damit sich
+    /// nicht herausfinden lässt, welche Konten existieren.
+    /// </summary>
+    [AllowAnonymous]
+    [EnableRateLimiting(RateLimitPolicies.PasswordResetRequest)]
+    [HttpPost("forgot-password")]
+    public async Task<IActionResult> ForgotPassword(ForgotPasswordRequest request)
+    {
+        var user = await userManager.FindByUserNameOrEmailAsync(request.Login);
+
+        // Nur aktive Konten mit Adresse; offene Einladungen laufen über "Einladung erneut senden".
+        var hasOpenInvite = user is not null &&
+                            await coreContext.Invites.AnyAsync(i => i.UserId == user.Id && !i.Accepted);
+        if (user is null || string.IsNullOrEmpty(user.Email) || hasOpenInvite) return NoContent();
+
+        var token = await userManager.GeneratePasswordResetTokenAsync(user);
+        try
+        {
+            await accountMails.SendPasswordResetAsync(user, token, HttpContext.RequestAborted);
+        }
+        catch (EmailSendException e)
+        {
+            // Nicht an den Aufrufer melden (verrät sonst, dass das Konto existiert).
+            logger.LogError(e, "Password reset email for user {UserId} could not be sent.", user.Id);
+        }
+
+        return NoContent();
+    }
+
+    [AllowAnonymous]
+    [EnableRateLimiting(RateLimitPolicies.PasswordResetConfirm)]
+    [HttpPost("reset-password")]
+    public async Task<IActionResult> ResetPassword(ResetPasswordRequest request)
+    {
+        var user = await userManager.FindByIdAsync(request.UserId.ToString());
+        if (user is null) return BadRequest(InvalidTokenErrors);
+
+        string token;
+        try
+        {
+            token = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(request.Token));
+        }
+        catch (FormatException)
+        {
+            return BadRequest(InvalidTokenErrors);
+        }
+
+        var result = await userManager.ResetPasswordAsync(user, token, request.NewPassword);
+        if (!result.Succeeded) return BadRequest(result.Errors);
+
+        // Wer sein Passwort neu setzt, ist nicht mehr wegen Fehlversuchen gesperrt
+        // und hat einen vorgegebenen Passwortwechsel damit erledigt.
+        await userManager.ResetAccessFailedCountAsync(user);
+        await userManager.SetLockoutEndDateAsync(user, null);
+        await userManager.RemoveClaimAsync(user, new Claim("custom", DatabaseSeeder.PasswordChangeRequiredClaim));
+
+        return NoContent();
+    }
+
+    private static readonly IdentityError[] InvalidTokenErrors =
+        [new() { Code = "InvalidToken", Description = "Invalid token." }];
 
     /// <summary>Aktive Passwortregeln, damit das Frontend sie vor dem Absenden prüfen und anzeigen kann.</summary>
     [AllowAnonymous]
@@ -110,6 +180,8 @@ public class AuthController(
 }
 
 /// <param name="Login">Benutzername oder E-Mail-Adresse.</param>
+public record ForgotPasswordRequest(string Login);
+public record ResetPasswordRequest(Guid UserId, string Token, string NewPassword);
 public record LoginRequest(string Login, string Password, bool RememberMe = false);
 public record Login2FaRequest(string Code, bool RememberMe = false);
 public record LoginResult(bool RequiresTwoFactor, Guid? Id = null, string? UserName = null, string? Email = null);

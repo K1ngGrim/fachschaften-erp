@@ -22,6 +22,20 @@ export const routes: Routes = [
       import('./features/auth/components/login-page/login-page').then((m) => m.LoginPage),
   },
   {
+    path: 'forgot-password',
+    loadComponent: () =>
+      import('./features/auth/components/forgot-password-page/forgot-password-page').then(
+        (m) => m.ForgotPasswordPage,
+      ),
+  },
+  {
+    path: 'reset-password',
+    loadComponent: () =>
+      import('./features/auth/components/reset-password-page/reset-password-page').then(
+        (m) => m.ResetPasswordPage,
+      ),
+  },
+  {
     path: 'accept-invite',
     loadComponent: () =>
       import('./features/auth/components/accept-invite-page/accept-invite-page').then(
