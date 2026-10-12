@@ -15,7 +15,7 @@ import { Login2FaRequest } from '../model/models';
 import { LoginRequest } from '../model/models';
 import { LoginResult } from '../model/models';
 import { MeDto } from '../model/models';
-import { RegisterRequest } from '../model/models';
+import { PasswordPolicyDto } from '../model/models';
 
 
 import { Configuration }                                     from '../configuration';
@@ -27,10 +27,6 @@ export interface ApiAuthLogin2faPostRequestParams {
 
 export interface ApiAuthLoginPostRequestParams {
     loginRequest: LoginRequest;
-}
-
-export interface ApiAuthRegisterPostRequestParams {
-    registerRequest: RegisterRequest;
 }
 
 
@@ -67,8 +63,7 @@ export interface AuthServiceInterface {
     /**
      * 
      * 
-* @param requestParameters
-     */
-    apiAuthRegisterPost(requestParameters: ApiAuthRegisterPostRequestParams, extraHttpRequestParams?: any): Observable<{}>;
+*/
+    apiAuthPasswordPolicyGet(extraHttpRequestParams?: any): Observable<PasswordPolicyDto>;
 
 }

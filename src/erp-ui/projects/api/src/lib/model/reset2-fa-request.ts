@@ -9,9 +9,7 @@
  */
 
 
-export interface RegisterRequest { 
-    name: string;
-    email: string | null;
+export interface Reset2FaRequest { 
     password: string;
 }
 

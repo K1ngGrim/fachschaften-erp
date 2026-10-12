@@ -1,4 +1,5 @@
 .gitignore
+.openapi-generator-ignore
 README.md
 api.module.ts
 api/api.ts
@@ -55,6 +56,7 @@ model/custom-field-type.ts
 model/delivery-dto.ts
 model/delivery-overview-dto.ts
 model/delivery-position-dto.ts
+model/disable2-fa-request.ts
 model/inventory-transaction-dto.ts
 model/inventory-transaction-type.ts
 model/invite-request.ts
@@ -73,8 +75,9 @@ model/login2-fa-request.ts
 model/me-dto.ts
 model/models.ts
 model/month-summary-dto.ts
+model/password-policy-dto.ts
 model/product-dto.ts
-model/register-request.ts
+model/reset2-fa-request.ts
 model/role-dto.ts
 model/setup2-fa-request.ts
 model/setup2-fa-result.ts

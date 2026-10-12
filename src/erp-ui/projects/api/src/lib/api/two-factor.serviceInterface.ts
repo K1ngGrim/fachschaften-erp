@@ -11,12 +11,22 @@ import { HttpHeaders }                                       from '@angular/comm
 
 import { Observable }                                        from 'rxjs';
 
+import { Disable2FaRequest } from '../model/models';
+import { Reset2FaRequest } from '../model/models';
 import { Setup2FaRequest } from '../model/models';
 import { Setup2FaResult } from '../model/models';
 
 
 import { Configuration }                                     from '../configuration';
 
+
+export interface ApiAuth2faDisablePostRequestParams {
+    disable2FaRequest: Disable2FaRequest;
+}
+
+export interface ApiAuth2faResetPostRequestParams {
+    reset2FaRequest: Reset2FaRequest;
+}
 
 export interface ApiAuth2faSetupPostRequestParams {
     setup2FaRequest: Setup2FaRequest;
@@ -30,8 +40,16 @@ export interface TwoFactorServiceInterface {
     /**
      * 
      * 
-*/
-    apiAuth2faSetupDelete(extraHttpRequestParams?: any): Observable<{}>;
+* @param requestParameters
+     */
+    apiAuth2faDisablePost(requestParameters: ApiAuth2faDisablePostRequestParams, extraHttpRequestParams?: any): Observable<{}>;
+
+    /**
+     * 
+     * 
+* @param requestParameters
+     */
+    apiAuth2faResetPost(requestParameters: ApiAuth2faResetPostRequestParams, extraHttpRequestParams?: any): Observable<{}>;
 
     /**
      * 

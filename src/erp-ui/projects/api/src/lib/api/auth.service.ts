@@ -25,7 +25,7 @@ import { LoginResult } from '../model/login-result';
 // @ts-ignore
 import { MeDto } from '../model/me-dto';
 // @ts-ignore
-import { RegisterRequest } from '../model/register-request';
+import { PasswordPolicyDto } from '../model/password-policy-dto';
 
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
@@ -33,8 +33,7 @@ import { Configuration }                                     from '../configurat
 import {
     AuthServiceInterface,
     ApiAuthLogin2faPostRequestParams,
-    ApiAuthLoginPostRequestParams,
-    ApiAuthRegisterPostRequestParams
+    ApiAuthLoginPostRequestParams
 } from './auth.serviceInterface';
 
 
@@ -380,18 +379,13 @@ export class AuthService implements AuthServiceInterface {
     }
 
     /**
-     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public apiAuthRegisterPost(requestParameters: ApiAuthRegisterPostRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
-    public apiAuthRegisterPost(requestParameters: ApiAuthRegisterPostRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
-    public apiAuthRegisterPost(requestParameters: ApiAuthRegisterPostRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
-    public apiAuthRegisterPost(requestParameters: ApiAuthRegisterPostRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        const registerRequest = requestParameters?.registerRequest;
-        if (registerRequest === null || registerRequest === undefined) {
-            throw new Error('Required parameter registerRequest was null or undefined when calling apiAuthRegisterPost.');
-        }
+    public apiAuthPasswordPolicyGet(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<PasswordPolicyDto>;
+    public apiAuthPasswordPolicyGet(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PasswordPolicyDto>>;
+    public apiAuthPasswordPolicyGet(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PasswordPolicyDto>>;
+    public apiAuthPasswordPolicyGet(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -399,6 +393,9 @@ export class AuthService implements AuthServiceInterface {
         if (localVarHttpHeaderAcceptSelected === undefined) {
             // to determine the Accept header
             const httpHeaderAccepts: string[] = [
+                'text/plain',
+                'application/json',
+                'text/json'
             ];
             localVarHttpHeaderAcceptSelected = this.configuration.selectHeaderAccept(httpHeaderAccepts);
         }
@@ -417,17 +414,6 @@ export class AuthService implements AuthServiceInterface {
         }
 
 
-        // to determine the Content-Type header
-        const consumes: string[] = [
-            'application/json',
-            'text/json',
-            'application/*+json'
-        ];
-        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
-        if (httpContentTypeSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
-        }
-
         let responseType_: 'text' | 'json' | 'blob' = 'json';
         if (localVarHttpHeaderAcceptSelected) {
             if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
@@ -439,11 +425,10 @@ export class AuthService implements AuthServiceInterface {
             }
         }
 
-        let localVarPath = `/api/auth/register`;
-        return this.httpClient.request<any>('post', `${this.configuration.basePath}${localVarPath}`,
+        let localVarPath = `/api/auth/password-policy`;
+        return this.httpClient.request<PasswordPolicyDto>('get', `${this.configuration.basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: registerRequest,
                 responseType: <any>responseType_,
                 withCredentials: this.configuration.withCredentials,
                 headers: localVarHeaders,

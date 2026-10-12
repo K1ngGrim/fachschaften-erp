@@ -16,5 +16,6 @@ export interface MeDto {
     roles: Array<string>;
     permissions: Array<string>;
     claims: Array<string>;
+    twoFactorEnabled: boolean;
 }
 
