@@ -1,8 +1,9 @@
+using System.Net;
 using System.Security.Claims;
 using System.Text;
 using Fachschaften_ERP.Api.Models;
 using Fachschaften_ERP.Api.Services;
-using Fachschaften_ERP.Api.Services.Interfaces;
+using Fachschaften_ERP.Api.Services.Email;
 using Fachschaften_ERP.Models;
 using Fachschaften_ERP.Models.Entities.Identity;
 using Microsoft.AspNetCore.Authorization;
@@ -28,6 +29,9 @@ public class InviteController(
         InviteRequest request
         )
     {
+        if (string.IsNullOrWhiteSpace(request.Email))
+            return BadRequest("Email is required to send the invite.");
+
         if (await userManager.FindByNameAsync(request.UserName) is not null)
             return Conflict("Username already taken.");
 
@@ -80,15 +84,35 @@ public class InviteController(
         var baseUrl = config["App:BaseUrl"] ?? "http://localhost:4200";
         var inviteLink = $"{baseUrl}/accept-invite?inviteId={invite.Id}&token={encodedToken}";
 
-        await emailSender.SendAsync(
-            request.Email!,
+        var name = WebUtility.HtmlEncode(request.UserName);
+        var message = new EmailMessage(
+            new EmailAddress(request.Email, request.UserName),
             "Du wurdest eingeladen",
             $"""
-            <p>Hallo {request.UserName},</p>
+            <p>Hallo {name},</p>
             <p>Du wurdest zum Fachschaften ERP eingeladen.</p>
             <p><a href="{inviteLink}">Jetzt Account aktivieren</a></p>
+            """,
+            $"""
+            Hallo {request.UserName},
+
+            Du wurdest zum Fachschaften ERP eingeladen. Aktiviere deinen Account hier:
+            {inviteLink}
             """
         );
+
+        try
+        {
+            await emailSender.SendAsync(message, HttpContext.RequestAborted);
+        }
+        catch (EmailSendException)
+        {
+            // Ohne Mail ist die Einladung wertlos; aufräumen, damit sie erneut verschickt werden kann.
+            core.Invites.Remove(invite);
+            await core.SaveChangesAsync();
+            await userManager.DeleteAsync(user);
+            return StatusCode(StatusCodes.Status502BadGateway, "The invite email could not be sent.");
+        }
 
         return CreatedAtAction("Get", "Users", new { id = user.Id }, new { user.Id, user.UserName, user.Email });
     }

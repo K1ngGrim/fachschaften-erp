@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 using Fachschaften_ERP.Api.Models;
 using Fachschaften_ERP.Api.Provider;
 using Fachschaften_ERP.Api.Services;
-using Fachschaften_ERP.Api.Services.Interfaces;
+using Fachschaften_ERP.Api.Services.Email;
 using Fachschaften_ERP.Models;
 using Fachschaften_ERP.Models.Entities.Identity;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -153,7 +153,7 @@ builder.Services.Configure<JsonOptions>(options =>
     options.JsonSerializerOptions.Converters.Add(new PermissionJsonConverter()));
 
 builder.Services.AddSingleton<IAuthorizationHandler, PermissionHandler>();
-builder.Services.AddScoped<IEmailSender, DevEmailSender>();
+builder.Services.AddEmailSender(builder.Configuration);
 
 
 builder.Services.AddHttpContextAccessor();

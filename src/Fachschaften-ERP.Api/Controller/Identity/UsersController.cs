@@ -1,7 +1,7 @@
 using System.Security.Claims;
 using Fachschaften_ERP.Api.Models;
 using Fachschaften_ERP.Api.Services;
-using Fachschaften_ERP.Api.Services.Interfaces;
+using Fachschaften_ERP.Api.Services.Email;
 using Fachschaften_ERP.Models;
 using Fachschaften_ERP.Models.Entities.Identity;
 using Microsoft.AspNetCore.Authorization;
