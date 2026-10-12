@@ -1,4 +1,3 @@
-using System.Net;
 using System.Security.Claims;
 using System.Text;
 using Fachschaften_ERP.Api.Models;
@@ -18,94 +17,65 @@ namespace Fachschaften_ERP.Api.Controller.Identity;
 [Route("api/invites")]
 public class InviteController(
     UserManager<IdentityUserEntity> userManager,
-    IEmailSender emailSender,
+    AccountMails accountMails,
     SignInManager<IdentityUserEntity> signInManager,
-    CoreContext core,
-    IConfiguration config) : ControllerBase
+    CoreContext core) : ControllerBase
 {
+    private static readonly TimeSpan InviteLifetime = TimeSpan.FromDays(7);
+
     [RequirePermission(PermissionType.UsersWrite)]
     [HttpPost]
-    public async Task<IActionResult> Invite(
-        InviteRequest request
-        )
+    public async Task<ActionResult<UserDto>> Invite(InviteRequest request)
     {
         if (string.IsNullOrWhiteSpace(request.Email))
             return BadRequest("Email is required to send the invite.");
 
-        if (await userManager.FindByNameAsync(request.UserName) is not null)
-            return Conflict("Username already taken.");
+        var email = request.Email.Trim();
+
+        // Benutzername ist die E-Mail-Adresse; sie muss deshalb eindeutig sein.
+        if (await userManager.FindByUserNameOrEmailAsync(email) is not null)
+            return Conflict("A user with this email already exists.");
 
         // Rollen vergeben darf nur, wer auch Rechte vergeben darf.
-        if (request.Roles is { Count: > 0 } &&
+        if (request.RoleIds is { Count: > 0 } &&
             !User.HasClaim("permission", PermissionType.PermissionsWrite.GetDescription()))
             return Forbid();
 
         var user = new IdentityUserEntity
         {
             Id = Guid.NewGuid(),
-            UserName = request.Email,
-            Email = request.Email,
+            UserName = email,
+            Email = email,
+            DisplayName = string.IsNullOrWhiteSpace(request.DisplayName) ? null : request.DisplayName.Trim(),
             LockoutEnabled = true,
             LockoutEnd = DateTimeOffset.MaxValue,
         };
+
+        var result = await userManager.CreateAsync(user);
+        if (!result.Succeeded) return BadRequest(result.Errors);
+
+        if (request.RoleIds is { Count: > 0 })
+        {
+            var roles = await core.Roles
+                .Where(r => request.RoleIds.Contains(r.Id))
+                .Select(r => r.Name!)
+                .ToListAsync();
+
+            await userManager.AddToRolesAsync(user, roles);
+        }
 
         var invite = new InviteEntity
         {
             Id = Guid.NewGuid(),
             UserId = user.Id,
             Require2Fa = request.Require2Fa,
-            ExpiresAt = DateTimeOffset.UtcNow.AddDays(7),
+            ExpiresAt = DateTimeOffset.UtcNow.Add(InviteLifetime),
             Accepted = false,
         };
-
         core.Invites.Add(invite);
         await core.SaveChangesAsync();
 
-        var result = await userManager.CreateAsync(user);
-        if (!result.Succeeded) return BadRequest(result.Errors);
-
-        if (request.Roles is { Count: > 0 })
-        {
-            var roles = await core.Roles
-                .Where(r => request.Roles.Contains(r.Id.ToString()))
-                .Select(r => r.Name)
-                .ToListAsync();
-
-            await userManager.AddToRolesAsync(user, roles!);
-        }
-
-        var token = await userManager.GenerateUserTokenAsync(
-            user,
-            "InviteTokenProvider",
-            "Invite"
-        );
-        var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
-
-        var baseUrl = config["App:BaseUrl"] ?? "http://localhost:4200";
-        var inviteLink = $"{baseUrl}/accept-invite?inviteId={invite.Id}&token={encodedToken}";
-
-        var name = WebUtility.HtmlEncode(request.UserName);
-        var message = new EmailMessage(
-            new EmailAddress(request.Email, request.UserName),
-            "Du wurdest eingeladen",
-            $"""
-            <p>Hallo {name},</p>
-            <p>Du wurdest zum Fachschaften ERP eingeladen.</p>
-            <p><a href="{inviteLink}">Jetzt Account aktivieren</a></p>
-            """,
-            $"""
-            Hallo {request.UserName},
-
-            Du wurdest zum Fachschaften ERP eingeladen. Aktiviere deinen Account hier:
-            {inviteLink}
-            """
-        );
-
-        try
-        {
-            await emailSender.SendAsync(message, HttpContext.RequestAborted);
-        }
-        catch (EmailSendException)
+        if (!await TrySendInviteAsync(user, invite))
         {
             // Ohne Mail ist die Einladung wertlos; aufräumen, damit sie erneut verschickt werden kann.
             core.Invites.Remove(invite);
@@ -114,7 +84,49 @@ public class InviteController(
             return StatusCode(StatusCodes.Status502BadGateway, "The invite email could not be sent.");
         }
 
-        return CreatedAtAction("Get", "Users", new { id = user.Id }, new { user.Id, user.UserName, user.Email });
+        return CreatedAtAction("Get", "Users", new { id = user.Id }, null);
+    }
+
+    /// <summary>
+    /// Schickt eine offene oder abgelaufene Einladung erneut, mit neuem Link und neuer Frist.
+    /// Frühere Links werden dabei ungültig.
+    /// </summary>
+    [RequirePermission(PermissionType.UsersWrite)]
+    [HttpPost("{userId:guid}/resend")]
+    public async Task<IActionResult> Resend(Guid userId)
+    {
+        var user = await userManager.FindByIdAsync(userId.ToString());
+        if (user is null) return NotFound();
+        if (string.IsNullOrEmpty(user.Email)) return BadRequest("The user has no email address.");
+
+        var invite = await core.Invites
+            .Where(i => i.UserId == userId && !i.Accepted)
+            .OrderByDescending(i => i.ExpiresAt)
+            .FirstOrDefaultAsync();
+        if (invite is null) return Conflict("The user has already accepted the invite.");
+
+        // Der Token enthält den Security-Stamp; ein neuer Stamp macht alte Links ungültig.
+        await userManager.UpdateSecurityStampAsync(user);
+        invite.ExpiresAt = DateTimeOffset.UtcNow.Add(InviteLifetime);
+        await core.SaveChangesAsync();
+
+        return await TrySendInviteAsync(user, invite)
+            ? NoContent()
+            : StatusCode(StatusCodes.Status502BadGateway, "The invite email could not be sent.");
+    }
+
+    private async Task<bool> TrySendInviteAsync(IdentityUserEntity user, InviteEntity invite)
+    {
+        var token = await userManager.GenerateUserTokenAsync(user, "InviteTokenProvider", "Invite");
+        try
+        {
+            await accountMails.SendInviteAsync(user, invite.Id, token, HttpContext.RequestAborted);
+            return true;
+        }
+        catch (EmailSendException)
+        {
+            return false;
+        }
     }
 
     [AllowAnonymous]
@@ -173,4 +185,4 @@ public class InviteController(
 
 public record AcceptInviteRequest(Guid InviteId, string Token, string Password);
 public record AcceptInviteResult(bool Require2Fa);
-public record InviteRequest(string UserName, string? Email, IList<string>? Roles, bool Require2Fa);
+public record InviteRequest(string? DisplayName, string? Email, IList<Guid>? RoleIds, bool Require2Fa);

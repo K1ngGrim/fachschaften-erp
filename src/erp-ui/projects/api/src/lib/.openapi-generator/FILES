@@ -88,9 +88,11 @@ model/stock-update-request.ts
 model/supplier-dto.ts
 model/tax-area-summary-dto.ts
 model/tax-area.ts
+model/update-user-request.ts
 model/upsert-item-type-request.ts
 model/upsert-supplier-request.ts
-model/upsert-user-request.ts
 model/user-dto.ts
+model/user-role-dto.ts
+model/user-status.ts
 param.ts
 variables.ts

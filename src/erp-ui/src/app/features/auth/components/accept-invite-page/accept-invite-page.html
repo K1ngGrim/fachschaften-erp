@@ -4,7 +4,7 @@
   <div class="login-container">
     <div class="login-header">
       <div class="login-logo">
-        <mat-icon>mark_email_read</mat-icon>
+        <mat-icon svgIcon="email-check-outline" />
       </div>
       <h1>Fachschaften ERP</h1>
       <p>Einladung annehmen und Passwort festlegen</p>
@@ -14,7 +14,7 @@
       <mat-card>
         <mat-card-content>
           <div class="error-box">
-            <mat-icon>error_outline</mat-icon>
+            <mat-icon svgIcon="alert-circle-outline" />
             Dieser Einladungslink ist ungültig oder wurde bereits verwendet.
           </div>
         </mat-card-content>
@@ -26,13 +26,13 @@
 
             <mat-form-field appearance="outline" class="w-100">
               <mat-label>Passwort</mat-label>
-              <mat-icon matPrefix>lock_outline</mat-icon>
+              <mat-icon matPrefix svgIcon="lock-outline" class="field-icon" />
               <input matInput formControlName="password"
                      [type]="showPassword() ? 'text' : 'password'"
                      autocomplete="new-password" />
               <button matSuffix mat-icon-button type="button"
                       (click)="showPassword.set(!showPassword())">
-                <mat-icon>{{ showPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+                <mat-icon [svgIcon]="showPassword() ? 'eye-off-outline' : 'eye-outline'" />
               </button>
             </mat-form-field>
 
@@ -40,7 +40,7 @@
 
             <mat-form-field appearance="outline" class="w-100">
               <mat-label>Passwort wiederholen</mat-label>
-              <mat-icon matPrefix>lock_outline</mat-icon>
+              <mat-icon matPrefix svgIcon="lock-outline" class="field-icon" />
               <input matInput formControlName="confirmPassword"
                      [type]="showPassword() ? 'text' : 'password'"
                      autocomplete="new-password" />
@@ -48,14 +48,14 @@
 
             @if (form.errors?.['passwordMismatch'] && form.get('confirmPassword')?.dirty) {
               <mat-error class="error-box mb-2">
-                <mat-icon>error_outline</mat-icon>
+                <mat-icon svgIcon="alert-circle-outline" />
                 Die Passwörter stimmen nicht überein.
               </mat-error>
             }
 
             @if (error()) {
               <mat-error class="error-box">
-                <mat-icon>error_outline</mat-icon>
+                <mat-icon svgIcon="alert-circle-outline" />
                 {{ error() }}
               </mat-error>
             }

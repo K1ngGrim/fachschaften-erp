@@ -7,12 +7,19 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
+import { UserRoleDto } from './user-role-dto';
+import { UserStatus } from './user-status';
 
 
 export interface UserDto { 
     id: string;
-    userName: string | null;
+    userName: string;
+    displayName: string;
     email: string | null;
-    roles: Array<string>;
+    roles: Array<UserRoleDto>;
+    status: UserStatus;
+    twoFactorEnabled: boolean;
 }
+
+
 

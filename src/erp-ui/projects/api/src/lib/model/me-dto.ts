@@ -12,6 +12,7 @@
 export interface MeDto { 
     id: string;
     userName: string;
+    displayName: string;
     email: string;
     roles: Array<string>;
     permissions: Array<string>;

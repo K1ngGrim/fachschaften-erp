@@ -9,10 +9,9 @@
  */
 
 
-export interface UpsertUserRequest { 
-    userName: string | null;
+export interface UpdateUserRequest { 
+    displayName: string | null;
     email: string | null;
-    roles: Array<string>;
-    permissions: Array<string>;
+    roleIds: Array<string> | null;
 }
 

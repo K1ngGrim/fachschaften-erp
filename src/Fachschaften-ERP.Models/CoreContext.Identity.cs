@@ -17,6 +17,7 @@ public partial class CoreContext
             entity.ToTable("Users", IdentitySchema);
             entity.HasKey(x => x.Id);
             entity.Property(x => x.Id).ValueGeneratedOnAdd();
+            entity.Property(x => x.DisplayName).HasMaxLength(100);
         });
 
         modelBuilder.Entity<InviteEntity>(entity =>

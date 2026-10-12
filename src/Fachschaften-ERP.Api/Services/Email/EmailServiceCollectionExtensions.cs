@@ -21,6 +21,8 @@ public static class EmailServiceCollectionExtensions
                 "Email:Mailjet:ApiKey and Email:Mailjet:SecretKey are required for the Mailjet provider.")
             .ValidateOnStart();
 
+        services.AddScoped<AccountMails>();
+
         var provider = section.GetValue<EmailProvider?>(nameof(EmailOptions.Provider)) ?? EmailProvider.Dev;
         switch (provider)
         {

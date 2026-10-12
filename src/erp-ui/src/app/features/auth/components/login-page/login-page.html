@@ -4,10 +4,10 @@
   <div class="login-container">
     <div class="login-header">
       <div class="login-logo">
-        <mat-icon>domain</mat-icon>
+        <mat-icon svgIcon="domain" />
       </div>
       <h1>Fachschaften ERP</h1>
-      <p>Sign in to your account</p>
+      <p>Melde dich mit deinem Konto an</p>
     </div>
 
     <mat-card>
@@ -15,39 +15,40 @@
         <form [formGroup]="form" (ngSubmit)="submit()">
 
           <mat-form-field appearance="outline" class="w-100">
-            <mat-label>Email</mat-label>
-            <mat-icon matPrefix>person_outline</mat-icon>
-            <input matInput formControlName="email" type="email" autocomplete="email" />
+            <mat-label>Benutzername oder E-Mail</mat-label>
+            <mat-icon matPrefix svgIcon="account-outline" class="field-icon" />
+            <input matInput formControlName="login" autocomplete="username" />
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="w-100">
-            <mat-label>Password</mat-label>
-            <mat-icon matPrefix>lock_outline</mat-icon>
+            <mat-label>Passwort</mat-label>
+            <mat-icon matPrefix svgIcon="lock-outline" class="field-icon" />
             <input matInput formControlName="password"
                    [type]="showPassword() ? 'text' : 'password'"
                    autocomplete="current-password" />
             <button matSuffix mat-icon-button type="button"
+                    [attr.aria-label]="showPassword() ? 'Passwort verbergen' : 'Passwort anzeigen'"
                     (click)="showPassword.set(!showPassword())">
-              <mat-icon>{{ showPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+              <mat-icon [svgIcon]="showPassword() ? 'eye-off-outline' : 'eye-outline'" />
             </button>
           </mat-form-field>
 
           @if (error()) {
             <mat-error class="error-box">
-              <mat-icon>error_outline</mat-icon>
+              <mat-icon svgIcon="alert-circle-outline" />
               {{ error() }}
             </mat-error>
           }
 
           <button mat-flat-button type="submit" class="w-100 submit-btn"
                   [disabled]="form.invalid || loading()">
-            @if (loading()) { <mat-spinner diameter="18" /> } @else { Sign in }
+            @if (loading()) { <mat-spinner diameter="18" /> } @else { Anmelden }
           </button>
 
         </form>
       </mat-card-content>
     </mat-card>
 
-    <p class="login-footer">Don't have an account? Contact your administrator.</p>
+    <p class="login-footer">Noch kein Konto? Wende dich an die Administration deiner Fachschaft.</p>
   </div>
 </div>

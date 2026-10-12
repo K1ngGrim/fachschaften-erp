@@ -60,7 +60,7 @@ export class NavBar implements OnInit, OnDestroy {
   private readonly auth = inject(Auth);
 
   readonly initials = this.auth.initials;
-  readonly userName = this.auth.userName;
+  readonly userName = this.auth.displayName;
   private readonly breakpointObserver = inject(BreakpointObserver);
   private sub?: Subscription;
 

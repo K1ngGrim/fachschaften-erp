@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import {
   MAT_DIALOG_DATA,
   MatDialogActions,
@@ -7,20 +7,28 @@ import {
   MatDialogTitle,
 } from '@angular/material/dialog';
 import { lastValueFrom } from 'rxjs';
-import { MatFormField, MatInput, MatLabel } from '@angular/material/input';
+import { MatFormField, MatHint, MatInput, MatLabel } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
 import { MatButton } from '@angular/material/button';
-import { MatDivider } from '@angular/material/list';
 import { MatOption, MatSelect } from '@angular/material/select';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
 import { RoleDto, RolesService, UserDto } from '../../../../../../../projects/api/src/lib';
 
-export type DialogMode = 'add' | 'edit' | 'view';
-
 export interface UserDialogData {
-  mode: DialogMode;
+  mode: 'invite' | 'edit';
   user?: UserDto;
+  /** Rollen ändern erfordert permissions.canwrite. */
+  canAssignRoles: boolean;
 }
+
+export interface UserDialogResult {
+  displayName: string;
+  email: string;
+  roleIds: string[];
+  require2Fa: boolean;
+}
+
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 @Component({
   selector: 'app-user-dialog',
@@ -29,9 +37,9 @@ export interface UserDialogData {
     MatDialogContent,
     MatFormField,
     MatLabel,
+    MatHint,
     MatInput,
     FormsModule,
-    MatDivider,
     MatSelect,
     MatOption,
     MatDialogActions,
@@ -41,60 +49,41 @@ export interface UserDialogData {
   templateUrl: './user-dialog.html',
   styleUrl: './user-dialog.scss',
 })
-export class UserDialog {
-  private dialogRef = inject(MatDialogRef<UserDialog>);
-  private rolesService = inject(RolesService);
+export class UserDialog implements OnInit {
+  private readonly dialogRef = inject(MatDialogRef<UserDialog, UserDialogResult>);
+  private readonly rolesService = inject(RolesService);
 
-  public data = inject<UserDialogData>(MAT_DIALOG_DATA);
+  public readonly data = inject<UserDialogData>(MAT_DIALOG_DATA);
+  public readonly isInvite = this.data.mode === 'invite';
 
-  public userName = signal(this.data.user?.userName ?? '');
-  public email = signal(this.data.user?.email ?? '');
-  public require2Fa = signal<boolean>(false);
-  public password = signal('');
-  public userRoles = signal<string[]>(this.data.user?.roles ?? []);
-  public availableRoles = signal<RoleDto[]>([]);
+  public readonly displayName = signal(this.data.user?.displayName ?? '');
+  public readonly email = signal(this.data.user?.email ?? '');
+  public readonly roleIds = signal<string[]>(this.data.user?.roles.map((r) => r.id) ?? []);
+  public readonly require2Fa = signal(false);
+  public readonly availableRoles = signal<RoleDto[]>([]);
 
-  loading = signal(false);
+  public readonly emailValid = computed(() => EMAIL_PATTERN.test(this.email().trim()));
 
-  get isAdd() {
-    return this.data.mode === 'add';
-  }
-  get isEdit() {
-    return this.data.mode === 'edit';
-  }
-  get isView() {
-    return this.data.mode === 'view';
-  }
-  get title() {
-    return this.isAdd ? 'Add User' : this.isEdit ? 'Edit User' : 'View User';
-  }
+  public readonly canSave = computed(() =>
+    this.isInvite ? this.emailValid() : !this.email().trim() || this.emailValid(),
+  );
 
   async ngOnInit() {
-    const roles = await lastValueFrom(this.rolesService.apiRolesGet());
-    this.availableRoles.set(roles);
+    this.availableRoles.set(await lastValueFrom(this.rolesService.apiRolesGet()));
   }
 
-  getRoleName(roleId: string) {
-    return this.availableRoles().find((r) => r.id === roleId)?.name ?? roleId;
-  }
+  public save() {
+    if (!this.canSave()) return;
 
-  public async save() {
     this.dialogRef.close({
-      userName: this.userName(),
-      email: this.email(),
-      roles: this.userRoles(),
+      displayName: this.displayName().trim(),
+      email: this.email().trim(),
+      roleIds: this.roleIds(),
       require2Fa: this.require2Fa(),
-    } as UserInviteData);
+    });
   }
 
-  cancel() {
-    this.dialogRef.close(false);
+  public cancel() {
+    this.dialogRef.close();
   }
-}
-
-export interface UserInviteData {
-  email: string;
-  userName: string;
-  require2Fa: boolean;
-  roles?: Array<string>;
 }

@@ -12,7 +12,7 @@ import { HttpHeaders }                                       from '@angular/comm
 import { Observable }                                        from 'rxjs';
 
 import { ChangePasswordRequest } from '../model/models';
-import { UpsertUserRequest } from '../model/models';
+import { UpdateUserRequest } from '../model/models';
 import { UserDto } from '../model/models';
 
 
@@ -46,23 +46,9 @@ export interface ApiUsersIdPermissionsPermissionPostRequestParams {
     permission: string;
 }
 
-export interface ApiUsersIdPostRequestParams {
+export interface ApiUsersIdPutRequestParams {
     id: string;
-    upsertUserRequest: UpsertUserRequest;
-}
-
-export interface ApiUsersIdRolesGetRequestParams {
-    id: string;
-}
-
-export interface ApiUsersIdRolesRoleDeleteRequestParams {
-    id: string;
-    role: string;
-}
-
-export interface ApiUsersIdRolesRoleIdPostRequestParams {
-    id: string;
-    roleId: string;
+    updateUserRequest: UpdateUserRequest;
 }
 
 
@@ -95,14 +81,14 @@ export interface UsersServiceInterface {
      * 
 * @param requestParameters
      */
-    apiUsersIdGet(requestParameters: ApiUsersIdGetRequestParams, extraHttpRequestParams?: any): Observable<{}>;
+    apiUsersIdGet(requestParameters: ApiUsersIdGetRequestParams, extraHttpRequestParams?: any): Observable<UserDto>;
 
     /**
      * 
      * 
 * @param requestParameters
      */
-    apiUsersIdPermissionsGet(requestParameters: ApiUsersIdPermissionsGetRequestParams, extraHttpRequestParams?: any): Observable<{}>;
+    apiUsersIdPermissionsGet(requestParameters: ApiUsersIdPermissionsGetRequestParams, extraHttpRequestParams?: any): Observable<Array<string>>;
 
     /**
      * 
@@ -123,27 +109,6 @@ export interface UsersServiceInterface {
      * 
 * @param requestParameters
      */
-    apiUsersIdPost(requestParameters: ApiUsersIdPostRequestParams, extraHttpRequestParams?: any): Observable<{}>;
-
-    /**
-     * 
-     * 
-* @param requestParameters
-     */
-    apiUsersIdRolesGet(requestParameters: ApiUsersIdRolesGetRequestParams, extraHttpRequestParams?: any): Observable<{}>;
-
-    /**
-     * 
-     * 
-* @param requestParameters
-     */
-    apiUsersIdRolesRoleDelete(requestParameters: ApiUsersIdRolesRoleDeleteRequestParams, extraHttpRequestParams?: any): Observable<{}>;
-
-    /**
-     * 
-     * 
-* @param requestParameters
-     */
-    apiUsersIdRolesRoleIdPost(requestParameters: ApiUsersIdRolesRoleIdPostRequestParams, extraHttpRequestParams?: any): Observable<{}>;
+    apiUsersIdPut(requestParameters: ApiUsersIdPutRequestParams, extraHttpRequestParams?: any): Observable<UserDto>;
 
 }

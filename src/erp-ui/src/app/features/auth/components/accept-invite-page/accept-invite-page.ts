@@ -11,7 +11,7 @@ import {
 import { lastValueFrom } from 'rxjs';
 import { MatIcon } from '@angular/material/icon';
 import { MatCard, MatCardContent } from '@angular/material/card';
-import { MatError, MatFormField, MatInput, MatLabel } from '@angular/material/input';
+import { MatError, MatFormField, MatInput, MatLabel, MatPrefix, MatSuffix } from '@angular/material/input';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -28,6 +28,8 @@ import { PasswordRequirements } from '../../../../shared/components/password-req
     MatFormField,
     MatLabel,
     MatInput,
+    MatPrefix,
+    MatSuffix,
     MatIconButton,
     MatError,
     MatButton,

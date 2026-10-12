@@ -14,6 +14,7 @@ import { Observable }                                        from 'rxjs';
 import { AcceptInviteRequest } from '../model/models';
 import { AcceptInviteResult } from '../model/models';
 import { InviteRequest } from '../model/models';
+import { UserDto } from '../model/models';
 
 
 import { Configuration }                                     from '../configuration';
@@ -25,6 +26,10 @@ export interface ApiInvitesAcceptPostRequestParams {
 
 export interface ApiInvitesPostRequestParams {
     inviteRequest: InviteRequest;
+}
+
+export interface ApiInvitesUserIdResendPostRequestParams {
+    userId: string;
 }
 
 
@@ -44,6 +49,13 @@ export interface InviteServiceInterface {
      * 
 * @param requestParameters
      */
-    apiInvitesPost(requestParameters: ApiInvitesPostRequestParams, extraHttpRequestParams?: any): Observable<{}>;
+    apiInvitesPost(requestParameters: ApiInvitesPostRequestParams, extraHttpRequestParams?: any): Observable<UserDto>;
+
+    /**
+     * 
+     * 
+* @param requestParameters
+     */
+    apiInvitesUserIdResendPost(requestParameters: ApiInvitesUserIdResendPostRequestParams, extraHttpRequestParams?: any): Observable<{}>;
 
 }

@@ -1,47 +1,86 @@
 <div class="container-fluid p-4">
-  <app-page-header
-    [title]="'User'"
-    [subtitle]="'Manage your users here'"
-  >
+  <app-page-header [title]="'Benutzer'" [subtitle]="'Benutzer einladen und ihre Rollen verwalten.'">
+    @if (canWrite) {
+      <button mat-flat-button class="d-flex" (click)="openInvite()">
+        <mat-icon svgIcon="account-plus-outline" class="d-flex" />
+        <span>Benutzer einladen</span>
+      </button>
+    }
   </app-page-header>
 
+  @if (error(); as message) {
+    <div class="alert alert-warning" role="alert">{{ message }}</div>
+  }
+  @if (info(); as message) {
+    <div class="alert alert-success" role="status">{{ message }}</div>
+  }
+
   <app-data-grid
+    [title]="'Benutzer'"
     [columns]="columns()"
     [data]="users()"
     [searchable]="true"
-    [searchKeys]="['name', 'email']"
-    [toolbarTemplate]="gridHeaderActions"
+    [searchKeys]="['displayName', 'email', 'userName']"
   >
-
-    <ng-template #gridHeaderActions>
-        <button mat-flat-button class="d-flex" (click)="openAdd()">
-          <mat-icon svgIcon="plus" class="d-flex"></mat-icon>
-          <span>Add User</span>
-        </button>
-    </ng-template>
-
-    <!-- Action Column via Directive -->
-    <ng-template gridActionCell let-p>
-      <div class="d-flex gap-1 justify-content-end">
-        <button mat-icon-button matTooltip="View" color="primary" (click)="openView(p)">
-          <mat-icon>visibility</mat-icon>
-        </button>
-        <button mat-icon-button matTooltip="Edit" color="accent" (click)="openEdit(p)">
-          <mat-icon>edit</mat-icon>
-        </button>
-        <button mat-icon-button matTooltip="Delete" color="warn" (click)="null">
-          <mat-icon>delete</mat-icon>
-        </button>
-      </div>
+    <ng-template gridActionCell let-user>
+      @if (canWrite) {
+        <div class="d-flex gap-1 justify-content-end">
+          @if (user.status !== UserStatus.Active) {
+            <button
+              mat-icon-button
+              matTooltip="Einladung erneut senden"
+              (click)="resendInvite(user)"
+            >
+              <mat-icon svgIcon="email-sync-outline" />
+            </button>
+          }
+          <button mat-icon-button matTooltip="Bearbeiten" (click)="openEdit(user)">
+            <mat-icon svgIcon="pencil-outline" />
+          </button>
+          @if (user.id !== currentUserId()) {
+            <button mat-icon-button matTooltip="Löschen" (click)="delete(user)">
+              <mat-icon svgIcon="delete-outline" />
+            </button>
+          }
+        </div>
+      }
     </ng-template>
   </app-data-grid>
 
-  <ng-template #roleTemplate let-row let-roles="value">
-    @for (role of roles; track role) {
-      <mat-chip color="primary" selected>
-        {{ role }}
-      </mat-chip>
+  <ng-template #nameTemplate let-user>
+    <div class="fw-medium">{{ user.displayName }}</div>
+    @if (user.email && user.email !== user.displayName) {
+      <small class="text-hint">{{ user.email }}</small>
     }
   </ng-template>
 
+  <ng-template #roleTemplate let-user>
+    <div class="d-flex flex-wrap gap-1">
+      @for (role of user.roles; track role.id) {
+        <span class="pill pill--muted">{{ role.name }}</span>
+      } @empty {
+        <span class="text-hint">—</span>
+      }
+    </div>
+  </ng-template>
+
+  <ng-template #statusTemplate let-user>
+    <div class="d-flex align-items-center gap-2">
+      <span
+        class="pill"
+        [class.pill--positive]="user.status === UserStatus.Active"
+        [class.pill--warn]="user.status === UserStatus.InvitePending"
+        [class.pill--danger]="user.status === UserStatus.InviteExpired"
+      >
+        {{ statusLabel(user.status) }}
+      </span>
+      @if (user.twoFactorEnabled) {
+        <mat-icon
+          svgIcon="shield-check-outline"
+          class="two-factor-icon"
+          matTooltip="Zwei-Faktor-Authentifizierung aktiv"
+        />
+      }
+    </div>
+  </ng-template>
 </div>

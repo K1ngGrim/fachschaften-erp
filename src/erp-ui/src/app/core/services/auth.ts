@@ -14,12 +14,13 @@ export class Auth {
 
   readonly userId = computed(() => this.currentUser()?.id ?? '');
   readonly userName = computed(() => this.currentUser()?.userName ?? '');
+  readonly displayName = computed(() => this.currentUser()?.displayName || this.userName());
   readonly email = computed(() => this.currentUser()?.email ?? '');
   readonly twoFactorEnabled = computed(() => this.currentUser()?.twoFactorEnabled ?? false);
 
   /** Kürzel für den Avatar in der Kopfleiste. */
   readonly initials = computed(() => {
-    const name = this.userName().trim();
+    const name = this.displayName().trim();
     if (!name) return '?';
 
     const parts = name.split(/[\s._@-]+/).filter(Boolean);

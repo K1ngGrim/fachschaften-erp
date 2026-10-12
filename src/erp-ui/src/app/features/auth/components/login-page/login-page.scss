@@ -92,3 +92,11 @@
 }
 
 mat-form-field { margin-bottom: 0.5rem; }
+
+// Präfix-Icons in den Eingabefeldern (MDI, 20px)
+.field-icon {
+  width: 20px;
+  height: 20px;
+  margin: 0 8px 0 12px;
+  color: var(--mat-sys-on-surface-variant);
+}

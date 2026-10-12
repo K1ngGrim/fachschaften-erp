@@ -1,3 +1,4 @@
+using Fachschaften_ERP.Api.Services;
 using Fachschaften_ERP.Models;
 using Fachschaften_ERP.Models.Entities.Identity;
 using Microsoft.AspNetCore.Authorization;
@@ -20,15 +21,18 @@ public class AuthController(
     [HttpPost("login")]
     public async Task<ActionResult<LoginResult>> Login(LoginRequest request)
     {
+        // Anmelden mit Benutzername oder E-Mail-Adresse.
+        var user = await userManager.FindByUserNameOrEmailAsync(request.Login);
+        if (user is null) return Unauthorized("Invalid credentials.");
+
         var result = await signInManager.PasswordSignInAsync(
-            request.Email, request.Password, request.RememberMe, lockoutOnFailure: true);
+            user, request.Password, request.RememberMe, lockoutOnFailure: true);
 
         if (result.IsLockedOut) return StatusCode(429, "Account is locked out.");
         if (result.RequiresTwoFactor) return Ok(new LoginResult(RequiresTwoFactor: true));
         if (!result.Succeeded) return Unauthorized("Invalid credentials.");
 
-        var user = await userManager.FindByNameAsync(request.Email);
-        return Ok(new LoginResult(RequiresTwoFactor: false, Id: user!.Id, UserName: user.UserName, Email: user.Email));
+        return Ok(new LoginResult(RequiresTwoFactor: false, Id: user.Id, UserName: user.UserName, Email: user.Email));
     }
 
     [AllowAnonymous]
@@ -100,12 +104,13 @@ public class AuthController(
 
         var permissions = rolePermissions.Union(userPermissions).ToArray();
 
-        return Ok(new MeDto(user.Id, user.UserName ?? string.Empty, user.Email ?? string.Empty, roles, permissions, claims,
-            user.TwoFactorEnabled));
+        return Ok(new MeDto(user.Id, user.UserName ?? string.Empty, user.DisplayName ?? user.UserName ?? string.Empty,
+            user.Email ?? string.Empty, roles, permissions, claims, user.TwoFactorEnabled));
     }
 }
 
-public record LoginRequest(string Email, string Password, bool RememberMe = false);
+/// <param name="Login">Benutzername oder E-Mail-Adresse.</param>
+public record LoginRequest(string Login, string Password, bool RememberMe = false);
 public record Login2FaRequest(string Code, bool RememberMe = false);
 public record LoginResult(bool RequiresTwoFactor, Guid? Id = null, string? UserName = null, string? Email = null);
 public record PasswordPolicyDto(
@@ -115,5 +120,5 @@ public record PasswordPolicyDto(
     bool RequireUppercase,
     bool RequireDigit,
     bool RequireNonAlphanumeric);
-public record MeDto(Guid Id, string UserName, string Email, string[] Roles, string[] Permissions, string[] Claims,
-    bool TwoFactorEnabled);
+public record MeDto(Guid Id, string UserName, string DisplayName, string Email, string[] Roles, string[] Permissions,
+    string[] Claims, bool TwoFactorEnabled);

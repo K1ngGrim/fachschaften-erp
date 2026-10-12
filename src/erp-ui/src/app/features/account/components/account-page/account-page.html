@@ -1,5 +1,5 @@
 <div class="container-fluid p-4">
-  <app-page-header [title]="'Mein Konto'" [subtitle]="auth.email() || auth.userName()" />
+  <app-page-header [title]="'Mein Konto'" [subtitle]="auth.displayName() + (auth.email() ? ' · ' + auth.email() : '')" />
 
   <div class="row g-4">
     <div class="col-12 col-lg-6">
