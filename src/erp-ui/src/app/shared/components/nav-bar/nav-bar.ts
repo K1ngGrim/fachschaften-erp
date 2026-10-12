@@ -12,7 +12,7 @@ import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { MatToolbar } from '@angular/material/toolbar';
 import { MatIconButton } from '@angular/material/button';
 import { MatSidenav, MatSidenavContainer, MatSidenavContent } from '@angular/material/sidenav';
-import { MatListItem, MatNavList } from '@angular/material/list';
+import { MatListItem, MatListItemIcon, MatListItemTitle, MatNavList } from '@angular/material/list';
 import { MatIcon } from '@angular/material/icon';
 import { MatTooltip } from '@angular/material/tooltip';
 import { Navigation } from '../../../core/services/navigation';
@@ -41,6 +41,8 @@ import { LoadingService } from '../../../core/services/loading-service';
     MatNavList,
     MatIcon,
     MatListItem,
+    MatListItemIcon,
+    MatListItemTitle,
     MatTooltip,
     RouterLink,
     RouterLinkActive,

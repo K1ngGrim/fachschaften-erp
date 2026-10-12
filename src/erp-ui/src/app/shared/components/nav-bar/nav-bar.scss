@@ -101,21 +101,30 @@ $sidenav-collapsed-width: 64px;
   white-space: nowrap;
 }
 
+// Farben laufen über die Material-Tokens, sonst greifen bei Hover/Fokus die
+// Theme-Farben für helle Flächen (dunkle Schrift auf dunkler Sidebar).
 .nav-item {
   --mat-list-list-item-leading-icon-color: var(--nav-text-muted);
+  --mat-list-list-item-hover-leading-icon-color: var(--nav-text);
   --mat-list-list-item-label-text-color: var(--nav-text);
+  --mat-list-list-item-hover-label-text-color: var(--nav-text-active);
+  --mat-list-list-item-focus-label-text-color: var(--nav-text);
+  --mat-list-list-item-hover-state-layer-color: #ffffff;
+  --mat-list-list-item-hover-state-layer-opacity: 0.05;
+  --mat-list-list-item-focus-state-layer-color: #ffffff;
+  --mat-list-list-item-focus-state-layer-opacity: 0;
   --mat-list-list-item-label-text-size: 13px;
+  --mat-list-list-item-leading-icon-start-space: 15px;
+  --mat-list-list-item-leading-icon-end-space: 12px;
 
   height: 38px !important;
   margin: 1px 8px;
   width: auto !important;
   border-radius: 8px !important;
-  color: var(--nav-text) !important;
   cursor: pointer;
 
   mat-icon {
     overflow: visible;
-    color: var(--nav-text-muted) !important;
     font-size: 18px;
     width: 18px;
     height: 18px;
@@ -126,22 +135,17 @@ $sidenav-collapsed-width: 64px;
     font-weight: 500;
   }
 
-  &:hover {
-    background-color: rgba(255, 255, 255, 0.05) !important;
-    color: var(--nav-text-active) !important;
-
-    mat-icon {
-      color: var(--nav-text) !important;
-    }
+  &:focus-visible {
+    --mat-list-list-item-focus-state-layer-opacity: 0.08;
   }
 
   &.active {
-    background-color: var(--nav-active-bg) !important;
-    color: var(--nav-text-active) !important;
+    --mat-list-list-item-leading-icon-color: var(--nav-text-active);
+    --mat-list-list-item-hover-leading-icon-color: var(--nav-text-active);
+    --mat-list-list-item-label-text-color: var(--nav-text-active);
+    --mat-list-list-item-focus-label-text-color: var(--nav-text-active);
 
-    mat-icon {
-      color: var(--nav-text-active) !important;
-    }
+    background-color: var(--nav-active-bg) !important;
   }
 }
 
@@ -193,12 +197,23 @@ $sidenav-collapsed-width: 64px;
 }
 
 .toolbar-btn {
+  // Token für Material (Padding/SVG-Größe) und Flex-Zentrierung, sonst sitzt das
+  // kleinere Icon oben links im Button.
+  --mat-icon-button-icon-size: 20px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   color: var(--app-text-muted) !important;
 
   mat-icon {
-    font-size: 20px;
+    display: block;
     width: 20px;
     height: 20px;
+
+    ::ng-deep svg {
+      display: block;
+    }
   }
 
   &:hover {
@@ -208,6 +223,10 @@ $sidenav-collapsed-width: 64px;
 
 .avatar {
   display: inline-flex;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: none;
   align-items: center;
   justify-content: center;
   width: 32px;
