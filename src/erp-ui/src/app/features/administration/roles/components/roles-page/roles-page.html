@@ -1,0 +1,118 @@
+<div class="container-fluid p-4">
+  <app-page-header [title]="'Rollen'" [subtitle]="'Rollen anlegen und ihre Rechte festlegen.'">
+    @if (canManageRoles) {
+      <button mat-flat-button class="d-flex" (click)="create()">
+        <mat-icon svgIcon="plus" class="d-flex" />
+        <span>Neue Rolle</span>
+      </button>
+    }
+  </app-page-header>
+
+  @if (error(); as message) {
+    <div class="alert alert-warning" role="alert">{{ message }}</div>
+  }
+
+  <div class="row g-4">
+    <div class="col-12 col-lg-4">
+      <mat-card appearance="outlined">
+        <mat-card-content class="p-2">
+          <ul class="role-list" aria-label="Rollen">
+            @for (role of roles(); track role.id) {
+              <li
+                class="role-list__item"
+                [class.role-list__item--active]="role.id === selectedId()"
+              >
+                <button type="button" class="role-list__select" (click)="select(role)">
+                  <span class="role-list__name">
+                    {{ role.name }}
+                    @if (role.isProtected) {
+                      <mat-icon
+                        svgIcon="lock-outline"
+                        class="role-list__lock"
+                        matTooltip="Systemrolle: hat immer alle Rechte"
+                      />
+                    }
+                  </span>
+                  <small class="text-hint">{{ role.userCount }} Benutzer</small>
+                </button>
+                @if (canManageRoles && !role.isProtected) {
+                  <button
+                    mat-icon-button
+                    class="role-list__delete"
+                    matTooltip="Rolle löschen"
+                    (click)="delete(role)"
+                  >
+                    <mat-icon svgIcon="delete-outline" />
+                  </button>
+                }
+              </li>
+            } @empty {
+              <li class="text-hint text-center py-4">Noch keine Rollen angelegt.</li>
+            }
+          </ul>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <div class="col-12 col-lg-8">
+      @if (selected(); as role) {
+        <mat-card appearance="outlined">
+          <mat-card-header class="mb-2">
+            <mat-card-title class="fs-6">Rechte von „{{ role.name }}“</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            @if (role.isProtected) {
+              <p class="text-hint small">
+                Die Admin-Rolle hat immer alle Rechte und kann nicht eingeschränkt werden.
+              </p>
+            } @else if (!canEditPermissions()) {
+              <p class="text-hint small">Du darfst die Rechte dieser Rolle nur ansehen.</p>
+            } @else {
+              <p class="text-hint small">
+                Schreiben schließt Lesen ein. Änderungen gelten für angemeldete Benutzer innerhalb
+                einer Minute.
+              </p>
+            }
+
+            <table class="permission-table">
+              <thead>
+                <tr>
+                  <th scope="col">Bereich</th>
+                  <th scope="col" class="permission-table__check">Lesen</th>
+                  <th scope="col" class="permission-table__check">Schreiben</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (area of areas(); track area.key) {
+                  <tr>
+                    <th scope="row">{{ area.label }}</th>
+                    <td class="permission-table__check">
+                      @if (area.read) {
+                        <mat-checkbox
+                          [checked]="isGranted(area.read)"
+                          [disabled]="!canEditPermissions() || saving()"
+                          [aria-label]="area.label + ' lesen'"
+                          (change)="toggle(area, 'read', $event.checked)"
+                        />
+                      }
+                    </td>
+                    <td class="permission-table__check">
+                      @if (area.write) {
+                        <mat-checkbox
+                          [checked]="isGranted(area.write)"
+                          [disabled]="!canEditPermissions() || saving()"
+                          [aria-label]="area.label + ' schreiben'"
+                          (change)="toggle(area, 'write', $event.checked)"
+                        />
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </mat-card-content>
+        </mat-card>
+      }
+    </div>
+  </div>
+</div>

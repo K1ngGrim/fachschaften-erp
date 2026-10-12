@@ -159,6 +159,14 @@ export const routes: Routes = [
             (m) => m.UserPage,
           ),
       },
+      {
+        path: 'roles',
+        canActivate: [permissionGuard(PermissionType.RolesCanRead)],
+        loadComponent: () =>
+          import('./features/administration/roles/components/roles-page/roles-page').then(
+            (m) => m.RolesPage,
+          ),
+      },
 
       {
         path: 'account',
