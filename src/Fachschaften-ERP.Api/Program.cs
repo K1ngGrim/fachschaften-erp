@@ -9,6 +9,7 @@ using Fachschaften_ERP.Models;
 using Fachschaften_ERP.Models.Entities.Identity;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -19,7 +20,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder
     .Configuration
     .AddJsonFile($"appsettings.json", true, true)
-    .AddJsonFile($"appsettings.Development.json", true, true)
+    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", true, true)
     .AddJsonFile($"appsettings.{Environment.MachineName}.json", true, true)
     .AddEnvironmentVariables();
 
@@ -73,7 +74,11 @@ builder.Services.AddControllers();
 
 builder.Services.AddDbContext<CoreContext>(options =>
 {
-    options.UseNpgsql(connectionString, b => b.MigrationsAssembly("Fachschaften-ERP.Api"));
+    // Historientabelle fest in "public": Unqualifiziert hinge sie vom search_path ("$user", public) ab
+    // und landete bei einem DB-Benutzer namens "erp" im App-Schema, dann würden Migrationen erneut laufen.
+    options.UseNpgsql(connectionString, b => b
+        .MigrationsAssembly("Fachschaften-ERP.Api")
+        .MigrationsHistoryTable("__EFMigrationsHistory", "public"));
 });
 
 builder.Services
@@ -154,6 +159,16 @@ builder.Services.Configure<JsonOptions>(options =>
 
 builder.Services.AddSingleton<IAuthorizationHandler, PermissionHandler>();
 builder.Services.AddEmailSender(builder.Configuration);
+
+// Schlüssel für Login-Cookies und Einladungs-Token. Im Container auf ein Volume legen,
+// sonst sind nach jedem Neustart alle Sitzungen und offenen Einladungen ungültig.
+var dataProtectionKeysPath = builder.Configuration["DataProtection:KeysPath"];
+if (!string.IsNullOrEmpty(dataProtectionKeysPath))
+{
+    builder.Services.AddDataProtection()
+        .SetApplicationName("Fachschaften-ERP")
+        .PersistKeysToFileSystem(new DirectoryInfo(dataProtectionKeysPath));
+}
 
 
 builder.Services.AddHttpContextAccessor();

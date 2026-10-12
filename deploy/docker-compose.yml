@@ -1,0 +1,60 @@
+# Fachschaften ERP – production setup. See README.md in this folder.
+name: fachschaften-erp
+
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-erp}
+      POSTGRES_USER: ${POSTGRES_USER:-erp}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build:
+      context: ../src
+      dockerfile: Fachschaften-ERP.Api/Dockerfile
+    image: fachschaften-erp/api:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_HTTP_PORTS: "8080"
+      # Trust X-Forwarded-* from the web container (the API is not published).
+      ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
+      ConnectionStrings__Database: "Host=db;Port=5432;Database=${POSTGRES_DB:-erp};Username=${POSTGRES_USER:-erp};Password=${POSTGRES_PASSWORD}"
+      App__BaseUrl: ${APP_BASE_URL:?Set APP_BASE_URL in .env}
+      Seed__AdminUserName: ${ADMIN_USERNAME:-admin}
+      Seed__AdminEmail: ${ADMIN_EMAIL:-}
+      Seed__AdminPassword: ${ADMIN_INITIAL_PASSWORD:-}
+      Email__Provider: ${EMAIL_PROVIDER:-Dev}
+      Email__FromAddress: ${EMAIL_FROM_ADDRESS:-}
+      Email__FromName: ${EMAIL_FROM_NAME:-Fachschaften ERP}
+      Email__Mailjet__ApiKey: ${MAILJET_API_KEY:-}
+      Email__Mailjet__SecretKey: ${MAILJET_SECRET_KEY:-}
+      Email__Mailjet__SandboxMode: ${MAILJET_SANDBOX_MODE:-false}
+    volumes:
+      - api-keys:/keys
+
+  web:
+    build:
+      context: ../src/erp-ui
+    image: fachschaften-erp/web:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "${HTTP_BIND:-0.0.0.0}:${HTTP_PORT:-8080}:80"
+
+volumes:
+  db-data:
+  api-keys:
