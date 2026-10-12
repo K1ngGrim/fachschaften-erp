@@ -74,7 +74,7 @@ export interface RolesServiceInterface {
      * 
 * @param requestParameters
      */
-    apiRolesIdPermissionsGet(requestParameters: ApiRolesIdPermissionsGetRequestParams, extraHttpRequestParams?: any): Observable<{}>;
+    apiRolesIdPermissionsGet(requestParameters: ApiRolesIdPermissionsGetRequestParams, extraHttpRequestParams?: any): Observable<Array<string>>;
 
     /**
      * 
@@ -95,6 +95,6 @@ export interface RolesServiceInterface {
      * 
 * @param requestParameters
      */
-    apiRolesPost(requestParameters: ApiRolesPostRequestParams, extraHttpRequestParams?: any): Observable<{}>;
+    apiRolesPost(requestParameters: ApiRolesPostRequestParams, extraHttpRequestParams?: any): Observable<RoleDto>;
 
 }

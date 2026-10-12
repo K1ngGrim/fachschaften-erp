@@ -20,7 +20,12 @@ public class RolesController(RoleManager<IdentityRoleEntity> roleManager, CoreCo
     public async Task<ActionResult<IList<RoleDto>>> GetAll()
     {
         return await core.Roles
-            .Select(x => new RoleDto(x.Id, x.Name!))
+            .OrderBy(x => x.Name)
+            .Select(x => new RoleDto(
+                x.Id,
+                x.Name!,
+                x.Name == DatabaseSeeder.AdminRoleName,
+                core.UserRoles.Count(ur => ur.RoleId == x.Id)))
             .ToListAsync();
     }
 
@@ -34,13 +39,15 @@ public class RolesController(RoleManager<IdentityRoleEntity> roleManager, CoreCo
 
     [RequirePermission(PermissionType.RolesWrite)]
     [HttpPost]
-    public async Task<IActionResult> Create(CreateRoleRequest request)
+    public async Task<ActionResult<RoleDto>> Create(CreateRoleRequest request)
     {
-        var role = new IdentityRoleEntity { Name = request.Name };
+        if (string.IsNullOrWhiteSpace(request.Name)) return BadRequest("Role name is required.");
+
+        var role = new IdentityRoleEntity { Name = request.Name.Trim() };
         var result = await roleManager.CreateAsync(role);
         if (!result.Succeeded) return BadRequest(result.Errors);
 
-        return Ok(new { role.Id, role.Name });
+        return Ok(new RoleDto(role.Id, role.Name, false, 0));
     }
 
     [RequirePermission(PermissionType.RolesWrite)]
@@ -49,6 +56,7 @@ public class RolesController(RoleManager<IdentityRoleEntity> roleManager, CoreCo
     {
         var role = await roleManager.FindByIdAsync(id.ToString());
         if (role is null) return NotFound();
+        if (IsProtected(role)) return Conflict("The Admin role cannot be deleted.");
 
         var result = await roleManager.DeleteAsync(role);
         if (!result.Succeeded) return BadRequest(result.Errors);
@@ -58,7 +66,7 @@ public class RolesController(RoleManager<IdentityRoleEntity> roleManager, CoreCo
 
     [RequirePermission(PermissionType.RolesRead)]
     [HttpGet("{id:guid}/permissions")]
-    public async Task<IActionResult> GetPermissions(Guid id)
+    public async Task<ActionResult<IList<string>>> GetPermissions(Guid id)
     {
         var role = await roleManager.FindByIdAsync(id.ToString());
         if (role is null) return NotFound();
@@ -66,7 +74,8 @@ public class RolesController(RoleManager<IdentityRoleEntity> roleManager, CoreCo
         var claims = await roleManager.GetClaimsAsync(role);
         return Ok(claims
             .Where(c => c.Type == "permission")
-            .Select(c => c.Value));
+            .Select(c => c.Value)
+            .ToList());
     }
 
     [RequirePermission(PermissionType.RolesWrite)]
@@ -96,12 +105,15 @@ public class RolesController(RoleManager<IdentityRoleEntity> roleManager, CoreCo
     {
         var role = await roleManager.FindByIdAsync(id.ToString());
         if (role is null) return NotFound();
+        if (IsProtected(role)) return Conflict("Permissions of the Admin role cannot be removed.");
 
         var result = await roleManager.RemoveClaimAsync(role, new Claim("permission", permission));
         if (!result.Succeeded) return BadRequest(result.Errors);
 
         return NoContent();
     }
+
+    private static bool IsProtected(IdentityRoleEntity role) => role.Name == DatabaseSeeder.AdminRoleName;
 }
 
 [ApiController]
@@ -118,5 +130,6 @@ public class PermissionsController : ControllerBase
     }
 }
 
-public record RoleDto(Guid Id, string Name);
+/// <param name="IsProtected">Admin-Rolle: nicht löschbar, Rechte nicht entziehbar.</param>
+public record RoleDto(Guid Id, string Name, bool IsProtected, int UserCount);
 public record CreateRoleRequest(string Name);

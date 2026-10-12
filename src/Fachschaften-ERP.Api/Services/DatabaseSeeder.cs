@@ -12,6 +12,9 @@ public static class DatabaseSeeder
     /// <summary>Markiert Konten, die vor der weiteren Nutzung ein eigenes Passwort setzen müssen.</summary>
     public const string PasswordChangeRequiredClaim = "password-change-required";
 
+    /// <summary>Hat immer alle Rechte; darf weder gelöscht noch eingeschränkt werden.</summary>
+    public const string AdminRoleName = "Admin";
+
     public static async Task SeedAsync(IServiceProvider services)
     {
         var roleManager = services.GetRequiredService<RoleManager<IdentityRoleEntity>>();
@@ -27,7 +30,7 @@ public static class DatabaseSeeder
     {
         var roles = new Dictionary<string, string[]>
         {
-            ["Admin"] = Permissions.All.ToArray(),
+            [AdminRoleName] = Permissions.All.ToArray(),
         };
 
         foreach (var (roleName, permissions) in roles)
@@ -81,7 +84,7 @@ public static class DatabaseSeeder
             throw new InvalidOperationException(
                 $"Admin user could not be created: {string.Join(", ", result.Errors.Select(e => e.Description))}");
 
-        await userManager.AddToRoleAsync(admin, "Admin");
+        await userManager.AddToRoleAsync(admin, AdminRoleName);
         await userManager.AddClaimAsync(admin, new Claim("custom", PasswordChangeRequiredClaim));
 
         if (string.IsNullOrEmpty(configuredPassword))

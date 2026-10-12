@@ -12,5 +12,7 @@
 export interface RoleDto { 
     id: string;
     name: string;
+    isProtected: boolean;
+    userCount: number;
 }
 
