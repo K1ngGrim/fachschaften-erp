@@ -21,6 +21,7 @@ public class UsersController(
     IEmailSender emailSender,
     IConfiguration config) : ControllerBase
 {
+    [RequirePermission(PermissionType.UsersRead)]
     [HttpGet]
     public async Task<ActionResult<IList<UserDto>>> GetAll()
     {
@@ -38,6 +39,7 @@ public class UsersController(
         return Ok(users);
     }
 
+    [RequirePermission(PermissionType.UsersRead)]
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> Get(Guid id)
     {
@@ -48,6 +50,7 @@ public class UsersController(
         return Ok(new { user.Id, user.UserName, user.Email, Roles = roles });
     }
 
+    [RequirePermission(PermissionType.UsersWrite)]
     [HttpPost("{id:guid}")]
     public async Task<IActionResult> Update(Guid id, UpsertUserRequest request)
     {
@@ -66,6 +69,9 @@ public class UsersController(
     [HttpPost("{id:guid}/change-password")]
     public async Task<IActionResult> ChangePassword(Guid id, ChangePasswordRequest request)
     {
+        // Nur das eigene Passwort; fremde Konten laufen über Einladung/Reset.
+        if (userManager.GetUserId(User) != id.ToString()) return Forbid();
+
         var user = await userManager.FindByIdAsync(id.ToString());
         if (user is null) return NotFound();
 
@@ -75,6 +81,7 @@ public class UsersController(
         return NoContent();
     }
 
+    [RequirePermission(PermissionType.UsersWrite)]
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id)
     {
@@ -87,6 +94,7 @@ public class UsersController(
         return NoContent();
     }
 
+    [RequirePermission(PermissionType.UsersRead)]
     [HttpGet("{id:guid}/roles")]
     public async Task<IActionResult> GetRoles(Guid id)
     {
@@ -96,6 +104,8 @@ public class UsersController(
         return Ok(await userManager.GetRolesAsync(user));
     }
 
+    [RequirePermission(PermissionType.UsersWrite)]
+    [RequirePermission(PermissionType.PermissionsWrite)]
     [HttpPost("{id:guid}/roles/{roleId:guid}")]
     public async Task<IActionResult> AddRole(Guid id, Guid roleId)
     {
@@ -115,6 +125,8 @@ public class UsersController(
         return NoContent();
     }
 
+    [RequirePermission(PermissionType.UsersWrite)]
+    [RequirePermission(PermissionType.PermissionsWrite)]
     [HttpDelete("{id:guid}/roles/{role}")]
     public async Task<IActionResult> RemoveRole(Guid id, string role)
     {
@@ -127,6 +139,7 @@ public class UsersController(
         return NoContent();
     }
 
+    [RequirePermission(PermissionType.UsersRead)]
     [RequirePermission(PermissionType.PermissionsRead)]
     [HttpGet("{id:guid}/permissions")]
     public async Task<IActionResult> GetPermissions(Guid id)
@@ -140,10 +153,13 @@ public class UsersController(
             .Select(c => c.Value));
     }
 
+    [RequirePermission(PermissionType.UsersWrite)]
     [RequirePermission(PermissionType.PermissionsWrite)]
     [HttpPost("{id:guid}/permissions/{permission}")]
     public async Task<IActionResult> AddPermission(Guid id, string permission)
     {
+        if (!Permissions.All.Contains(permission)) return BadRequest($"Unknown permission '{permission}'.");
+
         var user = await userManager.FindByIdAsync(id.ToString());
         if (user is null) return NotFound();
 
@@ -157,6 +173,7 @@ public class UsersController(
         return NoContent();
     }
 
+    [RequirePermission(PermissionType.UsersWrite)]
     [RequirePermission(PermissionType.PermissionsWrite)]
     [HttpDelete("{id:guid}/permissions/{permission}")]
     public async Task<IActionResult> RemovePermission(Guid id, string permission)

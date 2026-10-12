@@ -1,4 +1,6 @@
 using Fachschaften_ERP.Api.Models.Generic;
+using Fachschaften_ERP.Api.Models;
+using Fachschaften_ERP.Api.Services;
 using Fachschaften_ERP.Models;
 using Fachschaften_ERP.Models.Entities;
 using Microsoft.AspNetCore.Mvc;
@@ -10,6 +12,7 @@ namespace Fachschaften_ERP.Api.Controller;
 [Route("/api/deliveries")]
 public class DeliveriesController(CoreContext db) : ControllerBase
 {
+    [RequirePermission(PermissionType.InventoryRead)]
     [HttpGet]
     public async Task<ActionResult<IList<DeliveryOverviewDto>>> GetAll()
     {
@@ -34,6 +37,7 @@ public class DeliveriesController(CoreContext db) : ControllerBase
         return Ok(deliveries);
     }
 
+    [RequirePermission(PermissionType.InventoryRead)]
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<DeliveryDto>> Get(Guid id)
     {
@@ -44,6 +48,7 @@ public class DeliveriesController(CoreContext db) : ControllerBase
         return entity is null ? NotFound() : Ok(ToDto(entity));
     }
 
+    [RequirePermission(PermissionType.InventoryWrite)]
     [HttpPost]
     public async Task<ActionResult<DeliveryDto>> Upsert(ItemUpsertRequest<DeliveryDto> request)
     {
@@ -139,6 +144,7 @@ public class DeliveriesController(CoreContext db) : ControllerBase
             : CreatedAtAction(nameof(Get), new { id = saved.Id }, ToDto(saved));
     }
 
+    [RequirePermission(PermissionType.InventoryWrite)]
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id)
     {

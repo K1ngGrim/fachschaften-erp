@@ -16,6 +16,7 @@ public class AuthController(
     CoreContext coreContext
     ) : ControllerBase
 {
+    [AllowAnonymous]
     [HttpPost("login")]
     public async Task<ActionResult<LoginResult>> Login(LoginRequest request)
     {
@@ -30,6 +31,7 @@ public class AuthController(
         return Ok(new LoginResult(RequiresTwoFactor: false, Id: user!.Id, UserName: user.UserName, Email: user.Email));
     }
 
+    [AllowAnonymous]
     [HttpPost("login/2fa")]
     public async Task<ActionResult<LoginResult>> LoginWith2Fa(Login2FaRequest request)
     {
@@ -53,22 +55,6 @@ public class AuthController(
         return NoContent();
     }
 
-    [HttpPost("register")]
-    public async Task<IActionResult> Register(RegisterRequest request)
-    {
-        var user = new IdentityUserEntity
-        {
-            UserName = request.Email,
-            Email = request.Email,
-        };
-
-        var result = await userManager.CreateAsync(user, request.Password);
-        if (!result.Succeeded) return BadRequest(result.Errors);
-
-        await signInManager.SignInAsync(user, isPersistent: false);
-        return Ok(new { user.Id, user.UserName, user.Email });
-    }
-
     [HttpGet("me")]
     [Authorize]
     public async Task<ActionResult<MeDto>> Me()
@@ -86,12 +72,18 @@ public class AuthController(
             .Select(uc => uc.ClaimValue!)
             .ToArrayAsync();
 
-        var permissions = await coreContext.RoleClaims
+        var rolePermissions = await coreContext.RoleClaims
             .Where(rc => rc.ClaimType == "permission" &&
                          coreContext.Roles.Any(r => roles.AsEnumerable().Contains(r.Name!) && r.Id == rc.RoleId))
             .Select(rc => rc.ClaimValue!)
-            .Distinct()
             .ToArrayAsync();
+
+        var userPermissions = await coreContext.UserClaims
+            .Where(uc => uc.UserId == user.Id && uc.ClaimType == "permission")
+            .Select(uc => uc.ClaimValue!)
+            .ToArrayAsync();
+
+        var permissions = rolePermissions.Union(userPermissions).ToArray();
 
         return Ok(new MeDto(user.Id, user.UserName ?? string.Empty, user.Email ?? string.Empty, roles, permissions, claims));
     }
@@ -101,4 +93,3 @@ public record LoginRequest(string Email, string Password, bool RememberMe = fals
 public record Login2FaRequest(string Code, bool RememberMe = false);
 public record LoginResult(bool RequiresTwoFactor, Guid? Id = null, string? UserName = null, string? Email = null);
 public record MeDto(Guid Id, string UserName, string Email, string[] Roles, string[] Permissions, string[] Claims);
-public record RegisterRequest(string Name, string? Email, string Password);

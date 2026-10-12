@@ -1,4 +1,6 @@
 using Fachschaften_ERP.Api.Models.Generic;
+using Fachschaften_ERP.Api.Models;
+using Fachschaften_ERP.Api.Services;
 using Fachschaften_ERP.Models;
 using Fachschaften_ERP.Models.Entities;
 using Microsoft.AspNetCore.Mvc;
@@ -10,6 +12,7 @@ namespace Fachschaften_ERP.Api.Controller;
 [Route("/api/suppliers")]
 public class SuppliersController(CoreContext db) : ControllerBase
 {
+    [RequirePermission(PermissionType.SuppliersRead)]
     [HttpGet]
     public async Task<ActionResult<IList<SupplierDto>>> GetAll()
     {
@@ -25,6 +28,7 @@ public class SuppliersController(CoreContext db) : ControllerBase
         return Ok(suppliers);
     }
 
+    [RequirePermission(PermissionType.SuppliersRead)]
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<IList<SupplierDto>>> Get(Guid id)
     {
@@ -40,6 +44,7 @@ public class SuppliersController(CoreContext db) : ControllerBase
         return entity is null ? NotFound() : Ok(entity);
     }
 
+    [RequirePermission(PermissionType.SuppliersWrite)]
     [HttpPost]
     public async Task<ActionResult<SupplierDto>> Upsert(UpsertSupplierRequest request)
     {
@@ -82,6 +87,7 @@ public class SuppliersController(CoreContext db) : ControllerBase
         }
     }
 
+    [RequirePermission(PermissionType.SuppliersWrite)]
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id)
     {

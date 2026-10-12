@@ -1,4 +1,6 @@
 using Fachschaften_ERP.Api.Models.Generic;
+using Fachschaften_ERP.Api.Models;
+using Fachschaften_ERP.Api.Services;
 using Fachschaften_ERP.Models;
 using Fachschaften_ERP.Models.Entities;
 using Microsoft.AspNetCore.Mvc;
@@ -13,6 +15,7 @@ public class CustomFieldsController(
     ): ControllerBase
 {
 
+    [RequirePermission(PermissionType.CustomFieldsRead)]
     [HttpGet]
     public async Task<ActionResult<IList<CustomFieldDto>>> GetAll()
     {        
@@ -41,12 +44,14 @@ public class CustomFieldsController(
         return Ok(result);
     }
     
+    [RequirePermission(PermissionType.CustomFieldsRead)]
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> Get(Guid id)
     {
         return Ok();
     }
 
+    [RequirePermission(PermissionType.CustomFieldsRead)]
     [HttpGet("type/{typeId:guid}")]
     public async Task<ActionResult<IList<CustomFieldDto>>> GetByType(Guid typeId)
     {
@@ -73,6 +78,7 @@ public class CustomFieldsController(
         return Ok(fields);
     }
     
+    [RequirePermission(PermissionType.CustomFieldsWrite)]
     [HttpPost]
     public async Task<IActionResult> Upsert(ItemUpsertRequest<CustomFieldDto> request)
     {
@@ -152,6 +158,7 @@ public class CustomFieldsController(
         });
     }
 
+    [RequirePermission(PermissionType.CustomFieldsWrite)]
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id)
     {

@@ -1,4 +1,6 @@
 using Fachschaften_ERP.Api.Models.Generic;
+using Fachschaften_ERP.Api.Models;
+using Fachschaften_ERP.Api.Services;
 using Fachschaften_ERP.Models;
 using Fachschaften_ERP.Models.Entities;
 using Microsoft.AspNetCore.Mvc;
@@ -10,12 +12,14 @@ namespace Fachschaften_ERP.Api.Controller;
 [Route("/api/cash-books")]
 public class CashBooksController(CoreContext db) : ControllerBase
 {
+    [RequirePermission(PermissionType.FinanceRead)]
     [HttpGet]
     public async Task<ActionResult<IList<CashBookDto>>> GetAll()
     {
         return Ok(await GetOverviewAsync());
     }
 
+    [RequirePermission(PermissionType.FinanceRead)]
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<CashBookDto>> Get(Guid id)
     {
@@ -23,6 +27,7 @@ public class CashBooksController(CoreContext db) : ControllerBase
         return book is null ? NotFound() : Ok(book);
     }
 
+    [RequirePermission(PermissionType.FinanceWrite)]
     [HttpPost]
     public async Task<ActionResult<CashBookDto>> Upsert(ItemUpsertRequest<CashBookUpsertDto> request)
     {
@@ -98,6 +103,7 @@ public class CashBooksController(CoreContext db) : ControllerBase
             : Ok(saved);
     }
 
+    [RequirePermission(PermissionType.FinanceWrite)]
     [HttpPost("transfer")]
     public async Task<IActionResult> Transfer(CashBookTransferRequest request)
     {
@@ -117,6 +123,7 @@ public class CashBooksController(CoreContext db) : ControllerBase
         return NoContent();
     }
 
+    [RequirePermission(PermissionType.FinanceWrite)]
     [HttpPost("{id:guid}/close")]
     public async Task<IActionResult> Close(Guid id)
     {
@@ -157,6 +164,7 @@ public class CashBooksController(CoreContext db) : ControllerBase
         return NoContent();
     }
 
+    [RequirePermission(PermissionType.FinanceWrite)]
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id)
     {

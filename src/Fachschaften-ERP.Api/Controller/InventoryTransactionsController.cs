@@ -1,4 +1,6 @@
 using Fachschaften_ERP.Api.Models.Generic;
+using Fachschaften_ERP.Api.Models;
+using Fachschaften_ERP.Api.Services;
 using Fachschaften_ERP.Models;
 using Fachschaften_ERP.Models.Entities;
 using Microsoft.AspNetCore.Mvc;
@@ -13,6 +15,7 @@ public class InventoryTransactionsController(
     ): ControllerBase
 {
     
+    [RequirePermission(PermissionType.InventoryRead)]
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<InventoryTransactionDto>> Get(Guid id)
     {
@@ -20,6 +23,7 @@ public class InventoryTransactionsController(
         return Ok();
     }
     
+    [RequirePermission(PermissionType.InventoryRead)]
     [HttpGet("product/{productId:guid}")]
     public async Task<ActionResult<IList<SimpleInventoryTransactionDto>>> GetProductTransactions(Guid productId)
     {
@@ -43,6 +47,7 @@ public class InventoryTransactionsController(
         return Ok(entries);
     }
 
+    [RequirePermission(PermissionType.InventoryWrite)]
     [HttpPost]
     public async Task<IActionResult> Upsert(ItemUpsertRequest<InventoryTransactionDto> request)
     {

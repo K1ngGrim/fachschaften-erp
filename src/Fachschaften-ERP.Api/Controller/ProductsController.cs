@@ -1,6 +1,8 @@
 using System.Security.Claims;
 using System.Text.Json;
 using Fachschaften_ERP.Api.Models.Generic;
+using Fachschaften_ERP.Api.Models;
+using Fachschaften_ERP.Api.Services;
 using Fachschaften_ERP.Models;
 using Fachschaften_ERP.Models.Entities;
 using Microsoft.AspNetCore.Mvc;
@@ -12,6 +14,7 @@ namespace Fachschaften_ERP.Api.Controller;
 [Route("/api/products")]
 public class ProductsController(CoreContext db) : ControllerBase
 {
+    [RequirePermission(PermissionType.ProductsRead)]
     [HttpGet]
     public async Task<ActionResult<IList<ProductDto>>> GetAll()
     {
@@ -38,6 +41,7 @@ public class ProductsController(CoreContext db) : ControllerBase
         return Ok(items);
     }
 
+    [RequirePermission(PermissionType.ProductsRead)]
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> Get(Guid id)
     {
@@ -49,6 +53,7 @@ public class ProductsController(CoreContext db) : ControllerBase
         return entity is null ? NotFound() : Ok(entity);
     }
 
+    [RequirePermission(PermissionType.ProductsWrite)]
     [HttpPost]
     public async Task<IActionResult> Upsert(ItemUpsertRequest<ProductDto> request)
     {
@@ -103,6 +108,7 @@ public class ProductsController(CoreContext db) : ControllerBase
         }
     }
 
+    [RequirePermission(PermissionType.ProductsWrite)]
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id)
     {

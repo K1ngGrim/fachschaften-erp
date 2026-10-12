@@ -136,7 +136,14 @@ builder.Services.ConfigureApplicationCookie(options =>
         context.Response.StatusCode = 403;
         return Task.CompletedTask;
     };
+
+    // Prüft regelmäßig den Security-Stamp und baut die Claims neu auf. Dadurch greifen
+    // geänderte Rollen/Rechte und gelöschte Benutzer ohne erneuten Login.
+    options.Events.OnValidatePrincipal = SecurityStampValidator.ValidatePrincipalAsync;
 });
+
+builder.Services.Configure<SecurityStampValidatorOptions>(options =>
+    options.ValidationInterval = TimeSpan.FromMinutes(1));
 
 builder.Services.ConfigureHttpJsonOptions(options =>
     options.SerializerOptions.Converters.Add(new PermissionJsonConverter()));
@@ -149,7 +156,11 @@ builder.Services.AddScoped<IEmailSender, DevEmailSender>();
 
 builder.Services.AddHttpContextAccessor();
 
-builder.Services.AddAuthorization();
+// Alles ohne explizites [AllowAnonymous] erfordert einen angemeldeten Benutzer.
+builder.Services.AddAuthorization(options =>
+    options.FallbackPolicy = new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build());
 
 var app = builder.Build();
 
@@ -165,8 +176,14 @@ dbContext.Database.Migrate();
 await DatabaseSeeder.SeedAsync(scope.ServiceProvider);
 await DemoDataSeeder.SeedAsync(scope.ServiceProvider, app.Environment);
 
-app.MapOpenApi();
-app.MapSwaggerUI();
+var openApi = app.MapOpenApi();
+var swaggerUi = app.MapSwaggerUI();
+if (app.Environment.IsDevelopment())
+{
+    // generate-api.sh lädt die Definition ohne Login.
+    openApi.AllowAnonymous();
+    swaggerUi.AllowAnonymous();
+}
 app.MapControllers();
 
 app.Run();

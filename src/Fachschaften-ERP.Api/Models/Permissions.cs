@@ -33,6 +33,12 @@ public enum PermissionType
     [Description("roles.canwrite")]     RolesWrite,
     [Description("permissions.canread")]  PermissionsRead,
     [Description("permissions.canwrite")] PermissionsWrite,
+    [Description("finance.canread")]      FinanceRead,
+    [Description("finance.canwrite")]     FinanceWrite,
+    [Description("inventory.canread")]    InventoryRead,
+    [Description("inventory.canwrite")]   InventoryWrite,
+    [Description("customfields.canread")]  CustomFieldsRead,
+    [Description("customfields.canwrite")] CustomFieldsWrite,
 }
 
 public class PermissionJsonConverter : JsonConverter<PermissionType>

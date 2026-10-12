@@ -1,4 +1,6 @@
 using Fachschaften_ERP.Api.Models.Generic;
+using Fachschaften_ERP.Api.Models;
+using Fachschaften_ERP.Api.Services;
 using Fachschaften_ERP.Models;
 using Fachschaften_ERP.Models.Entities;
 using Microsoft.AspNetCore.Mvc;
@@ -13,12 +15,14 @@ public class StockController(
     ): ControllerBase
 {
 
+    [RequirePermission(PermissionType.InventoryRead)]
     [HttpGet]
     public async Task<ActionResult<IList<StockOverviewDto>>> GetAll()
     {
         return Ok(await GetOverviewAsync());
     }
 
+    [RequirePermission(PermissionType.InventoryWrite)]
     [HttpPost("update")]
     public async Task<ActionResult<IList<StockOverviewDto>>> Update(StockUpdateRequest request)
     {

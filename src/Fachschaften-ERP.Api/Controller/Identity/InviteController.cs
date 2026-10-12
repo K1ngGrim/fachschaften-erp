@@ -5,6 +5,7 @@ using Fachschaften_ERP.Api.Services;
 using Fachschaften_ERP.Api.Services.Interfaces;
 using Fachschaften_ERP.Models;
 using Fachschaften_ERP.Models.Entities.Identity;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
@@ -29,6 +30,11 @@ public class InviteController(
     {
         if (await userManager.FindByNameAsync(request.UserName) is not null)
             return Conflict("Username already taken.");
+
+        // Rollen vergeben darf nur, wer auch Rechte vergeben darf.
+        if (request.Roles is { Count: > 0 } &&
+            !User.HasClaim("permission", PermissionType.PermissionsWrite.GetDescription()))
+            return Forbid();
 
         var user = new IdentityUserEntity
         {
@@ -87,6 +93,7 @@ public class InviteController(
         return CreatedAtAction("Get", "Users", new { id = user.Id }, new { user.Id, user.UserName, user.Email });
     }
 
+    [AllowAnonymous]
     [HttpPost("accept")]
     public async Task<ActionResult<AcceptInviteResult>> Accept(AcceptInviteRequest request)
     {
@@ -98,16 +105,24 @@ public class InviteController(
         var user = await userManager.FindByIdAsync(invite.UserId.ToString());
         if (user is null) return NotFound();
 
-        // var decodedToken = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(request.Token));
-        //
-        // var tokenValid = await userManager.VerifyUserTokenAsync(
-        //     user,
-        //     "InviteTokenProvider",
-        //     "Invite",
-        //     decodedToken
-        // );
-        //
-        // if (!tokenValid) return BadRequest("Invalid or expired invite token.");
+        string decodedToken;
+        try
+        {
+            decodedToken = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(request.Token));
+        }
+        catch (FormatException)
+        {
+            return BadRequest("Invalid or expired invite token.");
+        }
+
+        var tokenValid = await userManager.VerifyUserTokenAsync(
+            user,
+            "InviteTokenProvider",
+            "Invite",
+            decodedToken
+        );
+
+        if (!tokenValid) return BadRequest("Invalid or expired invite token.");
 
         var resetToken = await userManager.GeneratePasswordResetTokenAsync(user);
         var result = await userManager.ResetPasswordAsync(user, resetToken, request.Password);

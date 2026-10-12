@@ -1,4 +1,6 @@
 using System.Security.Claims;
+using Fachschaften_ERP.Api.Models;
+using Fachschaften_ERP.Api.Services;
 using Fachschaften_ERP.Models;
 using Fachschaften_ERP.Models.Entities;
 using Microsoft.AspNetCore.Mvc;
@@ -10,6 +12,7 @@ namespace Fachschaften_ERP.Api.Controller;
 [Route("/api/item-types")]
 public class ItemTypesController(CoreContext db) : ControllerBase
 {
+    [RequirePermission(PermissionType.ItemTypesRead)]
     [HttpGet]
     public async Task<ActionResult<IList<ItemTypeDto>>> GetAll()
     {
@@ -22,6 +25,7 @@ public class ItemTypesController(CoreContext db) : ControllerBase
         return Ok(types);
     }
 
+    [RequirePermission(PermissionType.ItemTypesRead)]
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> Get(Guid id)
     {
@@ -29,6 +33,7 @@ public class ItemTypesController(CoreContext db) : ControllerBase
         return entity is null ? NotFound() : Ok(entity);
     }
     
+    [RequirePermission(PermissionType.ItemTypesRead)]
     [HttpGet("{typeId:guid}/custom-fields")]
     public async Task<ActionResult<IList<CustomFieldDto>>> GetCustomFields(Guid typeId)
     {
@@ -63,6 +68,7 @@ public class ItemTypesController(CoreContext db) : ControllerBase
         return Ok(customFields);
     }
 
+    [RequirePermission(PermissionType.ItemTypesWrite)]
     [HttpPost]
     public async Task<ActionResult<ItemTypeDto>> Upsert([FromBody] UpsertItemTypeRequest request)
     {
@@ -100,6 +106,7 @@ public class ItemTypesController(CoreContext db) : ControllerBase
         }
     }
 
+    [RequirePermission(PermissionType.ItemTypesWrite)]
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id)
     {

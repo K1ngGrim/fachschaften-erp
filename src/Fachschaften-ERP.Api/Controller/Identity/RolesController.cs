@@ -15,6 +15,7 @@ namespace Fachschaften_ERP.Api.Controller.Identity;
 [Authorize]
 public class RolesController(RoleManager<IdentityRoleEntity> roleManager, CoreContext core) : ControllerBase
 {
+    [RequirePermission(PermissionType.RolesRead)]
     [HttpGet]
     public async Task<ActionResult<IList<RoleDto>>> GetAll()
     {
@@ -23,6 +24,7 @@ public class RolesController(RoleManager<IdentityRoleEntity> roleManager, CoreCo
             .ToListAsync();
     }
 
+    [RequirePermission(PermissionType.RolesRead)]
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> Get(Guid id)
     {
@@ -30,6 +32,7 @@ public class RolesController(RoleManager<IdentityRoleEntity> roleManager, CoreCo
         return role is null ? NotFound() : Ok(new { role.Id, role.Name });
     }
 
+    [RequirePermission(PermissionType.RolesWrite)]
     [HttpPost]
     public async Task<IActionResult> Create(CreateRoleRequest request)
     {
@@ -40,6 +43,7 @@ public class RolesController(RoleManager<IdentityRoleEntity> roleManager, CoreCo
         return Ok(new { role.Id, role.Name });
     }
 
+    [RequirePermission(PermissionType.RolesWrite)]
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id)
     {
@@ -52,6 +56,7 @@ public class RolesController(RoleManager<IdentityRoleEntity> roleManager, CoreCo
         return NoContent();
     }
 
+    [RequirePermission(PermissionType.RolesRead)]
     [HttpGet("{id:guid}/permissions")]
     public async Task<IActionResult> GetPermissions(Guid id)
     {
@@ -64,9 +69,13 @@ public class RolesController(RoleManager<IdentityRoleEntity> roleManager, CoreCo
             .Select(c => c.Value));
     }
 
+    [RequirePermission(PermissionType.RolesWrite)]
+    [RequirePermission(PermissionType.PermissionsWrite)]
     [HttpPost("{id:guid}/permissions/{permission}")]
     public async Task<IActionResult> AddPermission(Guid id, string permission)
     {
+        if (!Permissions.All.Contains(permission)) return BadRequest($"Unknown permission '{permission}'.");
+
         var role = await roleManager.FindByIdAsync(id.ToString());
         if (role is null) return NotFound();
 
@@ -80,6 +89,8 @@ public class RolesController(RoleManager<IdentityRoleEntity> roleManager, CoreCo
         return NoContent();
     }
 
+    [RequirePermission(PermissionType.RolesWrite)]
+    [RequirePermission(PermissionType.PermissionsWrite)]
     [HttpDelete("{id:guid}/permissions/{permission}")]
     public async Task<IActionResult> RemovePermission(Guid id, string permission)
     {
