@@ -76,6 +76,7 @@ public class ProductsController(CoreContext db) : ControllerBase
                 SupplierId = request.Value.SupplierId,
                 PurchasePrice = request.Value.PurchasePrice,
                 InternalSellingPrice = request.Value.InternalSellingPrice,
+                ExternalSellingPrice = request.Value.ExternalSellingPrice,
                 LowStockThreshold = request.Value.LowStockThreshold,
                 TrackStock = request.Value.TrackStock,
                 CustomFieldValues = request.Value.CustomFieldValues,
@@ -84,6 +85,26 @@ public class ProductsController(CoreContext db) : ControllerBase
                 IsActive = true,
             };
             db.Products.Add(entity);
+
+            // Der Bestand ergibt sich aus Lagerbewegungen; ein Anfangsbestand wird als Korrektur gebucht.
+            if (entity.TrackStock && request.Value.Stock > 0)
+            {
+                db.InventoryTransactions.Add(new InventoryTransactionEntity
+                {
+                    Id = Guid.NewGuid(),
+                    ProductId = entity.Id,
+                    Quantity = request.Value.Stock,
+                    UnitPurchasePrice = entity.PurchasePrice,
+                    UnitSellingPrice = entity.InternalSellingPrice,
+                    Type = InventoryTransactionType.Adjustment,
+                    ReferenceId = entity.Id,
+                    Note = "Anfangsbestand",
+                    CreatorId = entity.CreatorId,
+                    Created = entity.Created,
+                    IsActive = true,
+                });
+            }
+
             await db.SaveChangesAsync();
             return CreatedAtAction(nameof(Get), new { id = entity.Id }, entity);
         }
@@ -97,6 +118,7 @@ public class ProductsController(CoreContext db) : ControllerBase
             entity.SupplierId = request.Value.SupplierId;
             entity.PurchasePrice = request.Value.PurchasePrice;
             entity.InternalSellingPrice = request.Value.InternalSellingPrice;
+            entity.ExternalSellingPrice = request.Value.ExternalSellingPrice;
             entity.LowStockThreshold = request.Value.LowStockThreshold;
             entity.TrackStock = request.Value.TrackStock;
             entity.CustomFieldValues = JsonDocument.Parse(request.Value.CustomFieldValues.ToString() ?? "{}");

@@ -11,7 +11,8 @@ import {
   GridActionCellDirective,
   GridColumn,
 } from '../../../../../shared/components/data-grid/data-grid';
-import { ItemDialog } from '../item-dialog/item-dialog';
+import { ItemDialog, ItemDialogData } from '../item-dialog/item-dialog';
+import { DialogService } from '../../../../../core/services/dialog-service';
 import {
   ItemTypeDto,
   ItemTypesService,
@@ -38,6 +39,7 @@ import { formatCurrency } from '../../../../../shared/models/finance';
 })
 export class ItemsPage {
   private readonly dialog = inject(MatDialog);
+  private readonly dialogService = inject(DialogService);
   private readonly router = inject(Router);
   private readonly productController = inject(ProductsService);
   private readonly supplierController = inject(SuppliersService);
@@ -105,25 +107,39 @@ export class ItemsPage {
     this.products.set(products);
   }
 
-  public openAdd() {
-    this.dialog.open(ItemDialog, {
-      width: '520px',
-      maxWidth: '95vw',
-      maxHeight: '90vh',
-      data: { product: null },
-    });
+  public async openAdd() {
+    await this.openDialog(null);
   }
 
-  public openEdit(product: ProductDto) {
-    this.dialog.open(ItemDialog, {
-      width: '520px',
-      maxWidth: '95vw',
-      maxHeight: '90vh',
-      data: { product },
-    });
+  public async openEdit(product: ProductDto) {
+    await this.openDialog(product);
   }
 
-  public delete(id: string) {}
+  public async delete(product: ProductDto) {
+    const confirmed = await this.dialogService.openDeleteDialog({
+      title: 'Artikel löschen',
+      message: `„${product.name}“ löschen? Buchungen und Lagerbewegungen bleiben erhalten.`,
+      confirmLabel: 'Löschen',
+    });
+    if (!confirmed || !product.id) return;
+
+    await lastValueFrom(this.productController.apiProductsIdDelete({ id: product.id }));
+    await this.fetchProducts();
+  }
+
+  private async openDialog(product: ProductDto | null) {
+    const saved = await lastValueFrom(
+      this.dialog
+        .open(ItemDialog, {
+          width: '600px',
+          maxWidth: '95vw',
+          maxHeight: '90vh',
+          data: { product } satisfies ItemDialogData,
+        })
+        .afterClosed(),
+    );
+    if (saved) await this.fetchProducts();
+  }
 
   public async viewDetail(id: string) {
     await this.router.navigate(['/catalog/item', id]);

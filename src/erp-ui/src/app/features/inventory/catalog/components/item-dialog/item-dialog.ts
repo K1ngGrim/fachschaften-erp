@@ -1,4 +1,5 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   MAT_DIALOG_DATA,
   MatDialogActions,
@@ -6,15 +7,19 @@ import {
   MatDialogRef,
   MatDialogTitle,
 } from '@angular/material/dialog';
-import { MatFormField, MatInput, MatLabel } from '@angular/material/input';
+import { MatFormField, MatHint, MatInput, MatLabel } from '@angular/material/input';
 import { MatOption, MatSelect } from '@angular/material/select';
-import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormControl,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
-import type { CustomField, Product } from '../../../../../shared/models';
 import { MatButton } from '@angular/material/button';
 import {
   CustomFieldDto,
-  CustomFieldsService,
   CustomFieldType,
   ItemTypeDto,
   ItemTypesService,
@@ -26,7 +31,10 @@ import {
 import { lastValueFrom } from 'rxjs';
 import { MatDivider } from '@angular/material/list';
 import { MatCheckbox } from '@angular/material/checkbox';
-import { TitleCasePipe } from '@angular/common';
+
+export interface ItemDialogData {
+  product: ProductDto | null;
+}
 
 @Component({
   selector: 'app-item-dialog',
@@ -35,6 +43,7 @@ import { TitleCasePipe } from '@angular/common';
     MatDialogContent,
     MatFormField,
     MatLabel,
+    MatHint,
     MatSelect,
     FormsModule,
     MatOption,
@@ -45,147 +54,130 @@ import { TitleCasePipe } from '@angular/common';
     MatDivider,
     MatCheckbox,
     ReactiveFormsModule,
-    TitleCasePipe,
   ],
   templateUrl: './item-dialog.html',
   styleUrl: './item-dialog.scss',
 })
-export class ItemDialog {
-  readonly dialogRef = inject(MatDialogRef<ItemDialog>);
-  readonly dialogData = inject<{ product: ProductDto | null }>(MAT_DIALOG_DATA);
-
-  readonly itemTypes = signal<Array<ItemTypeDto>>([]);
-
-  private readonly typesController = inject(ItemTypesService);
+export class ItemDialog implements OnInit {
+  private readonly dialogRef = inject(MatDialogRef<ItemDialog, ProductDto>);
+  private readonly product = inject<ItemDialogData>(MAT_DIALOG_DATA).product;
   private readonly productController = inject(ProductsService);
   private readonly itemTypesController = inject(ItemTypesService);
-  private readonly customFieldsController = inject(CustomFieldsService);
   private readonly supplierController = inject(SuppliersService);
+  private readonly destroyRef = inject(DestroyRef);
 
-  public readonly selectedTypeId = signal(this.dialogData.product?.itemTypeId ?? '');
-  public readonly trackStock = signal(this.dialogData.product?.trackStock ?? true);
+  public readonly isEdit = !!this.product?.id;
+  public readonly itemTypes = signal<ItemTypeDto[]>([]);
+  public readonly suppliers = signal<SupplierDto[]>([]);
+  public readonly typeCustomFields = signal<CustomFieldDto[]>([]);
   public readonly customValues = signal<Record<string, string | number | boolean>>(
-    this.dialogData.product?.customFieldValues
-      ? { ...this.dialogData.product.customFieldValues }
-      : {},
+    this.product?.customFieldValues ? { ...this.product.customFieldValues } : {},
   );
+  public readonly saving = signal(false);
+  public readonly error = signal<string | null>(null);
 
-  public form = new FormGroup({
-    name: new FormControl(this.dialogData.product?.name ?? '', Validators.required),
-    supplier: new FormControl('', Validators.required),
-    itemType: new FormControl('', Validators.required),
-    purchasePrice: new FormControl(this.dialogData.product?.purchasePrice ?? 0, Validators.min(0)),
-    internalSellingPrice: new FormControl(this.dialogData.product?.internalSellingPrice ?? 0, Validators.min(0)),
-    externalSellingPrice: new FormControl(this.dialogData.product?.externalSellingPrice ?? 0, Validators.min(0)),
-    stock: new FormControl(this.dialogData.product?.stock ?? 0, Validators.min(0)),
-    threshold: new FormControl(this.dialogData.product?.lowStockThreshold ?? 12, Validators.min(0)),
+  public readonly form = new FormGroup({
+    name: new FormControl(this.product?.name ?? '', {
+      nonNullable: true,
+      validators: Validators.required,
+    }),
+    itemTypeId: new FormControl(this.product?.itemTypeId ?? '', {
+      nonNullable: true,
+      validators: Validators.required,
+    }),
+    supplierId: new FormControl<string | null>(this.product?.supplierId ?? null),
+    purchasePrice: new FormControl(this.product?.purchasePrice ?? 0, {
+      nonNullable: true,
+      validators: [Validators.required, Validators.min(0)],
+    }),
+    internalSellingPrice: new FormControl(this.product?.internalSellingPrice ?? 0, {
+      nonNullable: true,
+      validators: [Validators.required, Validators.min(0)],
+    }),
+    externalSellingPrice: new FormControl(this.product?.externalSellingPrice ?? 0, {
+      nonNullable: true,
+      validators: [Validators.required, Validators.min(0)],
+    }),
+    // Nur beim Anlegen: danach ändert sich der Bestand über Lager und Lieferungen.
+    initialStock: new FormControl(0, { nonNullable: true, validators: Validators.min(0) }),
+    lowStockThreshold: new FormControl(this.product?.lowStockThreshold ?? 12, {
+      nonNullable: true,
+      validators: [Validators.required, Validators.min(0)],
+    }),
+    trackStock: new FormControl(this.product?.trackStock ?? true, { nonNullable: true }),
   });
 
-  public readonly suppliers = signal<SupplierDto[]>([]);
-  readonly typeCustomFields = signal<CustomFieldDto[]>([]);
-  public readonly isView = signal(false);
-  public readonly isEdit = signal(!!this.dialogData.product);
+  protected readonly CustomFieldType = CustomFieldType;
 
   async ngOnInit() {
-    this.itemTypes.set(await lastValueFrom(this.typesController.apiItemTypesGet()));
+    this.form.controls.itemTypeId.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((typeId) => void this.loadCustomFields(typeId));
 
-    this.suppliers.set(await lastValueFrom(this.supplierController.apiSuppliersGet()));
+    const [itemTypes, suppliers] = await Promise.all([
+      lastValueFrom(this.itemTypesController.apiItemTypesGet()),
+      lastValueFrom(this.supplierController.apiSuppliersGet()),
+    ]);
+    this.itemTypes.set(itemTypes);
+    this.suppliers.set(suppliers);
 
-    if (!this.dialogData.product?.itemTypeId) return;
-
-    const res = await lastValueFrom(
-      this.itemTypesController.apiItemTypesTypeIdCustomFieldsGet({
-        typeId: this.dialogData.product.itemTypeId,
-      }),
-    );
-
-    this.typeCustomFields.set(res);
-
-    /**if (!this.selectedTypeId() && this.activeTypes().length) {
-      this.selectedTypeId.set(this.activeTypes()[0].id);
-    }**/
+    await this.loadCustomFields(this.form.controls.itemTypeId.value);
   }
 
-  getCustomValue(name: string): string | number | boolean {
+  public getCustomValue(name: string): string | number | boolean {
     return this.customValues()[name] ?? '';
   }
 
-  setCustomValue(name: string, value: string | number | boolean) {
-    this.customValues.update((v) => ({ ...v, [name]: value }));
+  public setCustomValue(name: string, value: string | number | boolean) {
+    this.customValues.update((values) => ({ ...values, [name]: value }));
   }
 
   public async save() {
     if (this.form.invalid) return;
 
-    const res = {
-      ...this.customValues(),
-      itemTypeId: this.selectedTypeId(),
+    const value = this.form.getRawValue();
+    const product: ProductDto = {
+      id: this.product?.id ?? null,
+      name: value.name.trim(),
+      itemTypeId: value.itemTypeId,
+      supplierId: value.supplierId,
+      purchasePrice: value.purchasePrice,
+      internalSellingPrice: value.internalSellingPrice,
+      externalSellingPrice: value.externalSellingPrice,
+      stock: this.isEdit ? (this.product?.stock ?? 0) : value.initialStock,
+      lowStockThreshold: value.lowStockThreshold,
+      trackStock: value.trackStock,
+      customFieldValues: this.customValues(),
     };
 
-    /*{
-      id: '',
-        customFieldValues: this.customValues(),
-      itemTypeId: this.selectedTypeId(),
-      lowStockThreshold: this.form.value.threshold,
-      name: this.form.value.name,
-      purchasePrice: this.form.value.purchasePrice,
-      sellingPrice: this.form.value.sellingPrice,
-      stock: this.form.value.stock,
-      trackStock: this.form.value.stock,
-    }*/
-    const product = {
-      id: null,
-      name: this.form.value.name!,
-      purchasePrice: this.form.value.purchasePrice ?? 0,
-      internalSellingPrice: this.form.value.internalSellingPrice ?? 0,
-      externalSellingPrice: this.form.value.externalSellingPrice ?? 0,
-      stock: this.form.value.stock ?? 0,
-      lowStockThreshold: this.form.value.threshold ?? 0,
-      trackStock: false,
-      supplierId: this.form.value.supplier,
-      customFieldValues: this.customValues(),
-      itemTypeId: this.form.value.itemType!,
-    } satisfies ProductDto;
-
-    this.form.disable();
-
+    this.saving.set(true);
+    this.error.set(null);
     try {
-      const insert = await lastValueFrom(
+      await lastValueFrom(
         this.productController.apiProductsPost({
-          itemUpsertRequestOfProductDto: {
-            value: product,
-            id: null,
-          },
+          itemUpsertRequestOfProductDto: { id: product.id, value: product },
         }),
       );
-      this.dialogRef.close(insert);
-    }catch (e) {
-
-    }finally {
-     this.form.enable()
+      this.dialogRef.close(product);
+    } catch {
+      this.error.set('Der Artikel konnte nicht gespeichert werden.');
+    } finally {
+      this.saving.set(false);
     }
-
   }
 
-  cancel() {
+  public cancel() {
     this.dialogRef.close();
   }
 
-  protected readonly CustomFieldType = CustomFieldType;
+  private async loadCustomFields(typeId: string) {
+    if (!typeId) {
+      this.typeCustomFields.set([]);
+      return;
+    }
 
-  public async typeChanged(change: string) {
-    const type = this.itemTypes().find((t) => t.id === change);
-    if (!type) return;
-
-    console.log(type);
-
-    const res = await lastValueFrom(
-      this.itemTypesController.apiItemTypesTypeIdCustomFieldsGet({
-        typeId: type.id,
-      }),
+    this.typeCustomFields.set(
+      await lastValueFrom(this.itemTypesController.apiItemTypesTypeIdCustomFieldsGet({ typeId })),
     );
-    this.selectedTypeId.set(type.id);
-    console.log(res);
-    this.typeCustomFields.set(res);
   }
 }
