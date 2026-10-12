@@ -30,7 +30,7 @@
                 mat-list-item
                 [routerLink]="item.route"
                 routerLinkActive="active"
-                [routerLinkActiveOptions]="{ exact: item.route === '/' }"
+                [routerLinkActiveOptions]="{ exact: item.exact ?? false }"
                 (click)="isMobile() && snav.close()"
                 class="nav-item"
                 [matTooltip]="collapsed() ? item.label : ''"

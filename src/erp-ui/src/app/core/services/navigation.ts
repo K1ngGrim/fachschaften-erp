@@ -13,6 +13,7 @@ export class Navigation {
           label: 'Dashboard',
           route: '/',
           icon: 'view-dashboard',
+          exact: true,
         },
       ],
     },
@@ -45,6 +46,7 @@ export class Navigation {
           label: 'Übersicht',
           route: '/finance',
           icon: 'finance',
+          exact: true,
         },
         {
           label: 'Buchungen',
@@ -121,5 +123,7 @@ export interface NavigationItem {
   label: string;
   route: string;
   icon?: string;
+  /** Nur bei exakt gleicher URL aktiv, z. B. wenn Unterseiten eigene Einträge haben. */
+  exact?: boolean;
   permissions?: string[];
 }
