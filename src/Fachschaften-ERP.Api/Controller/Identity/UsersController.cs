@@ -16,6 +16,7 @@ namespace Fachschaften_ERP.Api.Controller.Identity;
 [Authorize]
 public class UsersController(
     UserManager<IdentityUserEntity> userManager,
+    SignInManager<IdentityUserEntity> signInManager,
     RoleManager<IdentityRoleEntity> roleManager,
     CoreContext coreContext,
     IEmailSender emailSender,
@@ -75,9 +76,18 @@ public class UsersController(
         var user = await userManager.FindByIdAsync(id.ToString());
         if (user is null) return NotFound();
 
+        if (request.CurrentPassword == request.NewPassword)
+            return BadRequest(new[] { new IdentityError { Code = "PasswordUnchanged", Description = "The new password must differ from the current one." } });
+
         var result = await userManager.ChangePasswordAsync(user, request.CurrentPassword, request.NewPassword);
         if (!result.Succeeded) return BadRequest(result.Errors);
 
+        var changeRequired = new Claim("custom", DatabaseSeeder.PasswordChangeRequiredClaim);
+        if ((await userManager.GetClaimsAsync(user)).Any(c => c.Type == changeRequired.Type && c.Value == changeRequired.Value))
+            await userManager.RemoveClaimAsync(user, changeRequired);
+
+        // Neuer Security-Stamp: Cookie neu ausstellen, sonst wird die eigene Sitzung beim nächsten Check beendet.
+        await signInManager.RefreshSignInAsync(user);
         return NoContent();
     }
 

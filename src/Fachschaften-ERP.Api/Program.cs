@@ -102,13 +102,15 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.Configure<IdentityOptions>(options =>
 {
-    // Password settings.
-    options.Password.RequireDigit = false;
-    options.Password.RequireLowercase = false;
+    // Passwortregeln. Überschreibbar über "Identity:Password"; das Frontend holt sie über
+    // GET /api/auth/password-policy, damit es nur eine Quelle gibt.
+    options.Password.RequiredLength = 10;
+    options.Password.RequireLowercase = true;
+    options.Password.RequireUppercase = true;
+    options.Password.RequireDigit = true;
     options.Password.RequireNonAlphanumeric = false;
-    options.Password.RequireUppercase = false;
-    options.Password.RequiredLength = 3;
-    options.Password.RequiredUniqueChars = 0;
+    options.Password.RequiredUniqueChars = 4;
+    builder.Configuration.GetSection("Identity:Password").Bind(options.Password);
 
     // Lockout settings.
     options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);

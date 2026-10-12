@@ -55,6 +55,21 @@ public class AuthController(
         return NoContent();
     }
 
+    /// <summary>Aktive Passwortregeln, damit das Frontend sie vor dem Absenden prüfen und anzeigen kann.</summary>
+    [AllowAnonymous]
+    [HttpGet("password-policy")]
+    public ActionResult<PasswordPolicyDto> PasswordPolicy()
+    {
+        var password = userManager.Options.Password;
+        return Ok(new PasswordPolicyDto(
+            password.RequiredLength,
+            password.RequiredUniqueChars,
+            password.RequireLowercase,
+            password.RequireUppercase,
+            password.RequireDigit,
+            password.RequireNonAlphanumeric));
+    }
+
     [HttpGet("me")]
     [Authorize]
     public async Task<ActionResult<MeDto>> Me()
@@ -85,11 +100,20 @@ public class AuthController(
 
         var permissions = rolePermissions.Union(userPermissions).ToArray();
 
-        return Ok(new MeDto(user.Id, user.UserName ?? string.Empty, user.Email ?? string.Empty, roles, permissions, claims));
+        return Ok(new MeDto(user.Id, user.UserName ?? string.Empty, user.Email ?? string.Empty, roles, permissions, claims,
+            user.TwoFactorEnabled));
     }
 }
 
 public record LoginRequest(string Email, string Password, bool RememberMe = false);
 public record Login2FaRequest(string Code, bool RememberMe = false);
 public record LoginResult(bool RequiresTwoFactor, Guid? Id = null, string? UserName = null, string? Email = null);
-public record MeDto(Guid Id, string UserName, string Email, string[] Roles, string[] Permissions, string[] Claims);
+public record PasswordPolicyDto(
+    int RequiredLength,
+    int RequiredUniqueChars,
+    bool RequireLowercase,
+    bool RequireUppercase,
+    bool RequireDigit,
+    bool RequireNonAlphanumeric);
+public record MeDto(Guid Id, string UserName, string Email, string[] Roles, string[] Permissions, string[] Claims,
+    bool TwoFactorEnabled);

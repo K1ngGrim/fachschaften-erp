@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Fachschaften_ERP.Models;
 using Fachschaften_ERP.Models.Entities.Identity;
 using Microsoft.AspNetCore.Authorization;
@@ -23,6 +24,9 @@ public class TwoFactorController(
     {
         var user = await userManager.GetUserAsync(User);
         if (user is null) return Unauthorized();
+
+        // Den Schlüssel einer aktiven 2FA nicht herausgeben; neu einrichten läuft über POST reset.
+        if (await userManager.GetTwoFactorEnabledAsync(user)) return Conflict("2FA is already enabled.");
 
         var key = await userManager.GetAuthenticatorKeyAsync(user);
         if (string.IsNullOrEmpty(key))
@@ -65,15 +69,45 @@ public class TwoFactorController(
         return NoContent();
     }
 
-    [HttpDelete("setup")]
-    public async Task<ActionResult> DisableAsync()
+    /// <summary>
+    /// Erzeugt einen neuen Authenticator-Schlüssel. 2FA ist danach aus, bis die Einrichtung
+    /// über <c>POST setup</c> bestätigt wurde; der Claim erzwingt diese Einrichtung im Frontend.
+    /// </summary>
+    [HttpPost("reset")]
+    public async Task<ActionResult> Reset(Reset2FaRequest request)
     {
         var user = await userManager.GetUserAsync(User);
         if (user is null) return Unauthorized();
 
+        if (!await userManager.CheckPasswordAsync(user, request.Password))
+            return BadRequest("Invalid password.");
+
         await userManager.SetTwoFactorEnabledAsync(user, false);
         await userManager.ResetAuthenticatorKeyAsync(user);
 
+        var setupRequired = new Claim("custom", "2fa-setup-required");
+        var claims = await userManager.GetClaimsAsync(user);
+        if (!claims.Any(c => c.Type == setupRequired.Type && c.Value == setupRequired.Value))
+            await userManager.AddClaimAsync(user, setupRequired);
+
+        await signInManager.RefreshSignInAsync(user);
+        return NoContent();
+    }
+
+    [HttpPost("disable")]
+    public async Task<ActionResult> Disable(Disable2FaRequest request)
+    {
+        var user = await userManager.GetUserAsync(User);
+        if (user is null) return Unauthorized();
+
+        if (!await userManager.CheckPasswordAsync(user, request.Password))
+            return BadRequest("Invalid password.");
+
+        await userManager.SetTwoFactorEnabledAsync(user, false);
+        await userManager.ResetAuthenticatorKeyAsync(user);
+
+        // Neuer Security-Stamp: Cookie neu ausstellen, sonst endet die Sitzung beim nächsten Check.
+        await signInManager.RefreshSignInAsync(user);
         return NoContent();
     }
 
@@ -89,3 +123,5 @@ public class TwoFactorController(
 
 public record Setup2FaResult(string QrCode, string Secret);
 public record Setup2FaRequest(string Code);
+public record Reset2FaRequest(string Password);
+public record Disable2FaRequest(string Password);
