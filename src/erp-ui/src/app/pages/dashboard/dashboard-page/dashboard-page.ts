@@ -17,6 +17,8 @@ import {
   StockService,
 } from '../../../../../projects/api/src/lib';
 import { formatCurrency, formatDate } from '../../../shared/models/finance';
+import { Auth } from '../../../core/services/auth';
+import { PermissionType } from '../../../shared/models/permission-type';
 
 @Component({
   selector: 'app-dashboard-page',
@@ -39,6 +41,12 @@ export class DashboardPage {
   private readonly cashBookController = inject(CashBooksService);
   private readonly bookingController = inject(BookingsService);
   private readonly router = inject(Router);
+  private readonly auth = inject(Auth);
+
+  // Nur laden und anzeigen, was der Benutzer lesen darf – sonst schlägt die API mit 403 fehl.
+  public readonly canReadInventory = this.auth.hasPermission(PermissionType.InventoryCanRead);
+  public readonly canReadFinance = this.auth.hasPermission(PermissionType.FinanceCanRead);
+  public readonly canWriteFinance = this.auth.hasPermission(PermissionType.FinanceCanWrite);
 
   public readonly stock = signal<StockOverviewDto[]>([]);
   public readonly deliveries = signal<DeliveryOverviewDto[]>([]);
@@ -72,12 +80,14 @@ export class DashboardPage {
 
   public async ngOnInit() {
     const [stock, deliveries, cashBooks, summary] = await Promise.all([
-      lastValueFrom(this.stockController.apiStockGet()),
-      lastValueFrom(this.deliveryController.apiDeliveriesGet()),
-      lastValueFrom(this.cashBookController.apiCashBooksGet()),
-      lastValueFrom(
-        this.bookingController.apiBookingsSummaryGet({ year: new Date().getFullYear() }),
-      ),
+      this.canReadInventory ? lastValueFrom(this.stockController.apiStockGet()) : [],
+      this.canReadInventory ? lastValueFrom(this.deliveryController.apiDeliveriesGet()) : [],
+      this.canReadFinance ? lastValueFrom(this.cashBookController.apiCashBooksGet()) : [],
+      this.canReadFinance
+        ? lastValueFrom(
+            this.bookingController.apiBookingsSummaryGet({ year: new Date().getFullYear() }),
+          )
+        : null,
     ]);
 
     this.stock.set(stock);

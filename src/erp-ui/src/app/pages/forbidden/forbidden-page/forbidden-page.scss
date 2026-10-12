@@ -1,0 +1,21 @@
+.forbidden {
+  max-width: 480px;
+  margin: 10vh auto 0;
+}
+
+.forbidden__icon {
+  width: 3rem;
+  height: 3rem;
+
+  mat-icon {
+    font-size: 1.6rem;
+    width: 1.6rem;
+    height: 1.6rem;
+  }
+}
+
+.forbidden__title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0;
+}

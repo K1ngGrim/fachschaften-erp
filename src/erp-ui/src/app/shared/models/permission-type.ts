@@ -11,4 +11,10 @@ export enum PermissionType {
   RolesCanWrite = 'roles.canwrite',
   PermissionsCanRead = 'permissions.canread',
   PermissionsCanWrite = 'permissions.canwrite',
+  FinanceCanRead = 'finance.canread',
+  FinanceCanWrite = 'finance.canwrite',
+  InventoryCanRead = 'inventory.canread',
+  InventoryCanWrite = 'inventory.canwrite',
+  CustomFieldsCanRead = 'customfields.canread',
+  CustomFieldsCanWrite = 'customfields.canwrite',
 }

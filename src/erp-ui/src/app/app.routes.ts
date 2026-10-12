@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
-import { authGuard, setup2faGuard } from './core/guards/auth-guard';
+import { authGuard, permissionGuard, setup2faGuard } from './core/guards/auth-guard';
+import { PermissionType } from './shared/models/permission-type';
 import { AppShell } from './shared/components/app-shell/app-shell';
 
 export const routes: Routes = [
@@ -35,6 +36,7 @@ export const routes: Routes = [
       // Operations
       {
         path: 'warehouse',
+        canActivate: [permissionGuard(PermissionType.InventoryCanRead)],
         loadComponent: () =>
           import('./features/inventory/warehouse/components/warehouse-page/warehouse-page').then(
             (m) => m.WarehousePage,
@@ -43,6 +45,7 @@ export const routes: Routes = [
 
       {
         path: 'deliveries',
+        canActivate: [permissionGuard(PermissionType.InventoryCanRead)],
         loadComponent: () =>
           import(
             './features/inventory/deliveries/components/deliveries-page/deliveries-page'
@@ -51,6 +54,7 @@ export const routes: Routes = [
 
       {
         path: 'cash-income',
+        canActivate: [permissionGuard(PermissionType.FinanceCanWrite)],
         loadComponent: () =>
           import(
             './features/finance/cash-income/components/cash-income-page/cash-income-page'
@@ -60,6 +64,7 @@ export const routes: Routes = [
       // Finanzen
       {
         path: 'finance',
+        canActivate: [permissionGuard(PermissionType.FinanceCanRead)],
         loadComponent: () =>
           import(
             './features/finance/dashboard/components/finance-dashboard-page/finance-dashboard-page'
@@ -67,6 +72,7 @@ export const routes: Routes = [
       },
       {
         path: 'finance/bookings',
+        canActivate: [permissionGuard(PermissionType.FinanceCanRead)],
         loadComponent: () =>
           import('./features/finance/bookings/components/bookings-page/bookings-page').then(
             (m) => m.BookingsPage,
@@ -74,6 +80,7 @@ export const routes: Routes = [
       },
       {
         path: 'cash-books',
+        canActivate: [permissionGuard(PermissionType.FinanceCanRead)],
         loadComponent: () =>
           import('./features/finance/cash-books/components/cash-books-page/cash-books-page').then(
             (m) => m.CashBooksPage,
@@ -83,6 +90,7 @@ export const routes: Routes = [
       // Stammdaten
       {
         path: 'catalog',
+        canActivate: [permissionGuard(PermissionType.ProductsCanRead)],
         loadComponent: () =>
           import('./features/inventory/catalog/components/items-page/items-page').then(
             (m) => m.ItemsPage,
@@ -90,6 +98,7 @@ export const routes: Routes = [
       },
       {
         path: 'catalog/item/:id',
+        canActivate: [permissionGuard(PermissionType.ProductsCanRead)],
         loadComponent: () =>
           import('./features/inventory/catalog/components/item-detail/item-detail').then(
             (m) => m.ItemDetail,
@@ -97,6 +106,7 @@ export const routes: Routes = [
       },
       {
         path: 'item-types',
+        canActivate: [permissionGuard(PermissionType.ItemTypesCanRead)],
         loadComponent: () =>
           import('./features/inventory/item-types/components/item-types-page/item-types-page').then(
             (m) => m.ItemTypesPage,
@@ -104,6 +114,7 @@ export const routes: Routes = [
       },
       {
         path: 'suppliers',
+        canActivate: [permissionGuard(PermissionType.SuppliersCanRead)],
         loadComponent: () =>
           import('./features/inventory/suppliers/components/suppliers-page/suppliers-page').then(
             (m) => m.SuppliersPage,
@@ -111,6 +122,7 @@ export const routes: Routes = [
       },
       {
         path: 'booking-categories',
+        canActivate: [permissionGuard(PermissionType.FinanceCanRead)],
         loadComponent: () =>
           import(
             './features/finance/categories/components/booking-categories-page/booking-categories-page'
@@ -118,6 +130,7 @@ export const routes: Routes = [
       },
       {
         path: 'custom-fields',
+        canActivate: [permissionGuard(PermissionType.CustomFieldsCanRead)],
         loadComponent: () =>
           import(
             './features/inventory/custom-fields/components/custom-fields-page/custom-fields-page'
@@ -127,10 +140,17 @@ export const routes: Routes = [
       // Administration
       {
         path: 'users',
+        canActivate: [permissionGuard(PermissionType.UsersCanRead)],
         loadComponent: () =>
           import('./features/administration/users/components/user-page/user-page').then(
             (m) => m.UserPage,
           ),
+      },
+
+      {
+        path: 'forbidden',
+        loadComponent: () =>
+          import('./pages/forbidden/forbidden-page/forbidden-page').then((m) => m.ForbiddenPage),
       },
 
       {

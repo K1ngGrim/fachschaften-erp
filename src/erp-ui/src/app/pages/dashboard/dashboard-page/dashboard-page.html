@@ -1,110 +1,122 @@
 <div class="container-fluid p-4">
   <app-page-header [title]="'Dashboard'" [subtitle]="'Überblick über Lager und Kasse.'">
     <div class="d-flex gap-2">
-      <button mat-stroked-button class="d-flex" (click)="goTo('/warehouse')">
-        <mat-icon svgIcon="clipboard-list" class="d-flex"></mat-icon>
-        <span>Lager</span>
-      </button>
-      <button mat-flat-button class="d-flex" (click)="goTo('/cash-income')">
-        <mat-icon svgIcon="cash-register" class="d-flex"></mat-icon>
-        <span>Kasseneinnahmen</span>
-      </button>
+      @if (canReadInventory) {
+        <button mat-stroked-button class="d-flex" (click)="goTo('/warehouse')">
+          <mat-icon svgIcon="clipboard-list" class="d-flex"></mat-icon>
+          <span>Lager</span>
+        </button>
+      }
+      @if (canWriteFinance) {
+        <button mat-flat-button class="d-flex" (click)="goTo('/cash-income')">
+          <mat-icon svgIcon="cash-register" class="d-flex"></mat-icon>
+          <span>Kasseneinnahmen</span>
+        </button>
+      }
     </div>
   </app-page-header>
 
   <div class="row g-4 mb-4">
-    <div class="col-12 col-sm-6 col-lg-3">
-      <app-metric-card
-        title="Lagerwert"
-        [value]="formatCurrency(inventoryValue())"
-        [subtitle]="totalUnits() + ' Einheiten im Bestand'"
-        icon="inventory_2"
-      />
-    </div>
-    <div class="col-12 col-sm-6 col-lg-3">
-      <app-metric-card
-        title="Unter Mindestbestand"
-        [value]="lowStock().length.toString()"
-        [subtitle]="
-          lowStock().length === 0 ? 'Alles ausreichend bevorratet' : 'Artikel nachbestellen'
-        "
-        icon="warning"
-        [trend]="lowStock().length === 0 ? 'up' : 'down'"
-      />
-    </div>
-    <div class="col-12 col-sm-6 col-lg-3">
-      <app-metric-card
-        title="Bargeld"
-        [value]="formatCurrency(cashTotal())"
-        subtitle="Summe aller offenen Kassen"
-        icon="savings"
-      />
-    </div>
-    <div class="col-12 col-sm-6 col-lg-3">
-      @if (summary(); as data) {
+    @if (canReadInventory) {
+      <div class="col-12 col-sm-6 col-lg-3">
         <app-metric-card
-          title="Saldo laufendes Jahr"
-          [value]="formatCurrency(data.balance)"
-          [subtitle]="'Einnahmen ' + formatCurrency(data.income)"
-          icon="account_balance_wallet"
-          [trend]="data.balance >= 0 ? 'up' : 'down'"
+          title="Lagerwert"
+          [value]="formatCurrency(inventoryValue())"
+          [subtitle]="totalUnits() + ' Einheiten im Bestand'"
+          icon="inventory_2"
         />
-      }
-    </div>
+      </div>
+      <div class="col-12 col-sm-6 col-lg-3">
+        <app-metric-card
+          title="Unter Mindestbestand"
+          [value]="lowStock().length.toString()"
+          [subtitle]="
+            lowStock().length === 0 ? 'Alles ausreichend bevorratet' : 'Artikel nachbestellen'
+          "
+          icon="warning"
+          [trend]="lowStock().length === 0 ? 'up' : 'down'"
+        />
+      </div>
+    }
+    @if (canReadFinance) {
+      <div class="col-12 col-sm-6 col-lg-3">
+        <app-metric-card
+          title="Bargeld"
+          [value]="formatCurrency(cashTotal())"
+          subtitle="Summe aller offenen Kassen"
+          icon="savings"
+        />
+      </div>
+      <div class="col-12 col-sm-6 col-lg-3">
+        @if (summary(); as data) {
+          <app-metric-card
+            title="Saldo laufendes Jahr"
+            [value]="formatCurrency(data.balance)"
+            [subtitle]="'Einnahmen ' + formatCurrency(data.income)"
+            icon="account_balance_wallet"
+            [trend]="data.balance >= 0 ? 'up' : 'down'"
+          />
+        }
+      </div>
+    }
   </div>
 
-  <div class="row g-4">
-    <div class="col-12 col-lg-6">
-      <mat-card appearance="outlined" class="h-100">
-        <mat-card-header class="mb-2">
-          <mat-card-title class="fs-6">
-            Mindestbestand unterschritten
-            @if (lowStock().length > 0) {
-              <span class="pill pill--danger ms-2">{{ lowStock().length }}</span>
+  @if (canReadInventory) {
+    <div class="row g-4">
+      <div class="col-12 col-lg-6">
+        <mat-card appearance="outlined" class="h-100">
+          <mat-card-header class="mb-2">
+            <mat-card-title class="fs-6">
+              Mindestbestand unterschritten
+              @if (lowStock().length > 0) {
+                <span class="pill pill--danger ms-2">{{ lowStock().length }}</span>
+              }
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            @for (entry of lowStock(); track entry.productId) {
+              <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                <div>
+                  <div class="fw-medium">{{ entry.name }}</div>
+                  <small class="text-hint">
+                    Mindestbestand {{ entry.threshold }} {{ entry.unit }}
+                  </small>
+                </div>
+                <span class="pill" [class.pill--danger]="isCritical(entry)">
+                  {{ entry.stock }} {{ entry.unit }}
+                </span>
+              </div>
+            } @empty {
+              <p class="text-hint text-center py-5 mb-0">
+                Alle Artikel sind ausreichend bevorratet.
+              </p>
             }
-          </mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          @for (entry of lowStock(); track entry.productId) {
-            <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
-              <div>
-                <div class="fw-medium">{{ entry.name }}</div>
-                <small class="text-hint">
-                  Mindestbestand {{ entry.threshold }} {{ entry.unit }}
-                </small>
-              </div>
-              <span class="pill" [class.pill--danger]="isCritical(entry)">
-                {{ entry.stock }} {{ entry.unit }}
-              </span>
-            </div>
-          } @empty {
-            <p class="text-hint text-center py-5 mb-0">Alle Artikel sind ausreichend bevorratet.</p>
-          }
-        </mat-card-content>
-      </mat-card>
-    </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
 
-    <div class="col-12 col-lg-6">
-      <mat-card appearance="outlined" class="h-100">
-        <mat-card-header class="mb-2">
-          <mat-card-title class="fs-6">Letzte Lieferungen</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          @for (delivery of recentDeliveries(); track delivery.id) {
-            <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
-              <div>
-                <div class="fw-medium">{{ delivery.supplierName }}</div>
-                <small class="text-hint">
-                  {{ formatDate(delivery.deliveryDate) }} · {{ delivery.totalQuantity }} Einheiten
-                </small>
+      <div class="col-12 col-lg-6">
+        <mat-card appearance="outlined" class="h-100">
+          <mat-card-header class="mb-2">
+            <mat-card-title class="fs-6">Letzte Lieferungen</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            @for (delivery of recentDeliveries(); track delivery.id) {
+              <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                <div>
+                  <div class="fw-medium">{{ delivery.supplierName }}</div>
+                  <small class="text-hint">
+                    {{ formatDate(delivery.deliveryDate) }} · {{ delivery.totalQuantity }} Einheiten
+                  </small>
+                </div>
+                <span class="fw-bold">{{ formatCurrency(delivery.totalAmount) }}</span>
               </div>
-              <span class="fw-bold">{{ formatCurrency(delivery.totalAmount) }}</span>
-            </div>
-          } @empty {
-            <p class="text-hint text-center py-5 mb-0">Noch keine Lieferungen erfasst.</p>
-          }
-        </mat-card-content>
-      </mat-card>
+            } @empty {
+              <p class="text-hint text-center py-5 mb-0">Noch keine Lieferungen erfasst.</p>
+            }
+          </mat-card-content>
+        </mat-card>
+      </div>
     </div>
-  </div>
+  }
 </div>
