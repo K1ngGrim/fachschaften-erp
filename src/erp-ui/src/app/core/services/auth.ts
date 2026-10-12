@@ -12,7 +12,10 @@ export class Auth {
 
   isLoggedIn = computed(() => this.currentUser() !== null);
 
+  readonly userId = computed(() => this.currentUser()?.id ?? '');
   readonly userName = computed(() => this.currentUser()?.userName ?? '');
+  readonly email = computed(() => this.currentUser()?.email ?? '');
+  readonly twoFactorEnabled = computed(() => this.currentUser()?.twoFactorEnabled ?? false);
 
   /** Kürzel für den Avatar in der Kopfleiste. */
   readonly initials = computed(() => {
@@ -44,6 +47,11 @@ export class Auth {
 
   requires2faSetup = computed(
     () => this.currentUser()?.claims?.includes('2fa-setup-required') ?? false,
+  );
+
+  /** Erstes Login mit vorgegebenem Passwort, z. B. der beim Erststart angelegte Admin. */
+  requiresPasswordChange = computed(
+    () => this.currentUser()?.claims?.includes('password-change-required') ?? false,
   );
 
   refresh(): Promise<void> {

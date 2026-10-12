@@ -1,0 +1,140 @@
+<div class="container-fluid p-4">
+  <app-page-header [title]="'Mein Konto'" [subtitle]="auth.email() || auth.userName()" />
+
+  <div class="row g-4">
+    <div class="col-12 col-lg-6">
+      <mat-card appearance="outlined" class="h-100">
+        <mat-card-header class="mb-2">
+          <mat-card-title class="fs-6">Passwort ändern</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <form
+            [formGroup]="passwordForm"
+            #passwordFormDirective="ngForm"
+            (ngSubmit)="changePassword(passwordFormDirective)"
+            class="d-flex flex-column gap-3"
+          >
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+              <mat-label>Aktuelles Passwort</mat-label>
+              <input
+                matInput
+                type="password"
+                formControlName="currentPassword"
+                autocomplete="current-password"
+              />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+              <mat-label>Neues Passwort</mat-label>
+              <input
+                matInput
+                type="password"
+                formControlName="newPassword"
+                autocomplete="new-password"
+              />
+            </mat-form-field>
+
+            <app-password-requirements [password]="passwordForm.controls.newPassword.value" />
+
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+              <mat-label>Neues Passwort wiederholen</mat-label>
+              <input
+                matInput
+                type="password"
+                formControlName="confirmPassword"
+                autocomplete="new-password"
+              />
+            </mat-form-field>
+
+            @if (passwordForm.hasError('mismatch') && passwordForm.controls.confirmPassword.dirty) {
+              <p class="text-negative small mb-0">Die Passwörter stimmen nicht überein.</p>
+            }
+
+            @if (passwordError(); as error) {
+              <p class="text-negative small mb-0">{{ error }}</p>
+            }
+            @if (passwordChanged()) {
+              <p class="text-positive small mb-0">Dein Passwort wurde geändert.</p>
+            }
+
+            <div class="d-flex justify-content-end">
+              <button
+                mat-flat-button
+                type="submit"
+                [disabled]="passwordForm.invalid || passwordSaving()"
+              >
+                @if (passwordSaving()) {
+                  <mat-spinner diameter="18" />
+                } @else {
+                  Passwort ändern
+                }
+              </button>
+            </div>
+          </form>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <div class="col-12 col-lg-6">
+      <mat-card appearance="outlined" class="h-100">
+        <mat-card-header class="mb-2">
+          <mat-card-title class="fs-6 d-flex align-items-center gap-2">
+            Zwei-Faktor-Authentifizierung
+            @if (auth.twoFactorEnabled()) {
+              <span class="pill pill--positive">Aktiv</span>
+            } @else {
+              <span class="pill pill--muted">Nicht aktiv</span>
+            }
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <form
+            [formGroup]="twoFactorForm"
+            (ngSubmit)="resetTwoFactor()"
+            class="d-flex flex-column gap-3"
+          >
+            <p class="text-hint small mb-0">
+              @if (auth.twoFactorEnabled()) {
+                Neues Handy oder Authenticator-App verloren? Richte 2FA mit einem neuen Schlüssel
+                ein. Der bisherige Code funktioniert danach nicht mehr.
+              } @else {
+                Schütze dein Konto zusätzlich mit einem Code aus einer Authenticator-App.
+              }
+              Zur Bestätigung brauchen wir dein Passwort.
+            </p>
+
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+              <mat-label>Passwort</mat-label>
+              <input
+                matInput
+                type="password"
+                formControlName="password"
+                autocomplete="current-password"
+              />
+            </mat-form-field>
+
+            @if (twoFactorError(); as error) {
+              <p class="text-negative small mb-0">{{ error }}</p>
+            }
+
+            <div class="d-flex justify-content-end">
+              <button
+                mat-flat-button
+                type="submit"
+                [disabled]="twoFactorForm.invalid || twoFactorResetting()"
+              >
+                @if (twoFactorResetting()) {
+                  <mat-spinner diameter="18" />
+                } @else if (auth.twoFactorEnabled()) {
+                  2FA neu einrichten
+                } @else {
+                  2FA einrichten
+                }
+              </button>
+            </div>
+          </form>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</div>

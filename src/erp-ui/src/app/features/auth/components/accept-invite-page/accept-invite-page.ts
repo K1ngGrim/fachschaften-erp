@@ -14,6 +14,9 @@ import { MatCard, MatCardContent } from '@angular/material/card';
 import { MatError, MatFormField, MatInput, MatLabel } from '@angular/material/input';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
+import { HttpErrorResponse } from '@angular/common/http';
+import { PasswordPolicy } from '../../../../core/services/password-policy';
+import { PasswordRequirements } from '../../../../shared/components/password-requirements/password-requirements';
 
 @Component({
   selector: 'app-accept-invite-page',
@@ -29,6 +32,7 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
     MatError,
     MatButton,
     MatProgressSpinner,
+    PasswordRequirements,
   ],
   templateUrl: './accept-invite-page.html',
   styleUrl: './accept-invite-page.scss',
@@ -47,11 +51,15 @@ export class AcceptInvitePage implements OnInit {
 
   form = new FormGroup(
     {
-      password: new FormControl('', [Validators.required, Validators.minLength(3)]),
+      password: new FormControl('', Validators.required),
       confirmPassword: new FormControl('', Validators.required),
     },
     { validators: passwordMatchValidator },
   );
+
+  constructor() {
+    void inject(PasswordPolicy).applyTo(this.form.controls.password);
+  }
 
   ngOnInit() {
     const inviteId = this.route.snapshot.queryParams['inviteId'];
@@ -87,8 +95,13 @@ export class AcceptInvitePage implements OnInit {
       } else {
         await this.router.navigate(['/login']);
       }
-    } catch {
-      this.error.set('This invite link is invalid or has expired.');
+    } catch (error) {
+      // Bei verletzten Passwortregeln liefert Identity eine Fehlerliste, sonst ist der Link ungültig.
+      this.error.set(
+        error instanceof HttpErrorResponse && Array.isArray(error.error)
+          ? 'Das Passwort erfüllt die Anforderungen nicht.'
+          : 'Dieser Einladungslink ist ungültig oder abgelaufen.',
+      );
     } finally {
       this.loading.set(false);
     }

@@ -32,6 +32,20 @@ export const setup2faGuard: CanActivateFn = async () => {
   return true;
 };
 
+export const passwordChangeGuard: CanActivateFn = async () => {
+  const auth = inject(Auth);
+  const router = inject(Router);
+
+  if (!auth.isLoaded()) await auth.loadCurrentUser();
+
+  if (auth.requiresPasswordChange()) {
+    await router.navigate(['/change-password']);
+    return false;
+  }
+
+  return true;
+};
+
 export const permissionGuard =
   (...permissions: string[]): CanActivateFn =>
   async () => {

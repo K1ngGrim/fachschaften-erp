@@ -1,5 +1,10 @@
 import { Routes } from '@angular/router';
-import { authGuard, permissionGuard, setup2faGuard } from './core/guards/auth-guard';
+import {
+  authGuard,
+  passwordChangeGuard,
+  permissionGuard,
+  setup2faGuard,
+} from './core/guards/auth-guard';
 import { PermissionType } from './shared/models/permission-type';
 import { AppShell } from './shared/components/app-shell/app-shell';
 
@@ -24,13 +29,21 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'change-password',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/auth/components/change-password-page/change-password-page').then(
+        (m) => m.ChangePasswordPage,
+      ),
+  },
+  {
     path: 'setup-2fa',
     loadComponent: () =>
       import('./features/auth/components/setup-fa-page/setup-fa-page').then((m) => m.Setup2faPage),
   },
   {
     path: '',
-    canActivate: [authGuard, setup2faGuard],
+    canActivate: [authGuard, passwordChangeGuard, setup2faGuard],
     component: AppShell,
     children: [
       // Operations
@@ -147,6 +160,13 @@ export const routes: Routes = [
           ),
       },
 
+      {
+        path: 'account',
+        loadComponent: () =>
+          import('./features/account/components/account-page/account-page').then(
+            (m) => m.AccountPage,
+          ),
+      },
       {
         path: 'forbidden',
         loadComponent: () =>
