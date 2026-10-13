@@ -73,6 +73,12 @@ export class Navigation {
           icon: 'book-open-variant',
           permissions: [PermissionType.WikiCanRead],
         },
+        {
+          label: 'Tabellen',
+          route: '/tables',
+          icon: 'table-large',
+          permissions: [PermissionType.TablesCanRead],
+        },
       ],
     },
     {

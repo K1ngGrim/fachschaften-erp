@@ -1,0 +1,68 @@
+<h2 mat-dialog-title>{{ data.values ? 'Eintrag bearbeiten' : 'Neuer Eintrag' }}</h2>
+
+<mat-dialog-content>
+  <div class="d-flex flex-column gap-3 pt-2">
+    @for (column of data.columns; track column.id) {
+      @switch (column.type) {
+        @case (CustomTableColumnType.Boolean) {
+          <mat-checkbox [checked]="!!get(column.id)" (change)="set(column, $event.checked)">
+            {{ column.label }}
+          </mat-checkbox>
+        }
+        @case (CustomTableColumnType.Select) {
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>{{ column.label }}</mat-label>
+            <mat-select
+              [ngModel]="get(column.id)"
+              (ngModelChange)="set(column, $event)"
+              [required]="column.required"
+            >
+              @if (!column.required) {
+                <mat-option [value]="null">—</mat-option>
+              }
+              @for (option of column.options ?? []; track option) {
+                <mat-option [value]="option">{{ option }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        }
+        @case (CustomTableColumnType.LongText) {
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>{{ column.label }}</mat-label>
+            <textarea
+              matInput
+              rows="4"
+              [ngModel]="get(column.id)"
+              (ngModelChange)="set(column, $event)"
+              [required]="column.required"
+            ></textarea>
+          </mat-form-field>
+        }
+        @default {
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>{{ column.label }}</mat-label>
+            <input
+              matInput
+              [type]="
+                column.type === CustomTableColumnType.Date
+                  ? 'date'
+                  : column.type === CustomTableColumnType.Text
+                    ? 'text'
+                    : 'number'
+              "
+              [step]="column.type === CustomTableColumnType.Currency ? '0.01' : 'any'"
+              [ngModel]="get(column.id)"
+              (ngModelChange)="set(column, $event)"
+              [required]="column.required"
+            />
+          </mat-form-field>
+        }
+      }
+    }
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()">Abbrechen</button>
+  <button mat-flat-button (click)="save()" [disabled]="missing().length > 0">Speichern</button>
+</mat-dialog-actions>

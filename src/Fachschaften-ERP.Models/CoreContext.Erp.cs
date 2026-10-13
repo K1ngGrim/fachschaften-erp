@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Fachschaften_ERP.Models.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Fachschaften_ERP.Models;
 
@@ -17,9 +18,48 @@ public partial class CoreContext
     public DbSet<BookingCategoryEntity> BookingCategories => Set<BookingCategoryEntity>();
     public DbSet<CashBookEntity> CashBooks => Set<CashBookEntity>();
     public DbSet<WikiPageEntity> WikiPages => Set<WikiPageEntity>();
+    public DbSet<CustomTableEntity> CustomTables => Set<CustomTableEntity>();
+    public DbSet<CustomTableRowEntity> CustomTableRows => Set<CustomTableRowEntity>();
     
     private static void OnErpCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<CustomTableEntity>(entity =>
+        {
+            entity.HasKey(t => t.Id);
+            entity.Property(t => t.Name).IsRequired().HasMaxLength(100);
+            entity.Property(t => t.Description).HasMaxLength(500);
+            entity.Property(t => t.Columns)
+                .HasColumnType("jsonb")
+                .HasConversion(
+                    v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
+                    v => JsonSerializer.Deserialize<List<CustomTableColumn>>(v, (JsonSerializerOptions?)null) ?? new(),
+                    new ValueComparer<List<CustomTableColumn>>(
+                        (a, b) => JsonSerializer.Serialize(a, (JsonSerializerOptions?)null) ==
+                                  JsonSerializer.Serialize(b, (JsonSerializerOptions?)null),
+                        v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null).GetHashCode(),
+                        v => JsonSerializer.Deserialize<List<CustomTableColumn>>(
+                            JsonSerializer.Serialize(v, (JsonSerializerOptions?)null), (JsonSerializerOptions?)null)!));
+            entity.HasMany(t => t.Rows)
+                .WithOne(r => r.Table)
+                .HasForeignKey(r => r.TableId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<CustomTableRowEntity>(entity =>
+        {
+            entity.HasKey(r => r.Id);
+            entity.HasIndex(r => r.TableId);
+            entity.Property(r => r.Values)
+                .HasColumnType("jsonb")
+                .HasConversion(
+                    v => v.RootElement.GetRawText(),
+                    v => JsonDocument.Parse(v, default),
+                    new ValueComparer<JsonDocument>(
+                        (a, b) => a!.RootElement.GetRawText() == b!.RootElement.GetRawText(),
+                        v => v.RootElement.GetRawText().GetHashCode(),
+                        v => JsonDocument.Parse(v.RootElement.GetRawText(), default)));
+        });
+
         modelBuilder.Entity<WikiPageEntity>(entity =>
         {
             entity.HasKey(p => p.Id);

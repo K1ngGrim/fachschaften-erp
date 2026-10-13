@@ -227,6 +227,80 @@ namespace Fachschaften_ERP.Api.Migrations
                     b.ToTable("CustomFields", "erp");
                 });
 
+            modelBuilder.Entity("Fachschaften_ERP.Models.Entities.CustomTableEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Columns")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<DateTimeOffset>("Created")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("CreatorId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTimeOffset?>("Modified")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("ModifierId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CustomTables", "erp");
+                });
+
+            modelBuilder.Entity("Fachschaften_ERP.Models.Entities.CustomTableRowEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("Created")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("CreatorId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTimeOffset?>("Modified")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("ModifierId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("TableId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Values")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TableId");
+
+                    b.ToTable("CustomTableRows", "erp");
+                });
+
             modelBuilder.Entity("Fachschaften_ERP.Models.Entities.DeliveryEntity", b =>
                 {
                     b.Property<Guid>("Id")
@@ -779,6 +853,17 @@ namespace Fachschaften_ERP.Api.Migrations
                     b.Navigation("Parent");
                 });
 
+            modelBuilder.Entity("Fachschaften_ERP.Models.Entities.CustomTableRowEntity", b =>
+                {
+                    b.HasOne("Fachschaften_ERP.Models.Entities.CustomTableEntity", "Table")
+                        .WithMany("Rows")
+                        .HasForeignKey("TableId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Table");
+                });
+
             modelBuilder.Entity("Fachschaften_ERP.Models.Entities.DeliveryEntity", b =>
                 {
                     b.HasOne("Fachschaften_ERP.Models.Entities.SupplierEntity", "Supplier")
@@ -893,6 +978,11 @@ namespace Fachschaften_ERP.Api.Migrations
                     b.Navigation("Bookings");
 
                     b.Navigation("Children");
+                });
+
+            modelBuilder.Entity("Fachschaften_ERP.Models.Entities.CustomTableEntity", b =>
+                {
+                    b.Navigation("Rows");
                 });
 
             modelBuilder.Entity("Fachschaften_ERP.Models.Entities.DeliveryEntity", b =>

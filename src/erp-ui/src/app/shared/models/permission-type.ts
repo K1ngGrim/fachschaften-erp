@@ -19,4 +19,7 @@ export enum PermissionType {
   CustomFieldsCanWrite = 'customfields.canwrite',
   WikiCanRead = 'wiki.canread',
   WikiCanWrite = 'wiki.canwrite',
+  TablesCanRead = 'tables.canread',
+  TablesCanWrite = 'tables.canwrite',
+  TableDesignCanWrite = 'tabledesign.canwrite',
 }

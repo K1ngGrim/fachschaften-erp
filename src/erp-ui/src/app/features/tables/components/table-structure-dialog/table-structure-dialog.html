@@ -1,0 +1,118 @@
+<h2 mat-dialog-title>{{ isNew ? 'Neue Tabelle' : 'Aufbau bearbeiten' }}</h2>
+
+<mat-dialog-content>
+  <div class="d-flex flex-column gap-3 pt-2">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>Name</mat-label>
+      <input matInput [ngModel]="name()" (ngModelChange)="name.set($event)" required />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>Beschreibung (optional)</mat-label>
+      <input matInput [ngModel]="description()" (ngModelChange)="description.set($event)" />
+    </mat-form-field>
+
+    <div class="columns-heading">Spalten</div>
+
+    @for (
+      column of columns();
+      track column.id;
+      let i = $index;
+      let first = $first;
+      let last = $last
+    ) {
+      <div class="column-row">
+        <div class="column-fields">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic" class="column-label">
+            <mat-label>Spaltenname</mat-label>
+            <input
+              matInput
+              [ngModel]="column.label"
+              (ngModelChange)="update(i, { label: $event })"
+            />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" subscriptSizing="dynamic" class="column-type">
+            <mat-label>Typ</mat-label>
+            <mat-select [ngModel]="column.type" (ngModelChange)="update(i, { type: $event })">
+              @for (type of types; track type[0]) {
+                <mat-option [value]="type[0]">{{ type[1] }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          @if (column.type !== CustomTableColumnType.Boolean) {
+            <mat-checkbox
+              [checked]="column.required"
+              (change)="update(i, { required: $event.checked })"
+            >
+              Pflichtfeld
+            </mat-checkbox>
+          }
+
+          @if (column.type === CustomTableColumnType.Select) {
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="column-options">
+              <mat-label>Optionen</mat-label>
+              <input
+                matInput
+                [ngModel]="column.options"
+                (ngModelChange)="update(i, { options: $event })"
+                placeholder="Offen, In Arbeit, Erledigt"
+              />
+              <mat-hint>Mit Komma trennen</mat-hint>
+            </mat-form-field>
+          }
+        </div>
+
+        <div class="column-actions">
+          <button
+            mat-icon-button
+            matTooltip="Nach oben"
+            [disabled]="first"
+            (click)="move(i, -1)"
+            aria-label="Spalte nach oben"
+          >
+            <mat-icon svgIcon="arrow-up" />
+          </button>
+          <button
+            mat-icon-button
+            matTooltip="Nach unten"
+            [disabled]="last"
+            (click)="move(i, 1)"
+            aria-label="Spalte nach unten"
+          >
+            <mat-icon svgIcon="arrow-down" />
+          </button>
+          <button
+            mat-icon-button
+            matTooltip="Spalte entfernen"
+            (click)="remove(i)"
+            aria-label="Spalte entfernen"
+          >
+            <mat-icon svgIcon="delete-outline" />
+          </button>
+        </div>
+      </div>
+    }
+
+    <button mat-stroked-button class="align-self-start d-flex" (click)="add()">
+      <mat-icon svgIcon="plus" class="d-flex" />
+      <span>Spalte hinzufügen</span>
+    </button>
+
+    @if (removedLabels().length) {
+      <p class="text-negative small mb-0">
+        Entfernte Spalten: {{ removedLabels().join(', ') }}. Ihre Werte werden beim nächsten
+        Bearbeiten der Einträge verworfen.
+      </p>
+    }
+    @if (problem(); as message) {
+      <p class="text-hint small mb-0">{{ message }}</p>
+    }
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()">Abbrechen</button>
+  <button mat-flat-button (click)="save()" [disabled]="!!problem()">Speichern</button>
+</mat-dialog-actions>

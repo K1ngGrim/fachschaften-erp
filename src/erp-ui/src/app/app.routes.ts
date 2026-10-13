@@ -226,6 +226,18 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'tables',
+        canActivate: [permissionGuard(PermissionType.TablesCanRead)],
+        loadComponent: () =>
+          import('./features/tables/components/tables-page/tables-page').then((m) => m.TablesPage),
+      },
+      {
+        path: 'tables/:id',
+        canActivate: [permissionGuard(PermissionType.TablesCanRead)],
+        loadComponent: () =>
+          import('./features/tables/components/table-page/table-page').then((m) => m.TablePage),
+      },
+      {
         path: 'forbidden',
         loadComponent: () =>
           import('./pages/forbidden/forbidden-page/forbidden-page').then((m) => m.ForbiddenPage),

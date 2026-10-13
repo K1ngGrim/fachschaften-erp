@@ -1,0 +1,48 @@
+.columns-heading {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--app-text-muted);
+  margin-top: 0.5rem;
+}
+
+.column-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+  padding: 0.75rem;
+  border: 1px solid var(--app-border);
+  border-radius: 8px;
+}
+
+.column-fields {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.column-label {
+  flex: 2 1 12rem;
+}
+
+.column-type {
+  flex: 1 1 9rem;
+}
+
+.column-options {
+  flex: 1 1 100%;
+}
+
+.column-actions {
+  display: flex;
+  flex-direction: column;
+
+  button {
+    --mat-icon-button-icon-size: 18px;
+    --mat-icon-button-state-layer-size: 32px;
+    color: var(--app-text-muted);
+  }
+}

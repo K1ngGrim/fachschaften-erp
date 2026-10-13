@@ -1,0 +1,61 @@
+<div class="container-fluid p-4 table-page">
+  <a mat-button routerLink="/tables" class="mb-2 back-link align-self-start">
+    <mat-icon svgIcon="arrow-left" />
+    Alle Tabellen
+  </a>
+
+  @if (loading()) {
+    <p class="text-hint">Wird geladen …</p>
+  } @else if (!table()) {
+    <p class="text-hint">Diese Tabelle gibt es nicht oder sie wurde gelöscht.</p>
+  } @else {
+    <app-page-header [title]="table()!.name" [subtitle]="table()!.description ?? ''">
+      <div class="d-flex flex-wrap gap-2">
+        <button mat-stroked-button class="d-flex" (click)="downloadCsv()">
+          <mat-icon svgIcon="download-outline" class="d-flex" />
+          <span>CSV</span>
+        </button>
+        @if (canDesign) {
+          <button mat-stroked-button class="d-flex" (click)="editStructure()">
+            <mat-icon svgIcon="table-cog" class="d-flex" />
+            <span>Aufbau</span>
+          </button>
+          <button mat-stroked-button class="d-flex" (click)="deleteTable()">
+            <mat-icon svgIcon="delete-outline" class="d-flex" />
+            <span>Löschen</span>
+          </button>
+        }
+        @if (canWrite) {
+          <button mat-flat-button class="d-flex" (click)="addRow()">
+            <mat-icon svgIcon="plus" class="d-flex" />
+            <span>Neuer Eintrag</span>
+          </button>
+        }
+      </div>
+    </app-page-header>
+
+    @if (error(); as message) {
+      <div class="alert alert-warning" role="alert">{{ message }}</div>
+    }
+
+    <app-data-grid
+      [title]="rows().length + (rows().length === 1 ? ' Eintrag' : ' Einträge')"
+      [columns]="columns()"
+      [data]="gridRows()"
+      [searchable]="true"
+    >
+      @if (canWrite) {
+        <ng-template gridActionCell let-entry>
+          <div class="d-flex gap-1 justify-content-end">
+            <button mat-icon-button matTooltip="Bearbeiten" (click)="editRow(entry.__row)">
+              <mat-icon svgIcon="pencil-outline" />
+            </button>
+            <button mat-icon-button matTooltip="Löschen" (click)="deleteRow(entry.__row)">
+              <mat-icon svgIcon="delete-outline" />
+            </button>
+          </div>
+        </ng-template>
+      }
+    </app-data-grid>
+  }
+</div>

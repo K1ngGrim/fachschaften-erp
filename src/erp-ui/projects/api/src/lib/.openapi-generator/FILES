@@ -13,6 +13,8 @@ api/cash-books.service.ts
 api/cash-books.serviceInterface.ts
 api/custom-fields.service.ts
 api/custom-fields.serviceInterface.ts
+api/custom-tables.service.ts
+api/custom-tables.serviceInterface.ts
 api/deliveries.service.ts
 api/deliveries.serviceInterface.ts
 api/inventory-transactions.service.ts
@@ -55,6 +57,11 @@ model/change-password-request.ts
 model/create-role-request.ts
 model/custom-field-dto.ts
 model/custom-field-type.ts
+model/custom-table-column-type.ts
+model/custom-table-column.ts
+model/custom-table-dto.ts
+model/custom-table-row-dto.ts
+model/custom-table-summary-dto.ts
 model/delivery-dto.ts
 model/delivery-overview-dto.ts
 model/delivery-position-dto.ts
@@ -94,6 +101,8 @@ model/supplier-dto.ts
 model/tax-area-summary-dto.ts
 model/tax-area.ts
 model/update-user-request.ts
+model/upsert-custom-table-request.ts
+model/upsert-custom-table-row-request.ts
 model/upsert-item-type-request.ts
 model/upsert-supplier-request.ts
 model/upsert-wiki-page-request.ts

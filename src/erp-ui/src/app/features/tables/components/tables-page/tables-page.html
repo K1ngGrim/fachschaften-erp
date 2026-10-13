@@ -1,0 +1,46 @@
+<div class="container-fluid p-4">
+  <app-page-header
+    [title]="'Tabellen'"
+    [subtitle]="'Eigene Listen der Fachschaft, z. B. Schlüssel, Ausleihen oder Kontakte.'"
+  >
+    @if (canDesign) {
+      <button mat-flat-button class="d-flex" (click)="create()">
+        <mat-icon svgIcon="plus" class="d-flex" />
+        <span>Neue Tabelle</span>
+      </button>
+    }
+  </app-page-header>
+
+  <div class="row g-3">
+    @for (table of tables(); track table.id) {
+      <div class="col-12 col-md-6 col-xl-4">
+        <a [routerLink]="['/tables', table.id]" class="table-card-link">
+          <mat-card appearance="outlined" class="h-100">
+            <mat-card-content class="d-flex gap-3 align-items-start">
+              <span class="icon-tile">
+                <mat-icon svgIcon="table-large" />
+              </span>
+              <div class="min-w-0">
+                <div class="fw-medium">{{ table.name }}</div>
+                @if (table.description) {
+                  <div class="text-hint small description">{{ table.description }}</div>
+                }
+                <small class="text-hint">
+                  {{ table.rowCount }} {{ table.rowCount === 1 ? 'Eintrag' : 'Einträge' }} ·
+                  {{ table.columnCount }} {{ table.columnCount === 1 ? 'Spalte' : 'Spalten' }}
+                </small>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </a>
+      </div>
+    } @empty {
+      <p class="text-hint text-center py-5">
+        Noch keine Tabellen.
+        @if (canDesign) {
+          Lege mit „Neue Tabelle“ die erste an.
+        }
+      </p>
+    }
+  </div>
+</div>
