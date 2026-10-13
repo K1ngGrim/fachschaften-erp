@@ -65,6 +65,17 @@ export class Navigation {
       ],
     },
     {
+      label: 'Organisation',
+      items: [
+        {
+          label: 'Wiki',
+          route: '/wiki',
+          icon: 'book-open-variant',
+          permissions: [PermissionType.WikiCanRead],
+        },
+      ],
+    },
+    {
       label: 'Stammdaten',
       items: [
         {

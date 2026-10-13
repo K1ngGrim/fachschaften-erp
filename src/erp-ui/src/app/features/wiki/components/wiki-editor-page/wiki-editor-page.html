@@ -1,0 +1,85 @@
+<div class="container-fluid p-4">
+  <app-page-header
+    [title]="isNew ? 'Neue Wiki-Seite' : 'Seite bearbeiten'"
+    [subtitle]="'Text mit Markdown formatieren; die Vorschau zeigt das Ergebnis.'"
+  >
+    <div class="d-flex gap-2">
+      <a mat-stroked-button [routerLink]="isNew ? ['/wiki'] : ['/wiki', id]">Abbrechen</a>
+      <button mat-flat-button (click)="save()" [disabled]="!title().trim() || saving()">
+        Speichern
+      </button>
+    </div>
+  </app-page-header>
+
+  @if (error(); as message) {
+    <div class="alert alert-warning" role="alert">{{ message }}</div>
+  }
+
+  <div class="row g-3 mb-3">
+    <div class="col-12 col-md-8">
+      <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
+        <mat-label>Titel</mat-label>
+        <input matInput [ngModel]="title()" (ngModelChange)="title.set($event)" required />
+      </mat-form-field>
+    </div>
+    <div class="col-12 col-md-4">
+      <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
+        <mat-label>Kategorie (optional)</mat-label>
+        <input
+          matInput
+          list="wiki-categories"
+          [ngModel]="category()"
+          (ngModelChange)="category.set($event)"
+        />
+      </mat-form-field>
+      <datalist id="wiki-categories">
+        @for (c of categories(); track c) {
+          <option [value]="c"></option>
+        }
+      </datalist>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-12 col-xl-6">
+      <mat-card appearance="outlined" class="h-100">
+        <mat-card-content class="d-flex flex-column gap-2 h-100">
+          <div class="editor-toolbar" role="toolbar" aria-label="Formatierung">
+            @for (action of actions; track action.icon) {
+              <button
+                mat-icon-button
+                type="button"
+                [matTooltip]="action.label"
+                [attr.aria-label]="action.label"
+                (click)="apply(action)"
+              >
+                <mat-icon [svgIcon]="action.icon" />
+              </button>
+            }
+          </div>
+          <textarea
+            #editor
+            class="editor"
+            [ngModel]="content()"
+            (ngModelChange)="content.set($event)"
+            placeholder="## Ablauf&#10;&#10;1. Erster Schritt&#10;2. Zweiter Schritt"
+            aria-label="Inhalt in Markdown"
+          ></textarea>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <div class="col-12 col-xl-6">
+      <mat-card appearance="outlined" class="h-100">
+        <mat-card-content>
+          <div class="preview-label">Vorschau</div>
+          @if (content().trim()) {
+            <app-markdown-view [content]="content()" />
+          } @else {
+            <p class="text-hint mb-0">Hier erscheint die Vorschau.</p>
+          }
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</div>

@@ -35,6 +35,8 @@ api/two-factor.service.ts
 api/two-factor.serviceInterface.ts
 api/users.service.ts
 api/users.serviceInterface.ts
+api/wiki.service.ts
+api/wiki.serviceInterface.ts
 configuration.ts
 encoder.ts
 git_push.sh
@@ -94,8 +96,11 @@ model/tax-area.ts
 model/update-user-request.ts
 model/upsert-item-type-request.ts
 model/upsert-supplier-request.ts
+model/upsert-wiki-page-request.ts
 model/user-dto.ts
 model/user-role-dto.ts
 model/user-status.ts
+model/wiki-page-dto.ts
+model/wiki-page-summary-dto.ts
 param.ts
 variables.ts

@@ -273,3 +273,32 @@ html.dark {
 html {
   @include mat.form-field-density(-3);
 }
+
+// ── Druck ───────────────────────────────────────────────────────────────────
+// Navigation und Bedienelemente ausblenden, Inhalt über die volle Breite.
+@media print {
+  .sidenav,
+  .toolbar,
+  .no-print,
+  app-cookie-notice,
+  mat-progress-bar {
+    display: none !important;
+  }
+
+  .sidenav-content {
+    margin-left: 0 !important;
+  }
+
+  .sidenav-container,
+  .sidenav-content,
+  .content-wrapper,
+  .page-scroll {
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  body,
+  html {
+    background: #fff !important;
+  }
+}

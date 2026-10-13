@@ -1,0 +1,57 @@
+<div class="container-fluid p-4">
+  <app-page-header [title]="'Wiki'" [subtitle]="'Abläufe, Anleitungen und Wissen der Fachschaft.'">
+    @if (canWrite) {
+      <a mat-flat-button class="d-flex" routerLink="/wiki/new">
+        <mat-icon svgIcon="plus" class="d-flex" />
+        <span>Neue Seite</span>
+      </a>
+    }
+  </app-page-header>
+
+  <mat-form-field appearance="outline" subscriptSizing="dynamic" class="wiki-search mb-4">
+    <mat-label>Seiten durchsuchen</mat-label>
+    <mat-icon matPrefix svgIcon="magnify" class="search-icon" />
+    <input matInput [ngModel]="search()" (ngModelChange)="search.set($event)" />
+  </mat-form-field>
+
+  @for (group of groups(); track group.category) {
+    <section class="mb-4">
+      <h2 class="wiki-category">{{ group.category }}</h2>
+      <div class="row g-3">
+        @for (page of group.pages; track page.id) {
+          <div class="col-12 col-md-6 col-xl-4">
+            <a [routerLink]="['/wiki', page.id]" class="wiki-card-link">
+              <mat-card appearance="outlined" class="h-100">
+                <mat-card-content class="d-flex gap-3 align-items-start">
+                  <span class="icon-tile">
+                    <mat-icon svgIcon="file-document-outline" />
+                  </span>
+                  <div class="min-w-0">
+                    <div class="fw-medium wiki-title">{{ page.title }}</div>
+                    <small class="text-hint">
+                      Geändert {{ formatDate(page.updatedAt) }}
+                      @if (page.updatedBy) {
+                        von {{ page.updatedBy }}
+                      }
+                    </small>
+                  </div>
+                </mat-card-content>
+              </mat-card>
+            </a>
+          </div>
+        }
+      </div>
+    </section>
+  } @empty {
+    <p class="text-hint text-center py-5">
+      @if (search()) {
+        Keine Seite passt zur Suche.
+      } @else {
+        Noch keine Wiki-Seiten.
+        @if (canWrite) {
+          <a routerLink="/wiki/new">Erste Seite anlegen</a>
+        }
+      }
+    </p>
+  }
+</div>

@@ -194,6 +194,37 @@ export const routes: Routes = [
             (m) => m.AccountPage,
           ),
       },
+      // Organisation
+      {
+        path: 'wiki',
+        canActivate: [permissionGuard(PermissionType.WikiCanRead)],
+        loadComponent: () =>
+          import('./features/wiki/components/wiki-list-page/wiki-list-page').then(
+            (m) => m.WikiListPage,
+          ),
+      },
+      {
+        path: 'wiki/new',
+        canActivate: [permissionGuard(PermissionType.WikiCanWrite)],
+        loadComponent: () =>
+          import('./features/wiki/components/wiki-editor-page/wiki-editor-page').then(
+            (m) => m.WikiEditorPage,
+          ),
+      },
+      {
+        path: 'wiki/:id',
+        canActivate: [permissionGuard(PermissionType.WikiCanRead)],
+        loadComponent: () =>
+          import('./features/wiki/components/wiki-page/wiki-page').then((m) => m.WikiPage),
+      },
+      {
+        path: 'wiki/:id/edit',
+        canActivate: [permissionGuard(PermissionType.WikiCanWrite)],
+        loadComponent: () =>
+          import('./features/wiki/components/wiki-editor-page/wiki-editor-page').then(
+            (m) => m.WikiEditorPage,
+          ),
+      },
       {
         path: 'forbidden',
         loadComponent: () =>

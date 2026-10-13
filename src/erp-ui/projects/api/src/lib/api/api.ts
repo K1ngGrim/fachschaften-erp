@@ -46,4 +46,7 @@ export * from './two-factor.serviceInterface';
 export * from './users.service';
 import { UsersService } from './users.service';
 export * from './users.serviceInterface';
-export const APIS = [AuthService, BookingCategoriesService, BookingsService, CashBooksService, CustomFieldsService, DeliveriesService, InventoryTransactionsService, InviteService, ItemTypesService, PermissionsService, ProductsService, RolesService, StockService, SuppliersService, TwoFactorService, UsersService];
+export * from './wiki.service';
+import { WikiService } from './wiki.service';
+export * from './wiki.serviceInterface';
+export const APIS = [AuthService, BookingCategoriesService, BookingsService, CashBooksService, CustomFieldsService, DeliveriesService, InventoryTransactionsService, InviteService, ItemTypesService, PermissionsService, ProductsService, RolesService, StockService, SuppliersService, TwoFactorService, UsersService, WikiService];

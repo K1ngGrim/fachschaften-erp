@@ -1,0 +1,60 @@
+<div class="container-fluid p-4">
+  <a mat-button routerLink="/wiki" class="mb-2 back-link no-print">
+    <mat-icon svgIcon="arrow-left" />
+    Zurück zum Wiki
+  </a>
+
+  @if (loading()) {
+    <p class="text-hint">Wird geladen …</p>
+  } @else if (!page()) {
+    <p class="text-hint">Diese Seite gibt es nicht oder sie wurde gelöscht.</p>
+  } @else {
+    @let p = page()!;
+
+    <div class="d-flex flex-wrap align-items-start gap-3 mb-3">
+      <div class="flex-grow-1">
+        @if (p.category) {
+          <div class="wiki-category">{{ p.category }}</div>
+        }
+        <h1 class="wiki-title">{{ p.title }}</h1>
+        <small class="text-hint">
+          Zuletzt geändert {{ formatDate(p.updatedAt) }}
+          @if (p.updatedBy) {
+            von {{ p.updatedBy }}
+          }
+        </small>
+      </div>
+
+      <div class="d-flex flex-wrap gap-2 no-print">
+        <button mat-stroked-button class="d-flex" (click)="download()">
+          <mat-icon svgIcon="download-outline" class="d-flex" />
+          <span>Markdown</span>
+        </button>
+        <button mat-stroked-button class="d-flex" (click)="print()">
+          <mat-icon svgIcon="printer-outline" class="d-flex" />
+          <span>Drucken / PDF</span>
+        </button>
+        @if (canWrite) {
+          <a mat-flat-button class="d-flex" [routerLink]="['/wiki', p.id, 'edit']">
+            <mat-icon svgIcon="pencil-outline" class="d-flex" />
+            <span>Bearbeiten</span>
+          </a>
+          <button mat-stroked-button class="d-flex" (click)="delete()">
+            <mat-icon svgIcon="delete-outline" class="d-flex" />
+            <span>Löschen</span>
+          </button>
+        }
+      </div>
+    </div>
+
+    <mat-card appearance="outlined" class="wiki-content">
+      <mat-card-content>
+        @if (p.content.trim()) {
+          <app-markdown-view [content]="p.content" />
+        } @else {
+          <p class="text-hint mb-0">Diese Seite ist noch leer.</p>
+        }
+      </mat-card-content>
+    </mat-card>
+  }
+</div>

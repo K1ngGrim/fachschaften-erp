@@ -16,9 +16,17 @@ public partial class CoreContext
     public DbSet<BookingEntity> Bookings => Set<BookingEntity>();
     public DbSet<BookingCategoryEntity> BookingCategories => Set<BookingCategoryEntity>();
     public DbSet<CashBookEntity> CashBooks => Set<CashBookEntity>();
+    public DbSet<WikiPageEntity> WikiPages => Set<WikiPageEntity>();
     
     private static void OnErpCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<WikiPageEntity>(entity =>
+        {
+            entity.HasKey(p => p.Id);
+            entity.Property(p => p.Title).IsRequired().HasMaxLength(200);
+            entity.Property(p => p.Category).HasMaxLength(100);
+            entity.Property(p => p.Content).IsRequired();
+        });
 
         modelBuilder.Entity<ProductEntity>(entity =>
         {
