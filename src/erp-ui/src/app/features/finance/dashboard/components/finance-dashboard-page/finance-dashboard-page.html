@@ -20,7 +20,7 @@
           title="Einnahmen"
           [value]="formatCurrency(data.income)"
           [subtitle]="'Jahr ' + data.year"
-          icon="payments"
+          icon="cash-multiple"
           trend="up"
         />
       </div>
@@ -29,7 +29,7 @@
           title="Ausgaben"
           [value]="formatCurrency(data.expense)"
           [subtitle]="'Jahr ' + data.year"
-          icon="trending_down"
+          icon="trending-down"
           trend="down"
         />
       </div>
@@ -38,7 +38,7 @@
           title="Saldo"
           [value]="formatCurrency(data.balance)"
           subtitle="Einnahmen abzüglich Ausgaben"
-          icon="account_balance_wallet"
+          icon="wallet-outline"
         />
       </div>
       <div class="col-12 col-sm-6 col-lg-3">
@@ -46,7 +46,7 @@
           title="Bargeld"
           [value]="formatCurrency(cashTotal())"
           [subtitle]="openCashBooks().length + ' offene Kasse(n)'"
-          icon="savings"
+          icon="piggy-bank-outline"
         />
       </div>
     </div>

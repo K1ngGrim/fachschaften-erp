@@ -23,7 +23,7 @@
           title="Lagerwert"
           [value]="formatCurrency(inventoryValue())"
           [subtitle]="totalUnits() + ' Einheiten im Bestand'"
-          icon="inventory_2"
+          icon="package-variant-closed"
         />
       </div>
       <div class="col-12 col-sm-6 col-lg-3">
@@ -33,7 +33,7 @@
           [subtitle]="
             lowStock().length === 0 ? 'Alles ausreichend bevorratet' : 'Artikel nachbestellen'
           "
-          icon="warning"
+          icon="alert-outline"
           [trend]="lowStock().length === 0 ? 'up' : 'down'"
         />
       </div>
@@ -44,7 +44,7 @@
           title="Bargeld"
           [value]="formatCurrency(cashTotal())"
           subtitle="Summe aller offenen Kassen"
-          icon="savings"
+          icon="piggy-bank-outline"
         />
       </div>
       <div class="col-12 col-sm-6 col-lg-3">
@@ -53,7 +53,7 @@
             title="Saldo laufendes Jahr"
             [value]="formatCurrency(data.balance)"
             [subtitle]="'Einnahmen ' + formatCurrency(data.income)"
-            icon="account_balance_wallet"
+            icon="wallet-outline"
             [trend]="data.balance >= 0 ? 'up' : 'down'"
           />
         }

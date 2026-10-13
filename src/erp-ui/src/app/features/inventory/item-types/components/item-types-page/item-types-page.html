@@ -24,13 +24,13 @@
     <ng-template gridActionCell let-p>
       <div class="d-flex gap-1 justify-content-end">
         <button mat-icon-button matTooltip="View" (click)="openView(p)">
-          <mat-icon>visibility</mat-icon>
+          <mat-icon svgIcon="eye-outline" />
         </button>
         <button mat-icon-button matTooltip="Edit" (click)="openEdit(p)">
-          <mat-icon>edit</mat-icon>
+          <mat-icon svgIcon="pencil-outline" />
         </button>
         <button mat-icon-button matTooltip="Delete" color="warn" (click)="deleteItem(p)">
-          <mat-icon>delete</mat-icon>
+          <mat-icon svgIcon="delete-outline" />
         </button>
       </div>
     </ng-template>

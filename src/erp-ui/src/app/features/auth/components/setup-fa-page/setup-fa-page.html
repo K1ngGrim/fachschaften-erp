@@ -4,7 +4,7 @@
   <div class="login-container">
     <div class="login-header">
       <div class="login-logo">
-        <mat-icon>security</mat-icon>
+        <mat-icon svgIcon="shield-lock-outline" />
       </div>
       <h1>Two-Factor Authentication</h1>
       <p>Scan the QR code with your authenticator app</p>
@@ -28,7 +28,7 @@
           <div class="secret-box">
             <code>{{ secret() }}</code>
             <button mat-icon-button (click)="copySecret()" matTooltip="Copy">
-              <mat-icon svgIcon="content_copy"></mat-icon>
+              <mat-icon svgIcon="content-copy"></mat-icon>
             </button>
           </div>
 
@@ -43,7 +43,7 @@
 
             @if (error()) {
               <mat-error class="error-box">
-                <mat-icon>error_outline</mat-icon>
+                <mat-icon svgIcon="alert-circle-outline" />
                 {{ error() }}
               </mat-error>
             }

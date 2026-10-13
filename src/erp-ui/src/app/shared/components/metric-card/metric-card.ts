@@ -13,7 +13,7 @@ export class MetricCard {
   title = input.required<string>();
   value = input.required<string>();
   subtitle = input<string>();
-  icon = input.required<string>(); // Material Icon Name
+  icon = input.required<string>(); // MDI-Icon-Name (assets/mdi.svg)
   trend = input<'up' | 'down' | 'neutral'>();
 
   // Hilfsmethode für Bootstrap Text-Farben
