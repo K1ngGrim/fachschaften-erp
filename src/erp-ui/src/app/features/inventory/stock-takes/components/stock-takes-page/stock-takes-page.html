@@ -1,0 +1,56 @@
+<div class="container-fluid p-4">
+  <app-page-header
+    [title]="'Inventur'"
+    [subtitle]="'Bestände zählen und Abweichungen zum Lagerbestand buchen.'"
+  >
+    @if (canWrite) {
+      <a mat-flat-button class="d-flex" routerLink="/stock-takes/new">
+        <mat-icon svgIcon="plus" class="d-flex" />
+        <span>Neue Inventur</span>
+      </a>
+    }
+  </app-page-header>
+
+  <mat-card appearance="outlined">
+    <mat-card-content>
+      @if (stockTakes().length === 0) {
+        <p class="text-hint text-center py-5 mb-0">Noch keine Inventur durchgeführt.</p>
+      } @else {
+        <div class="table-responsive">
+          <table class="table align-middle mb-0">
+            <thead>
+              <tr>
+                <th>Datum</th>
+                <th>Notiz</th>
+                <th>Durchgeführt von</th>
+                <th class="text-end">Gezählt</th>
+                <th class="text-end">Abweichungen</th>
+                <th class="text-end">Wert der Abweichung</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (take of stockTakes(); track take.id) {
+                <tr>
+                  <td>
+                    <a [routerLink]="['/stock-takes', take.id]">{{ formatDate(take.date) }}</a>
+                  </td>
+                  <td>{{ take.note ?? '—' }}</td>
+                  <td>{{ take.createdBy ?? '—' }}</td>
+                  <td class="text-end">{{ take.positionCount }}</td>
+                  <td class="text-end">{{ take.differenceCount }}</td>
+                  <td class="text-end">
+                    <span
+                      [class.text-negative]="take.differenceValue < 0"
+                      [class.text-positive]="take.differenceValue > 0"
+                      >{{ formatCurrency(take.differenceValue) }}</span
+                    >
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </mat-card-content>
+  </mat-card>
+</div>

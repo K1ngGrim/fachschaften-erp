@@ -27,6 +27,12 @@ export class Navigation {
           permissions: [PermissionType.InventoryCanRead],
         },
         {
+          label: 'Inventur',
+          route: '/stock-takes',
+          icon: 'clipboard-check-outline',
+          permissions: [PermissionType.InventoryCanRead],
+        },
+        {
           label: 'Lieferungen',
           route: '/deliveries',
           icon: 'truck-delivery',

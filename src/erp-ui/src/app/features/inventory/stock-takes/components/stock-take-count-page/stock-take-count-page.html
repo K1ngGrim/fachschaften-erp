@@ -1,0 +1,123 @@
+<div class="container-fluid p-4">
+  <app-page-header
+    [title]="'Neue Inventur'"
+    [subtitle]="'Gezählte Mengen eintragen. Leere Felder gelten als nicht gezählt und bleiben unverändert.'"
+  >
+    <div class="d-flex gap-2">
+      <a mat-stroked-button routerLink="/stock-takes">Abbrechen</a>
+      <button mat-flat-button (click)="submit()" [disabled]="counted().length === 0 || saving()">
+        Inventur buchen
+      </button>
+    </div>
+  </app-page-header>
+
+  @if (error(); as message) {
+    <div class="alert alert-warning" role="alert">{{ message }}</div>
+  }
+
+  <div class="summary mb-3">
+    <div>
+      <div class="summary__label">Gezählt</div>
+      <div class="summary__value">{{ counted().length }} / {{ rows().length }}</div>
+    </div>
+    <div>
+      <div class="summary__label">Abweichungen</div>
+      <div class="summary__value">{{ differences().length }}</div>
+    </div>
+    <div>
+      <div class="summary__label">Wert der Abweichung (EK)</div>
+      <div
+        class="summary__value"
+        [class.text-negative]="differenceValue() < 0"
+        [class.text-positive]="differenceValue() > 0"
+      >
+        {{ formatCurrency(differenceValue()) }}
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-3">
+    <div class="col-12 col-md-5">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-100">
+        <mat-label>Artikel suchen</mat-label>
+        <mat-icon matPrefix svgIcon="magnify" class="search-icon" />
+        <input matInput [ngModel]="search()" (ngModelChange)="search.set($event)" />
+      </mat-form-field>
+    </div>
+    <div class="col-12 col-md-7">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-100">
+        <mat-label>Notiz (optional), z. B. „Getränkelager Jahresende“</mat-label>
+        <input matInput [ngModel]="note()" (ngModelChange)="note.set($event)" maxlength="500" />
+      </mat-form-field>
+    </div>
+  </div>
+
+  <mat-card appearance="outlined">
+    <mat-card-content>
+      @if (rows().length === 0) {
+        <p class="text-hint text-center py-5 mb-0">Keine Artikel mit Bestandsführung.</p>
+      } @else {
+        <div class="table-responsive">
+          <table class="table align-middle mb-0">
+            <thead>
+              <tr>
+                <th>Artikel</th>
+                <th class="text-end">Soll</th>
+                <th class="count-col">Gezählt</th>
+                <th class="text-end">Differenz</th>
+                <th class="text-end">Wert</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of visibleRows(); track row.productId) {
+                <tr [class.counted]="row.counted !== null">
+                  <td class="fw-medium">{{ row.name }}</td>
+                  <td class="text-end">
+                    <button
+                      type="button"
+                      class="expected-button"
+                      title="Soll übernehmen"
+                      (click)="takeExpected(row)"
+                    >
+                      {{ row.expected }}
+                    </button>
+                  </td>
+                  <td class="count-col">
+                    <input
+                      type="number"
+                      min="0"
+                      step="1"
+                      inputmode="numeric"
+                      class="count-input"
+                      [attr.aria-label]="'Gezählt: ' + row.name"
+                      [ngModel]="row.counted"
+                      (ngModelChange)="setCounted(row.productId, $event)"
+                    />
+                  </td>
+                  <td class="text-end fw-medium">
+                    @if (row.counted === null) {
+                      <span class="text-hint">—</span>
+                    } @else if (difference(row) === 0) {
+                      <span class="text-hint">0</span>
+                    } @else {
+                      <span
+                        [class.text-negative]="difference(row) < 0"
+                        [class.text-positive]="difference(row) > 0"
+                        >{{ difference(row) > 0 ? '+' : '' }}{{ difference(row) }}</span
+                      >
+                    }
+                  </td>
+                  <td class="text-end">
+                    @if (difference(row) !== 0) {
+                      {{ formatCurrency(difference(row) * row.purchasePrice) }}
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </mat-card-content>
+  </mat-card>
+</div>

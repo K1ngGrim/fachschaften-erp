@@ -679,6 +679,66 @@ namespace Fachschaften_ERP.Api.Migrations
                     b.ToTable("Products", "erp");
                 });
 
+            modelBuilder.Entity("Fachschaften_ERP.Models.Entities.StockTakeEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("Created")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("CreatorId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTimeOffset?>("Modified")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("ModifierId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("StockTakes", "erp");
+                });
+
+            modelBuilder.Entity("Fachschaften_ERP.Models.Entities.StockTakePositionEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("CountedStock")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ExpectedStock")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("StockTakeId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("UnitPurchasePrice")
+                        .HasColumnType("numeric(10,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("StockTakeId");
+
+                    b.ToTable("StockTakePositions", "erp");
+                });
+
             modelBuilder.Entity("Fachschaften_ERP.Models.Entities.SupplierEntity", b =>
                 {
                     b.Property<Guid>("Id")
@@ -963,6 +1023,25 @@ namespace Fachschaften_ERP.Api.Migrations
                     b.Navigation("Supplier");
                 });
 
+            modelBuilder.Entity("Fachschaften_ERP.Models.Entities.StockTakePositionEntity", b =>
+                {
+                    b.HasOne("Fachschaften_ERP.Models.Entities.ProductEntity", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Fachschaften_ERP.Models.Entities.StockTakeEntity", "StockTake")
+                        .WithMany("Positions")
+                        .HasForeignKey("StockTakeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+
+                    b.Navigation("StockTake");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
                 {
                     b.HasOne("Fachschaften_ERP.Models.Entities.Identity.IdentityRoleEntity", null)
@@ -1034,6 +1113,11 @@ namespace Fachschaften_ERP.Api.Migrations
             modelBuilder.Entity("Fachschaften_ERP.Models.Entities.ItemTypeEntity", b =>
                 {
                     b.Navigation("Products");
+                });
+
+            modelBuilder.Entity("Fachschaften_ERP.Models.Entities.StockTakeEntity", b =>
+                {
+                    b.Navigation("Positions");
                 });
 #pragma warning restore 612, 618
         }

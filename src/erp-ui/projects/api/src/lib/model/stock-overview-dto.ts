@@ -18,5 +18,6 @@ export interface StockOverviewDto {
     purchasePrice: number;
     sellingPriceInternal: number;
     sellingPriceExternal: number;
+    trackStock: boolean;
 }
 

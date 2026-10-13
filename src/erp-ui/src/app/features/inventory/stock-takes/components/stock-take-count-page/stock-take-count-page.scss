@@ -1,0 +1,61 @@
+.summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 2.5rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--app-border);
+  border-radius: 12px;
+  background: var(--app-card);
+}
+
+.summary__label {
+  font-size: 0.8rem;
+  color: var(--app-text-muted);
+}
+
+.summary__value {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.search-icon {
+  width: 20px;
+  height: 20px;
+  margin: 0 8px 0 12px;
+}
+
+.count-col {
+  width: 9rem;
+}
+
+.count-input {
+  width: 100%;
+  padding: 0.35rem 0.5rem;
+  border: 1px solid var(--app-border);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--app-text);
+  text-align: right;
+
+  &:focus {
+    outline: 2px solid var(--brand-accent);
+    outline-offset: -1px;
+  }
+}
+
+.expected-button {
+  padding: 0.1rem 0.4rem;
+  border: none;
+  border-radius: 4px;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+
+  &:hover {
+    background: color-mix(in srgb, var(--app-text) 8%, transparent);
+  }
+}
+
+tr.counted td {
+  background: color-mix(in srgb, var(--brand-accent) 6%, transparent);
+}

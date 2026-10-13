@@ -76,6 +76,31 @@ export const routes: Routes = [
       },
 
       {
+        path: 'stock-takes',
+        canActivate: [permissionGuard(PermissionType.InventoryCanRead)],
+        loadComponent: () =>
+          import('./features/inventory/stock-takes/components/stock-takes-page/stock-takes-page').then(
+            (m) => m.StockTakesPage,
+          ),
+      },
+      {
+        path: 'stock-takes/new',
+        canActivate: [permissionGuard(PermissionType.InventoryCanWrite)],
+        loadComponent: () =>
+          import(
+            './features/inventory/stock-takes/components/stock-take-count-page/stock-take-count-page'
+          ).then((m) => m.StockTakeCountPage),
+      },
+      {
+        path: 'stock-takes/:id',
+        canActivate: [permissionGuard(PermissionType.InventoryCanRead)],
+        loadComponent: () =>
+          import('./features/inventory/stock-takes/components/stock-take-page/stock-take-page').then(
+            (m) => m.StockTakePage,
+          ),
+      },
+
+      {
         path: 'deliveries',
         canActivate: [permissionGuard(PermissionType.InventoryCanRead)],
         loadComponent: () =>

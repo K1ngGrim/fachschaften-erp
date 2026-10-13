@@ -18,6 +18,8 @@ public partial class CoreContext
     public DbSet<BookingCategoryEntity> BookingCategories => Set<BookingCategoryEntity>();
     public DbSet<CashBookEntity> CashBooks => Set<CashBookEntity>();
     public DbSet<WikiPageEntity> WikiPages => Set<WikiPageEntity>();
+    public DbSet<StockTakeEntity> StockTakes => Set<StockTakeEntity>();
+    public DbSet<StockTakePositionEntity> StockTakePositions => Set<StockTakePositionEntity>();
     public DbSet<OrganizationSettingsEntity> OrganizationSettings => Set<OrganizationSettingsEntity>();
     public DbSet<CustomTableEntity> CustomTables => Set<CustomTableEntity>();
     public DbSet<CustomTableRowEntity> CustomTableRows => Set<CustomTableRowEntity>();
@@ -70,6 +72,23 @@ public partial class CoreContext
             entity.Property(s => s.AccentColor).IsRequired().HasMaxLength(7);
             entity.Property(s => s.PrivacyContact).HasMaxLength(2000);
             entity.Property(s => s.ImprintUrl).HasMaxLength(500);
+        });
+
+        modelBuilder.Entity<StockTakeEntity>(entity =>
+        {
+            entity.HasKey(s => s.Id);
+            entity.Property(s => s.Note).HasMaxLength(500);
+            entity.HasMany(s => s.Positions)
+                .WithOne(p => p.StockTake)
+                .HasForeignKey(p => p.StockTakeId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<StockTakePositionEntity>(entity =>
+        {
+            entity.HasKey(p => p.Id);
+            entity.HasOne(p => p.Product).WithMany().HasForeignKey(p => p.ProductId);
+            entity.Property(p => p.UnitPurchasePrice).HasColumnType("numeric(10,2)");
         });
 
         modelBuilder.Entity<WikiPageEntity>(entity =>

@@ -1,0 +1,32 @@
+.back-link {
+  margin-left: -0.75rem;
+}
+
+tfoot th {
+  border-top: 2px solid var(--app-border);
+}
+
+.signatures {
+  display: none;
+}
+
+@media print {
+  .protocol {
+    border: none;
+  }
+
+  .signatures {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    margin-top: 4rem;
+    font-size: 0.8rem;
+    break-inside: avoid;
+  }
+
+  .signature__line {
+    height: 2.5rem;
+    border-bottom: 1px solid #000;
+    margin-bottom: 0.25rem;
+  }
+}

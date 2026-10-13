@@ -33,6 +33,8 @@ api/roles.service.ts
 api/roles.serviceInterface.ts
 api/settings.service.ts
 api/settings.serviceInterface.ts
+api/stock-takes.service.ts
+api/stock-takes.serviceInterface.ts
 api/stock.service.ts
 api/stock.serviceInterface.ts
 api/suppliers.service.ts
@@ -61,7 +63,9 @@ model/cash-income-request.ts
 model/cash-income-source.ts
 model/category-summary-dto.ts
 model/change-password-request.ts
+model/counted-stock-dto.ts
 model/create-role-request.ts
+model/create-stock-take-request.ts
 model/custom-field-dto.ts
 model/custom-field-type.ts
 model/custom-table-column-type.ts
@@ -103,6 +107,9 @@ model/setup2-fa-request.ts
 model/setup2-fa-result.ts
 model/simple-inventory-transaction-dto.ts
 model/stock-overview-dto.ts
+model/stock-take-dto.ts
+model/stock-take-position-dto.ts
+model/stock-take-summary-dto.ts
 model/stock-update-position-dto.ts
 model/stock-update-request.ts
 model/supplier-dto.ts

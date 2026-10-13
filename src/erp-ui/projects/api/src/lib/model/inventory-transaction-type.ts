@@ -14,6 +14,7 @@ export enum InventoryTransactionType {
     Sale = 'Sale',
     Adjustment = 'Adjustment',
     Return = 'Return',
-    Loss = 'Loss'
+    Loss = 'Loss',
+    StockTake = 'StockTake'
 }
 

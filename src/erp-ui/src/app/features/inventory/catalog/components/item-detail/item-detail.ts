@@ -26,6 +26,7 @@ const MOVEMENT_LABELS: Record<InventoryTransactionType, string> = {
   [InventoryTransactionType.Adjustment]: 'Korrektur',
   [InventoryTransactionType.Return]: 'Rückgabe',
   [InventoryTransactionType.Loss]: 'Schwund',
+  [InventoryTransactionType.StockTake]: 'Inventur',
 };
 
 interface CustomValue {

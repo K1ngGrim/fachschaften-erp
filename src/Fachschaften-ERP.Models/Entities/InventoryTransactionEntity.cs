@@ -37,4 +37,6 @@ public enum InventoryTransactionType
     Adjustment,
     Return,
     Loss,
+    /// <summary>Korrektur aus einer Inventur; als Zahl gespeichert, daher nur hinten anfügen.</summary>
+    StockTake,
 }
