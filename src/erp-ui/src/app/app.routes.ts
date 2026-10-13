@@ -22,6 +22,11 @@ export const routes: Routes = [
       import('./features/auth/components/login-page/login-page').then((m) => m.LoginPage),
   },
   {
+    path: 'datenschutz',
+    loadComponent: () =>
+      import('./pages/privacy/privacy-page/privacy-page').then((m) => m.PrivacyPage),
+  },
+  {
     path: 'forgot-password',
     loadComponent: () =>
       import('./features/auth/components/forgot-password-page/forgot-password-page').then(

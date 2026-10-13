@@ -1,0 +1,10 @@
+@if (visible()) {
+  <section class="cookie-notice" role="region" aria-label="Hinweis zu Cookies">
+    <p class="cookie-notice__text">
+      Diese Anwendung verwendet nur technisch notwendige Cookies, damit du angemeldet bleibst. Es
+      gibt kein Tracking und keine Inhalte von Drittanbietern.
+      <a routerLink="/datenschutz">Mehr erfahren</a>
+    </p>
+    <button mat-flat-button (click)="dismiss()">Verstanden</button>
+  </section>
+}

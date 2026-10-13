@@ -1,0 +1,118 @@
+<main class="privacy">
+  <a routerLink="/" class="privacy__back">
+    <mat-icon svgIcon="arrow-left" />
+    Zurück
+  </a>
+
+  <h1>Datenschutz</h1>
+  <p class="text-hint">
+    Hinweise zur Verarbeitung personenbezogener Daten in dieser Anwendung. Verantwortlich ist die
+    Fachschaft, die diese Instanz betreibt.
+  </p>
+
+  <section>
+    <h2>Welche Daten verarbeitet werden</h2>
+    <p>
+      Für dein Benutzerkonto speichern wir Name, E-Mail-Adresse, Benutzername, ein verschlüsseltes
+      Passwort und deine Rollen. Wenn du Zwei-Faktor-Authentifizierung nutzt, kommt ein geheimer
+      Schlüssel für deine Authenticator-App dazu. Bei Buchungen, Lieferungen und anderen Einträgen
+      wird gespeichert, wer sie angelegt oder geändert hat.
+    </p>
+    <p>
+      Die Daten werden nur für die Verwaltung der Fachschaft verwendet (Art. 6 Abs. 1 lit. b und f
+      DSGVO) und nicht an Dritte weitergegeben – mit Ausnahme des E-Mail-Versands (siehe unten).
+    </p>
+  </section>
+
+  <section>
+    <h2>Cookies</h2>
+    <p>
+      Wir setzen ausschließlich technisch notwendige Cookies. Ohne sie funktioniert die Anmeldung
+      nicht; eine Einwilligung ist dafür nicht erforderlich (§ 25 Abs. 2 Nr. 2 TDDDG). Es gibt kein
+      Tracking, keine Werbung und keine Analyse-Werkzeuge.
+    </p>
+    <div class="table-responsive">
+      <table class="table align-middle">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Zweck</th>
+            <th>Speicherdauer</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (entry of cookies; track entry.name) {
+            <tr>
+              <td>
+                <code>{{ entry.name }}</code>
+              </td>
+              <td>{{ entry.purpose }}</td>
+              <td>{{ entry.lifetime }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>Speicher im Browser</h2>
+    <div class="table-responsive">
+      <table class="table align-middle">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Zweck</th>
+            <th>Speicherdauer</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (entry of browserStorage; track entry.name) {
+            <tr>
+              <td>
+                <code>{{ entry.name }}</code>
+              </td>
+              <td>{{ entry.purpose }}</td>
+              <td>{{ entry.lifetime }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>Keine Inhalte von Dritten</h2>
+    <p>
+      Schriften und Symbole werden vom eigenen Server ausgeliefert. Beim Aufruf der Anwendung werden
+      keine Daten an Google oder andere Dienste übertragen.
+    </p>
+  </section>
+
+  <section>
+    <h2>Server-Protokolle</h2>
+    <p>
+      Der Webserver protokolliert technisch bedingt Zugriffe mit IP-Adresse, Zeitpunkt und
+      aufgerufener Adresse, um Fehler und Missbrauch erkennen zu können (Art. 6 Abs. 1 lit. f
+      DSGVO). Die Protokolle werden nur für diesen Zweck verwendet.
+    </p>
+  </section>
+
+  <section>
+    <h2>E-Mail-Versand</h2>
+    <p>
+      Einladungen und Links zum Zurücksetzen des Passworts werden über einen E-Mail-Dienstleister
+      verschickt. Dabei werden deine E-Mail-Adresse, dein Name und der Inhalt der Mail an den
+      Dienstleister übermittelt.
+    </p>
+  </section>
+
+  <section>
+    <h2>Deine Rechte</h2>
+    <p>
+      Du hast das Recht auf Auskunft, Berichtigung, Löschung und Einschränkung der Verarbeitung
+      sowie auf Datenübertragbarkeit und Widerspruch. Wende dich dazu an die Fachschaft, die diese
+      Instanz betreibt. Außerdem kannst du dich bei einer Datenschutz-Aufsichtsbehörde beschweren.
+    </p>
+  </section>
+</main>

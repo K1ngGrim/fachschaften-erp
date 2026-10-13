@@ -1,0 +1,40 @@
+.privacy {
+  max-width: 48rem;
+  margin: 0 auto;
+  padding: 2rem 1rem 6rem;
+  color: var(--app-text);
+
+  h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin: 1rem 0 0.5rem;
+  }
+
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 2rem 0 0.5rem;
+  }
+
+  p {
+    line-height: 1.6;
+  }
+}
+
+.privacy__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.9rem;
+
+  mat-icon {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+:host {
+  display: block;
+  min-height: 100vh;
+  background: var(--app-canvas);
+}
