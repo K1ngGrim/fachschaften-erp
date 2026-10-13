@@ -3,7 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
-import { MatFormField, MatLabel } from '@angular/material/input';
+import { MatFormField } from '@angular/material/input';
 import { MatOption, MatSelect } from '@angular/material/select';
 import { MatTooltip } from '@angular/material/tooltip';
 import { lastValueFrom } from 'rxjs';
@@ -51,7 +51,6 @@ interface MonthSummary {
     MatIcon,
     MatIconButton,
     MatFormField,
-    MatLabel,
     MatOption,
     MatSelect,
     MatTooltip,

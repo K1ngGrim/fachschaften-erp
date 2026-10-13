@@ -27,11 +27,11 @@
             "stylePreprocessorOptions": {
               "sass": {
                 "silenceDeprecations": [
-                  "mixed-decls",
                   "color-functions",
                   "global-builtin",
                   "import",
-                  "obsolete-division"
+                  "slash-div",
+                  "if-function"
                 ]
               }
             },
