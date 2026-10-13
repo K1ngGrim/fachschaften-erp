@@ -85,8 +85,10 @@ function splitRecords(text: string, delimiter: string): CsvRecord[] {
       continue;
     }
 
-    if (char === '"' && cell === '') {
+    // Auch nach Leerzeichen ("a; "b"") beginnt ein Feld in Anführungszeichen.
+    if (char === '"' && cell.trim() === '') {
       quoted = true;
+      cell = '';
     } else if (char === delimiter) {
       cells.push(cell);
       cell = '';
@@ -126,9 +128,34 @@ function countInFirstLine(text: string, char: string): number {
 
 export type CellResult = { value: unknown } | { error: string };
 
-const TRUE_WORDS = ['ja', 'true', 'wahr', 'yes', 'x', '1'];
-const FALSE_WORDS = ['nein', 'false', 'falsch', 'no', '0'];
-const BOOLEAN_INFER_WORDS = ['ja', 'nein', 'true', 'false', 'wahr', 'falsch', 'yes', 'no'];
+const TRUE_WORDS = ['ja', 'j', 'true', 'wahr', 'yes', 'y', 'x', '1', '✓', '✔'];
+const FALSE_WORDS = ['nein', 'n', 'false', 'falsch', 'no', '0', '-', '✗'];
+/** Ohne 0/1, "x" und "-": solche Spalten sind eher Zahlen bzw. Text. */
+const BOOLEAN_INFER_WORDS = [
+  'ja',
+  'nein',
+  'j',
+  'n',
+  'true',
+  'false',
+  'wahr',
+  'falsch',
+  'yes',
+  'no',
+];
+
+/** Ja/Nein für bekannte Wörter, sonst <c>null</c>. */
+export function parseBoolean(raw: string): boolean | null {
+  const word = raw.trim().toLowerCase();
+  if (TRUE_WORDS.includes(word)) return true;
+  if (FALSE_WORDS.includes(word)) return false;
+  return null;
+}
+
+/** Schlüssel für die Werte-Zuordnung: ohne Leerzeichen am Rand, Groß-/Kleinschreibung egal. */
+export function valueKey(raw: string): string {
+  return raw.trim().toLowerCase();
+}
 
 /** Zahl mit Dezimal- und optionalem Tausendertrennzeichen; Währungszeichen werden entfernt. */
 export function parseNumber(raw: string, decimal: DecimalSeparator): number | null {
@@ -167,24 +194,33 @@ export function parseDate(raw: string): string | null {
 
 /**
  * Wandelt den Text einer Zelle in den Wert für die Spalte um. Leere Zellen ergeben
- * <c>undefined</c> (bzw. einen Fehler bei Pflichtfeldern).
+ * <c>undefined</c> (bzw. einen Fehler bei Pflichtfeldern), bei Ja/Nein "Nein".
+ * Mit <paramref name="valueMap"/> (Schlüssel aus {@link valueKey}) werden Ja/Nein- und
+ * Auswahlwerte darüber zugeordnet statt erkannt.
  */
 export function convertCell(
   column: CustomTableColumn,
   raw: string | undefined,
   decimal: DecimalSeparator,
+  valueMap?: ReadonlyMap<string, unknown>,
 ): CellResult {
   const text = (raw ?? '').trim();
 
-  if (column.type === CustomTableColumnType.Boolean) {
-    const word = text.toLowerCase();
-    if (word === '' || FALSE_WORDS.includes(word)) return { value: false };
-    if (TRUE_WORDS.includes(word)) return { value: true };
-    return { error: `„${text}“ ist weder Ja noch Nein` };
+  if (text === '') {
+    if (column.type === CustomTableColumnType.Boolean) return { value: false };
+    return column.required ? { error: 'Pflichtfeld ist leer' } : { value: undefined };
   }
 
-  if (text === '') {
-    return column.required ? { error: 'Pflichtfeld ist leer' } : { value: undefined };
+  if (valueMap) {
+    const value = valueMap.get(valueKey(text));
+    return value === undefined || value === null
+      ? { error: `„${text}“ ist keinem Wert zugeordnet` }
+      : { value };
+  }
+
+  if (column.type === CustomTableColumnType.Boolean) {
+    const value = parseBoolean(text);
+    return value === null ? { error: `„${text}“ ist weder Ja noch Nein` } : { value };
   }
 
   switch (column.type) {
@@ -228,7 +264,7 @@ export function inferColumnType(
   const mostly = (test: (v: string) => boolean) =>
     filled.filter(test).length >= filled.length * INFER_SHARE;
 
-  if (filled.every((v) => BOOLEAN_INFER_WORDS.includes(v.toLowerCase()))) {
+  if (mostly((v) => BOOLEAN_INFER_WORDS.includes(v.toLowerCase()))) {
     return CustomTableColumnType.Boolean;
   }
   if (mostly((v) => parseDate(v) !== null)) return CustomTableColumnType.Date;
@@ -251,6 +287,20 @@ export function distinctValues(values: string[]): string[] {
     if (text && !seen.has(text.toLowerCase())) seen.set(text.toLowerCase(), text);
   }
   return [...seen.values()];
+}
+
+/** Verschiedene nicht leere Werte mit Häufigkeit, in Reihenfolge des ersten Vorkommens. */
+export function countValues(values: string[]): { key: string; label: string; count: number }[] {
+  const counts = new Map<string, { key: string; label: string; count: number }>();
+  for (const value of values) {
+    const label = value.trim();
+    if (!label) continue;
+    const key = valueKey(label);
+    const entry = counts.get(key);
+    if (entry) entry.count++;
+    else counts.set(key, { key, label, count: 1 });
+  }
+  return [...counts.values()];
 }
 
 // ── Export ───────────────────────────────────────────────────────────────────

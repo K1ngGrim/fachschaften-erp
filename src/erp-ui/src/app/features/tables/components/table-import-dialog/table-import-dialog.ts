@@ -1,4 +1,5 @@
 import { Component, computed, inject, signal } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import {
   MAT_DIALOG_DATA,
@@ -10,7 +11,7 @@ import {
 import { FormsModule } from '@angular/forms';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
-import { MatFormField, MatHint, MatInput, MatLabel } from '@angular/material/input';
+import { MatFormField, MatInput, MatLabel } from '@angular/material/input';
 import { MatOption, MatSelect } from '@angular/material/select';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
@@ -24,6 +25,7 @@ import {
 import { COLUMN_TYPE_LABELS, formatValue } from '../../table-values';
 import {
   convertCell,
+  countValues,
   CsvRecord,
   DecimalSeparator,
   decodeCsv,
@@ -31,6 +33,7 @@ import {
   detectDelimiter,
   distinctValues,
   inferColumnType,
+  parseBoolean,
   parseCsv,
 } from '../../csv';
 
@@ -55,6 +58,16 @@ interface NewColumn {
   type: CustomTableColumnType;
 }
 
+/** Zuordnung der Werte einer Spalte der Datei zu Ja/Nein bzw. den Optionen einer Auswahl. */
+export interface ValueMapping {
+  columnId: string;
+  /** Mehr verschiedene Werte, als sich sinnvoll zuordnen lassen. */
+  distinct: number;
+  entries: { key: string; label: string; count: number; value: unknown }[];
+  choices: { value: unknown; label: string }[];
+  isBoolean: boolean;
+}
+
 interface RowError {
   line: number;
   column: string;
@@ -65,6 +78,7 @@ const MAX_FILE_SIZE = 10 * 1024 * 1024;
 const MAX_ROWS = 10_000;
 const MAX_COLUMNS = 50;
 const MAX_OPTIONS = 100;
+const MAX_MAPPED_VALUES = 50;
 const OTHER = 'other';
 
 @Component({
@@ -78,12 +92,12 @@ const OTHER = 'other';
     MatIcon,
     MatFormField,
     MatLabel,
-    MatHint,
     MatInput,
     MatSelect,
     MatOption,
     MatCheckbox,
     MatProgressSpinner,
+    NgTemplateOutlet,
   ],
   templateUrl: './table-import-dialog.html',
   styleUrl: './table-import-dialog.scss',
@@ -114,6 +128,8 @@ export class TableImportDialog {
   public readonly newColumns = signal<NewColumn[]>([]);
   /** Zuordnung Spalten-Id der Tabelle → Spaltennummer der Datei. */
   public readonly mapping = signal<Record<string, number | null>>({});
+  /** Von Hand geänderte Werte-Zuordnungen je Spalten-Id und Wert; null = nicht zugeordnet. */
+  private readonly valueOverrides = signal<Record<string, Record<string, unknown>>>({});
   public readonly replaceExisting = signal(false);
   public readonly skipInvalid = signal(false);
 
@@ -166,10 +182,57 @@ export class TableImportDialog {
     },
   );
 
+  /**
+   * Werte-Zuordnung für Ja/Nein-Spalten und (beim Import in eine bestehende Tabelle)
+   * Auswahl-Spalten. Vorbelegt mit erkannten Wörtern bzw. gleichnamigen Optionen.
+   */
+  public readonly valueMappings = computed(() => {
+    const result = new Map<string, ValueMapping>();
+    const overrides = this.valueOverrides();
+
+    for (const { column, source } of this.targets()) {
+      const isBoolean = column.type === CustomTableColumnType.Boolean;
+      const isSelect = column.type === CustomTableColumnType.Select && !!this.table;
+      if (source === null || (!isBoolean && !isSelect)) continue;
+
+      const counted = countValues(this.dataRecords().map((r) => r.cells[source] ?? ''));
+      const options = column.options ?? [];
+      const fallback = (key: string) =>
+        isBoolean ? parseBoolean(key) : (options.find((o) => o.toLowerCase() === key) ?? null);
+      const own = overrides[column.id] ?? {};
+
+      result.set(column.id, {
+        columnId: column.id,
+        distinct: counted.length,
+        isBoolean,
+        entries:
+          counted.length > MAX_MAPPED_VALUES
+            ? []
+            : counted.map((e) => ({
+                ...e,
+                value: e.key in own ? own[e.key] : fallback(e.key),
+              })),
+        choices: isBoolean
+          ? [
+              { value: true, label: 'Ja' },
+              { value: false, label: 'Nein' },
+            ]
+          : options.map((o) => ({ value: o, label: o })),
+      });
+    }
+    return result;
+  });
+
   /** Umgewandelte Zeilen und Fehler je Zelle. */
   private readonly converted = computed(() => {
     const targets = this.targets();
     const decimal = this.decimal();
+    const valueMaps = new Map(
+      [...this.valueMappings().values()].map((m) => [
+        m.columnId,
+        new Map(m.entries.map((e) => [e.key, e.value])),
+      ]),
+    );
     const rows: { values: Record<string, unknown>; valid: boolean }[] = [];
     const errors: RowError[] = [];
 
@@ -181,6 +244,7 @@ export class TableImportDialog {
           column,
           source === null ? undefined : record.cells[source],
           decimal,
+          valueMaps.get(column.id),
         );
         if ('error' in result) {
           valid = false;
@@ -236,6 +300,12 @@ export class TableImportDialog {
       }
     } else if (targets.every((t) => t.source === null)) {
       return 'Ordne mindestens eine Spalte zu.';
+    }
+
+    const tooMany = [...this.valueMappings().values()].find((m) => m.distinct > MAX_MAPPED_VALUES);
+    if (tooMany) {
+      const label = targets.find((t) => t.column.id === tooMany.columnId)?.column.label;
+      return `„${label}“ hat zu viele verschiedene Werte (${tooMany.distinct}) zum Zuordnen. Wähle einen anderen Typ oder eine andere Spalte.`;
     }
 
     if (this.invalidRowCount() && !this.skipInvalid()) {
@@ -303,6 +373,17 @@ export class TableImportDialog {
     this.mapping.update((m) => ({ ...m, [columnId]: source }));
   }
 
+  public valueMapping(columnId: string): ValueMapping | undefined {
+    return this.valueMappings().get(columnId);
+  }
+
+  public setValueMapping(columnId: string, key: string, value: unknown) {
+    this.valueOverrides.update((all) => ({
+      ...all,
+      [columnId]: { ...all[columnId], [key]: value },
+    }));
+  }
+
   public sourceOf(columnId: string): number | null {
     return this.mapping()[columnId] ?? null;
   }
@@ -364,6 +445,7 @@ export class TableImportDialog {
 
   /** Spalten neu aus der Datei ableiten: Typen vorschlagen bzw. nach Namen zuordnen. */
   private resetColumns() {
+    this.valueOverrides.set({});
     const headers = this.headers();
     const records = this.dataRecords();
 

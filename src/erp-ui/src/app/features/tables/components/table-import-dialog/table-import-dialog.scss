@@ -22,29 +22,71 @@
   margin-top: 0.5rem;
 }
 
-.column-row,
 .mapping-row {
   display: flex;
   align-items: center;
   gap: 0.75rem;
 }
 
+// Raster statt Flex: Beispielwert und Werte-Zuordnung stehen unter den Feldern,
+// damit Checkbox, Name und Typ auf einer Linie bleiben.
 .column-row {
-  // Platz für den Beispielwert unter dem Namen.
-  padding-bottom: 0.25rem;
+  display: grid;
+  grid-template-columns: auto minmax(0, 2fr) minmax(9rem, 1fr);
+  align-items: center;
+  column-gap: 0.75rem;
+  row-gap: 0.25rem;
 
   &.excluded {
     opacity: 0.55;
   }
 }
 
-.column-label {
-  flex: 2 1 12rem;
-  min-width: 0;
+.column-sample {
+  grid-column: 2 / -1;
+  margin-top: -0.15rem;
+  padding-left: 1rem;
+  font-size: 0.75rem;
 }
 
-.column-type {
-  flex: 1 1 9rem;
+.column-values {
+  grid-column: 2 / -1;
+}
+
+.mapping-values {
+  margin-top: -0.25rem;
+}
+
+.value-map {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.6rem 0.75rem;
+  border-left: 3px solid var(--app-border-strong);
+  background: color-mix(in srgb, var(--app-border) 35%, transparent);
+  border-radius: 0 8px 8px 0;
+}
+
+.value-map-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--app-text-muted);
+}
+
+.value-map-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.value-map-source {
+  flex: 1 1 10rem;
+  min-width: 0;
+  font-size: 0.875rem;
+}
+
+.value-map-target {
+  flex: 1 1 10rem;
 }
 
 .mapping-target {

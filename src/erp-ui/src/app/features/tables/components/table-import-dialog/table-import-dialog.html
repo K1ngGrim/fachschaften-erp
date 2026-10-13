@@ -89,9 +89,6 @@
                 (ngModelChange)="updateColumn(i, { label: $event })"
                 [disabled]="!column.include"
               />
-              @if (sample(i); as example) {
-                <mat-hint class="text-truncate">z. B. {{ example }}</mat-hint>
-              }
             </mat-form-field>
             <mat-form-field appearance="outline" subscriptSizing="dynamic" class="column-type">
               <mat-label>Typ</mat-label>
@@ -105,6 +102,14 @@
                 }
               </mat-select>
             </mat-form-field>
+            @if (sample(i); as example) {
+              <div class="column-sample text-hint text-truncate">z. B. {{ example }}</div>
+            }
+            @if (column.include && valueMapping(column.id); as map) {
+              <div class="column-values">
+                <ng-container *ngTemplateOutlet="valueMap; context: { $implicit: map }" />
+              </div>
+            }
           </div>
         }
         <p class="text-hint small mb-0">
@@ -135,6 +140,11 @@
               </mat-select>
             </mat-form-field>
           </div>
+          @if (valueMapping(column.id); as map) {
+            <div class="mapping-values">
+              <ng-container *ngTemplateOutlet="valueMap; context: { $implicit: map }" />
+            </div>
+          }
         }
 
         @if (existingRows) {
@@ -214,3 +224,36 @@
     }
   </button>
 </mat-dialog-actions>
+
+<!-- Zuordnung der Werte einer Spalte zu Ja/Nein bzw. den Optionen einer Auswahl -->
+<ng-template #valueMap let-map>
+  @if (map.entries.length) {
+    <div class="value-map">
+      <div class="value-map-title">Werte zuordnen</div>
+      @for (entry of map.entries; track entry.key) {
+        <div class="value-map-row">
+          <span class="value-map-source text-truncate">
+            „{{ entry.label }}“ <span class="text-hint">· {{ entry.count }}×</span>
+          </span>
+          <mat-icon svgIcon="arrow-right" class="mapping-arrow" />
+          <mat-form-field appearance="outline" subscriptSizing="dynamic" class="value-map-target">
+            <mat-select
+              [ngModel]="entry.value"
+              (ngModelChange)="setValueMapping(map.columnId, entry.key, $event)"
+              placeholder="Nicht zugeordnet"
+              [attr.aria-label]="'Zuordnung für ' + entry.label"
+            >
+              <mat-option [value]="null">– nicht zugeordnet –</mat-option>
+              @for (choice of map.choices; track $index) {
+                <mat-option [value]="choice.value">{{ choice.label }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+      }
+      @if (map.isBoolean) {
+        <small class="text-hint">Leere Zellen werden zu „Nein“.</small>
+      }
+    </div>
+  }
+</ng-template>
