@@ -62,6 +62,12 @@ export class Navigation {
           icon: 'book-open-page-variant',
           permissions: [PermissionType.FinanceCanRead],
         },
+        {
+          label: 'Jahresabschluss',
+          route: '/finance/report',
+          icon: 'file-chart-outline',
+          permissions: [PermissionType.FinanceCanRead],
+        },
       ],
     },
     {

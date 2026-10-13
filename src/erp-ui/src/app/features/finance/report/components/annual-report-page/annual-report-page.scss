@@ -1,0 +1,59 @@
+.year-select {
+  width: 7rem;
+}
+
+.total-box {
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--app-border);
+  border-radius: 12px;
+  background: var(--app-card);
+}
+
+.total-box__label {
+  font-size: 0.8rem;
+  color: var(--app-text-muted);
+}
+
+.total-box__value {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.group-row td {
+  font-weight: 600;
+  background: color-mix(in srgb, var(--app-text) 4%, transparent);
+}
+
+tfoot th {
+  border-top: 2px solid var(--app-border);
+}
+
+.signatures {
+  display: none;
+}
+
+@media print {
+  .report-section {
+    break-inside: avoid;
+    border: none;
+  }
+
+  .total-box {
+    border: 1px solid #ccc;
+  }
+
+  .signatures {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    margin-top: 4rem;
+    font-size: 0.8rem;
+    break-inside: avoid;
+  }
+
+  .signature__line {
+    height: 2.5rem;
+    border-bottom: 1px solid #000;
+    margin-bottom: 0.25rem;
+  }
+}

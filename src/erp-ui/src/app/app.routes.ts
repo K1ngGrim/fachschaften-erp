@@ -103,6 +103,14 @@ export const routes: Routes = [
           ).then((m) => m.FinanceDashboardPage),
       },
       {
+        path: 'finance/report',
+        canActivate: [permissionGuard(PermissionType.FinanceCanRead)],
+        loadComponent: () =>
+          import(
+            './features/finance/report/components/annual-report-page/annual-report-page'
+          ).then((m) => m.AnnualReportPage),
+      },
+      {
         path: 'finance/bookings',
         canActivate: [permissionGuard(PermissionType.FinanceCanRead)],
         loadComponent: () =>

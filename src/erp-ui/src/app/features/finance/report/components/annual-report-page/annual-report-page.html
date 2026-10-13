@@ -1,0 +1,189 @@
+<div class="container-fluid p-4 report">
+  <app-page-header
+    [title]="'Jahresabschluss ' + year()"
+    [subtitle]="organization().name + ' · Übersicht für die Kassenprüfung'"
+  >
+    <div class="d-flex flex-wrap align-items-center gap-2 no-print">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="year-select">
+        <mat-label>Jahr</mat-label>
+        <mat-select [ngModel]="year()" (ngModelChange)="changeYear($event)">
+          @for (y of years; track y) {
+            <mat-option [value]="y">{{ y }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <button mat-stroked-button class="d-flex" (click)="downloadBookings()">
+        <mat-icon svgIcon="download-outline" class="d-flex" />
+        <span>Buchungen (CSV)</span>
+      </button>
+      <button mat-flat-button class="d-flex" (click)="print()">
+        <mat-icon svgIcon="printer-outline" class="d-flex" />
+        <span>Drucken / PDF</span>
+      </button>
+    </div>
+  </app-page-header>
+
+  @if (report(); as r) {
+    <div class="row g-3 mb-4">
+      <div class="col-12 col-md-4">
+        <div class="total-box">
+          <div class="total-box__label">Einnahmen</div>
+          <div class="total-box__value text-positive">{{ formatCurrency(r.income) }}</div>
+        </div>
+      </div>
+      <div class="col-12 col-md-4">
+        <div class="total-box">
+          <div class="total-box__label">Ausgaben</div>
+          <div class="total-box__value text-negative">{{ formatCurrency(r.expense) }}</div>
+        </div>
+      </div>
+      <div class="col-12 col-md-4">
+        <div class="total-box">
+          <div class="total-box__label">Ergebnis</div>
+          <div class="total-box__value">{{ formatCurrency(r.balance) }}</div>
+        </div>
+      </div>
+    </div>
+
+    <mat-card appearance="outlined" class="mb-4 report-section">
+      <mat-card-header class="mb-2">
+        <mat-card-title class="fs-6">Nach Steuerbereichen</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <table class="table align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Bereich</th>
+              <th class="text-end">Einnahmen</th>
+              <th class="text-end">Ausgaben</th>
+              <th class="text-end">Ergebnis</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (area of r.taxAreas; track area.taxArea) {
+              <tr>
+                <td>{{ taxAreaLabel(area.taxArea) }}</td>
+                <td class="text-end">{{ formatCurrency(area.income) }}</td>
+                <td class="text-end">{{ formatCurrency(area.expense) }}</td>
+                <td class="text-end fw-medium">{{ formatCurrency(area.balance) }}</td>
+              </tr>
+            }
+          </tbody>
+          <tfoot>
+            <tr>
+              <th>Gesamt</th>
+              <th class="text-end">{{ formatCurrency(r.income) }}</th>
+              <th class="text-end">{{ formatCurrency(r.expense) }}</th>
+              <th class="text-end">{{ formatCurrency(r.balance) }}</th>
+            </tr>
+          </tfoot>
+        </table>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card appearance="outlined" class="mb-4 report-section">
+      <mat-card-header class="mb-2">
+        <mat-card-title class="fs-6">Nach Kategorien</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        @if (categoryGroups().length === 0) {
+          <p class="text-hint mb-0">Keine Buchungen in diesem Jahr.</p>
+        } @else {
+          <table class="table align-middle mb-0">
+            <thead>
+              <tr>
+                <th>Kategorie</th>
+                <th class="text-end">Einnahmen</th>
+                <th class="text-end">Ausgaben</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (group of categoryGroups(); track group.label) {
+                <tr class="group-row">
+                  <td colspan="3">{{ group.label }}</td>
+                </tr>
+                @for (category of group.categories; track category.categoryName) {
+                  <tr>
+                    <td class="ps-4">{{ category.categoryName ?? 'Ohne Kategorie' }}</td>
+                    <td class="text-end">{{ formatCurrency(category.income) }}</td>
+                    <td class="text-end">{{ formatCurrency(category.expense) }}</td>
+                  </tr>
+                }
+              }
+            </tbody>
+          </table>
+        }
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card appearance="outlined" class="mb-4 report-section">
+      <mat-card-header class="mb-2">
+        <mat-card-title class="fs-6">Kassenbestände</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        @if (r.cashBooks.length === 0) {
+          <p class="text-hint mb-0">Keine Kassen mit Bestand oder Bewegung in diesem Jahr.</p>
+        } @else {
+          <table class="table align-middle mb-0">
+            <thead>
+              <tr>
+                <th>Kasse</th>
+                <th class="text-end">Anfangsbestand 1.1.</th>
+                <th class="text-end">Zugänge</th>
+                <th class="text-end">Abgänge</th>
+                <th class="text-end">Endbestand 31.12.</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (book of r.cashBooks; track book.id) {
+                <tr>
+                  <td>
+                    {{ book.name }}
+                    @if (book.isClosed) {
+                      <span class="pill pill--muted ms-1">geschlossen</span>
+                    }
+                  </td>
+                  <td class="text-end">{{ formatCurrency(book.opening) }}</td>
+                  <td class="text-end">{{ formatCurrency(book.inflow) }}</td>
+                  <td class="text-end">{{ formatCurrency(book.outflow) }}</td>
+                  <td class="text-end fw-medium">{{ formatCurrency(book.closing) }}</td>
+                </tr>
+              }
+            </tbody>
+            <tfoot>
+              <tr>
+                <th>Gesamt</th>
+                <th class="text-end">{{ formatCurrency(cashTotals().opening) }}</th>
+                <th class="text-end">{{ formatCurrency(cashTotals().inflow) }}</th>
+                <th class="text-end">{{ formatCurrency(cashTotals().outflow) }}</th>
+                <th class="text-end">{{ formatCurrency(cashTotals().closing) }}</th>
+              </tr>
+            </tfoot>
+          </table>
+        }
+      </mat-card-content>
+    </mat-card>
+
+    <p class="text-hint small">
+      {{ r.bookingCount }} Buchungen, davon {{ r.transferCount }} Teile von Umbuchungen zwischen
+      Kassen; Umbuchungen zählen nicht als Einnahme oder Ausgabe. Erstellt am {{ generatedAt }}.
+    </p>
+
+    <div class="signatures">
+      <div class="signature">
+        <div class="signature__line"></div>
+        Ort, Datum
+      </div>
+      <div class="signature">
+        <div class="signature__line"></div>
+        Unterschrift Kassenprüfung
+      </div>
+      <div class="signature">
+        <div class="signature__line"></div>
+        Unterschrift Kassenprüfung
+      </div>
+    </div>
+  } @else if (loading()) {
+    <p class="text-hint">Wird geladen …</p>
+  }
+</div>

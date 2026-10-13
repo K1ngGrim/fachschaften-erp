@@ -27,6 +27,8 @@ api/permissions.service.ts
 api/permissions.serviceInterface.ts
 api/products.service.ts
 api/products.serviceInterface.ts
+api/reports.service.ts
+api/reports.serviceInterface.ts
 api/roles.service.ts
 api/roles.serviceInterface.ts
 api/settings.service.ts
@@ -47,14 +49,17 @@ git_push.sh
 index.ts
 model/accept-invite-request.ts
 model/accept-invite-result.ts
+model/annual-report-dto.ts
 model/booking-category-dto.ts
 model/booking-dto.ts
 model/booking-summary-dto.ts
 model/cash-book-dto.ts
+model/cash-book-summary-dto.ts
 model/cash-book-transfer-request.ts
 model/cash-book-upsert-dto.ts
 model/cash-income-request.ts
 model/cash-income-source.ts
+model/category-summary-dto.ts
 model/change-password-request.ts
 model/create-role-request.ts
 model/custom-field-dto.ts
