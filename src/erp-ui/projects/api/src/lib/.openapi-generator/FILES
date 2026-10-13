@@ -29,6 +29,8 @@ api/products.service.ts
 api/products.serviceInterface.ts
 api/roles.service.ts
 api/roles.serviceInterface.ts
+api/settings.service.ts
+api/settings.serviceInterface.ts
 api/stock.service.ts
 api/stock.serviceInterface.ts
 api/suppliers.service.ts
@@ -85,6 +87,7 @@ model/login2-fa-request.ts
 model/me-dto.ts
 model/models.ts
 model/month-summary-dto.ts
+model/organization-settings-dto.ts
 model/password-policy-dto.ts
 model/product-detail-dto.ts
 model/product-dto.ts

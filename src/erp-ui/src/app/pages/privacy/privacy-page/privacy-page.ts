@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { Organization } from '../../../core/services/organization';
 import { RouterLink } from '@angular/router';
 import { MatIcon } from '@angular/material/icon';
 
@@ -16,6 +17,8 @@ interface StorageEntry {
   styleUrl: './privacy-page.scss',
 })
 export class PrivacyPage {
+  protected readonly organization = inject(Organization).settings;
+
   public readonly cookies: StorageEntry[] = [
     {
       name: 'Identity.Application',

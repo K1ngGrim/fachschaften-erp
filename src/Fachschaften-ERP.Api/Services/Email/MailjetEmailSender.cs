@@ -30,7 +30,7 @@ public class MailjetEmailSender(
             {
                 new
                 {
-                    From = new { Email = config.FromAddress, Name = config.FromName },
+                    From = new { Email = config.FromAddress, Name = message.FromName ?? config.FromName },
                     To = new[] { new { Email = message.To.Address, message.To.Name } },
                     message.Subject,
                     TextPart = message.TextBody,

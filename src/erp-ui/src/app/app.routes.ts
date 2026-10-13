@@ -238,6 +238,14 @@ export const routes: Routes = [
           import('./features/tables/components/table-page/table-page').then((m) => m.TablePage),
       },
       {
+        path: 'settings',
+        canActivate: [permissionGuard(PermissionType.SettingsCanWrite)],
+        loadComponent: () =>
+          import('./features/administration/settings/components/settings-page/settings-page').then(
+            (m) => m.SettingsPage,
+          ),
+      },
+      {
         path: 'forbidden',
         loadComponent: () =>
           import('./pages/forbidden/forbidden-page/forbidden-page').then((m) => m.ForbiddenPage),

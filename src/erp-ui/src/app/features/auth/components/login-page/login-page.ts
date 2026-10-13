@@ -16,6 +16,7 @@ import { Router, RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { lastValueFrom } from 'rxjs';
 import { Auth } from '../../../../core/services/auth';
+import { Organization } from '../../../../core/services/organization';
 import { AuthService } from '../../../../../../projects/api/src/lib';
 
 @Component({
@@ -41,6 +42,7 @@ import { AuthService } from '../../../../../../projects/api/src/lib';
 })
 export class LoginPage {
   private authService = inject(Auth);
+  protected readonly organization = inject(Organization).settings;
   private router = inject(Router);
   private authController = inject(AuthService);
 

@@ -18,6 +18,7 @@ public partial class CoreContext
     public DbSet<BookingCategoryEntity> BookingCategories => Set<BookingCategoryEntity>();
     public DbSet<CashBookEntity> CashBooks => Set<CashBookEntity>();
     public DbSet<WikiPageEntity> WikiPages => Set<WikiPageEntity>();
+    public DbSet<OrganizationSettingsEntity> OrganizationSettings => Set<OrganizationSettingsEntity>();
     public DbSet<CustomTableEntity> CustomTables => Set<CustomTableEntity>();
     public DbSet<CustomTableRowEntity> CustomTableRows => Set<CustomTableRowEntity>();
     
@@ -58,6 +59,17 @@ public partial class CoreContext
                         (a, b) => a!.RootElement.GetRawText() == b!.RootElement.GetRawText(),
                         v => v.RootElement.GetRawText().GetHashCode(),
                         v => JsonDocument.Parse(v.RootElement.GetRawText(), default)));
+        });
+
+        modelBuilder.Entity<OrganizationSettingsEntity>(entity =>
+        {
+            entity.HasKey(s => s.Id);
+            entity.Property(s => s.Id).ValueGeneratedNever();
+            entity.Property(s => s.Name).IsRequired().HasMaxLength(100);
+            entity.Property(s => s.Subtitle).HasMaxLength(100);
+            entity.Property(s => s.AccentColor).IsRequired().HasMaxLength(7);
+            entity.Property(s => s.PrivacyContact).HasMaxLength(2000);
+            entity.Property(s => s.ImprintUrl).HasMaxLength(500);
         });
 
         modelBuilder.Entity<WikiPageEntity>(entity =>

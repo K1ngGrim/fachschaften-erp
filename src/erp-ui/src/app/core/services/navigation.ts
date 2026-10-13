@@ -131,6 +131,12 @@ export class Navigation {
           icon: 'shield-account',
           permissions: [PermissionType.RolesCanRead],
         },
+        {
+          label: 'Einstellungen',
+          route: '/settings',
+          icon: 'cog-outline',
+          permissions: [PermissionType.SettingsCanWrite],
+        },
       ],
     },
   ]);

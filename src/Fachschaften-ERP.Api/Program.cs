@@ -160,6 +160,7 @@ builder.Services.Configure<JsonOptions>(options =>
 builder.Services.AddSingleton<IAuthorizationHandler, PermissionHandler>();
 builder.Services.AddEmailSender(builder.Configuration);
 builder.Services.AddAppRateLimiting();
+builder.Services.AddScoped<OrganizationSettingsService>();
 
 // Links zum Zurücksetzen des Passworts (Standard-Token-Provider) sind 2 Stunden gültig.
 builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>

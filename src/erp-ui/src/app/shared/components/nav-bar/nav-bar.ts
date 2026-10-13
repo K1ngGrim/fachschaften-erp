@@ -29,6 +29,7 @@ import { FilterNavigationPipe } from '../../pipes/filter-navigation-pipe';
 import { MatProgressBar } from '@angular/material/progress-bar';
 import { Auth } from '../../../core/services/auth';
 import { LoadingService } from '../../../core/services/loading-service';
+import { Organization } from '../../../core/services/organization';
 
 @Component({
   selector: 'app-nav-bar',
@@ -61,6 +62,7 @@ export class NavBar implements OnInit, OnDestroy {
 
   readonly initials = this.auth.initials;
   readonly userName = this.auth.displayName;
+  readonly organization = inject(Organization).settings;
   private readonly breakpointObserver = inject(BreakpointObserver);
   private sub?: Subscription;
 

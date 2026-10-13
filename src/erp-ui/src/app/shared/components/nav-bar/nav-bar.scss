@@ -57,6 +57,14 @@ $sidenav-collapsed-width: 64px;
   }
 }
 
+.logo-image {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
 .org-info {
   display: flex;
   flex-direction: column;

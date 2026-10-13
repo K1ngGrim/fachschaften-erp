@@ -3,10 +3,14 @@
   <div class="login-bg-circle login-bg-circle--bottom"></div>
   <div class="login-container">
     <div class="login-header">
-      <div class="login-logo">
-        <mat-icon svgIcon="domain" />
-      </div>
-      <h1>Fachschaften ERP</h1>
+      @if (organization().logoDataUrl; as logo) {
+        <img class="login-logo-image" [src]="logo" alt="" />
+      } @else {
+        <div class="login-logo">
+          <mat-icon svgIcon="domain" />
+        </div>
+      }
+      <h1>{{ organization().name }}</h1>
       <p>Melde dich mit deinem Konto an</p>
     </div>
 

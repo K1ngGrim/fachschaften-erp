@@ -6,9 +6,20 @@
 
   <h1>Datenschutz</h1>
   <p class="text-hint">
-    Hinweise zur Verarbeitung personenbezogener Daten in dieser Anwendung. Verantwortlich ist die
-    Fachschaft, die diese Instanz betreibt.
+    Hinweise zur Verarbeitung personenbezogener Daten in {{ organization().name }}.
   </p>
+
+  <section>
+    <h2>Verantwortlich</h2>
+    @if (organization().privacyContact; as contact) {
+      <p class="contact">{{ contact }}</p>
+    } @else {
+      <p>Verantwortlich ist die Fachschaft, die diese Instanz betreibt.</p>
+    }
+    @if (organization().imprintUrl; as imprint) {
+      <p><a [href]="imprint" target="_blank" rel="noopener">Impressum</a></p>
+    }
+  </section>
 
   <section>
     <h2>Welche Daten verarbeitet werden</h2>
@@ -111,8 +122,9 @@
     <h2>Deine Rechte</h2>
     <p>
       Du hast das Recht auf Auskunft, Berichtigung, Löschung und Einschränkung der Verarbeitung
-      sowie auf Datenübertragbarkeit und Widerspruch. Wende dich dazu an die Fachschaft, die diese
-      Instanz betreibt. Außerdem kannst du dich bei einer Datenschutz-Aufsichtsbehörde beschweren.
+      sowie auf Datenübertragbarkeit und Widerspruch. Wende dich dazu an die oben genannte
+      verantwortliche Stelle. Außerdem kannst du dich bei einer Datenschutz-Aufsichtsbehörde
+      beschweren.
     </p>
   </section>
 </main>

@@ -107,3 +107,11 @@ mat-form-field { margin-bottom: 0.5rem; }
   margin: -0.5rem 0 0.75rem;
   font-size: 0.85rem;
 }
+
+.login-logo-image {
+  display: block;
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 0.75rem;
+  object-fit: contain;
+}

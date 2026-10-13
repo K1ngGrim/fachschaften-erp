@@ -15,7 +15,13 @@ public record EmailAddress(string Address, string? Name = null);
 
 /// <param name="HtmlBody">Inhalt als HTML.</param>
 /// <param name="TextBody">Optionaler Klartext für Mail-Clients ohne HTML.</param>
-public record EmailMessage(EmailAddress To, string Subject, string HtmlBody, string? TextBody = null);
+/// <param name="FromName">Absendername; ohne Angabe gilt Email:FromName.</param>
+public record EmailMessage(
+    EmailAddress To,
+    string Subject,
+    string HtmlBody,
+    string? TextBody = null,
+    string? FromName = null);
 
 public class EmailSendException(string message, Exception? innerException = null)
     : Exception(message, innerException);

@@ -39,6 +39,7 @@ export * from './login-request';
 export * from './login-result';
 export * from './me-dto';
 export * from './month-summary-dto';
+export * from './organization-settings-dto';
 export * from './password-policy-dto';
 export * from './product-detail-dto';
 export * from './product-dto';

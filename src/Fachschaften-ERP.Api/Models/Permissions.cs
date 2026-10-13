@@ -44,6 +44,7 @@ public enum PermissionType
     [Description("tables.canread")]       TablesRead,
     [Description("tables.canwrite")]      TablesWrite,
     [Description("tabledesign.canwrite")] TableDesignWrite,
+    [Description("settings.canwrite")]    SettingsWrite,
 }
 
 public class PermissionJsonConverter : JsonConverter<PermissionType>

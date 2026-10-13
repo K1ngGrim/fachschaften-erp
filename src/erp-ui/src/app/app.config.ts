@@ -14,6 +14,7 @@ import { registerLocaleData } from '@angular/common';
 import localeDe from '@angular/common/locales/de';
 import { BASE_PATH } from '../../projects/api/src/lib';
 import { Auth } from './core/services/auth';
+import { Organization } from './core/services/organization';
 import { loadingInterceptor } from './core/services/loading-service';
 import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
 
@@ -21,7 +22,8 @@ registerLocaleData(localeDe);
 
 const initAppFn = async () => {
   const auth = inject(Auth);
-  await auth.loadCurrentUser();
+  const organization = inject(Organization);
+  await Promise.all([auth.loadCurrentUser(), organization.load()]);
 };
 
 export const appConfig: ApplicationConfig = {

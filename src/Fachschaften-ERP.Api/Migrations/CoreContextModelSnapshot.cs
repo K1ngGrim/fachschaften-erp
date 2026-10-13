@@ -578,6 +578,47 @@ namespace Fachschaften_ERP.Api.Migrations
                     b.ToTable("ItemTypes", "erp");
                 });
 
+            modelBuilder.Entity("Fachschaften_ERP.Models.Entities.OrganizationSettingsEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("AccentColor")
+                        .IsRequired()
+                        .HasMaxLength(7)
+                        .HasColumnType("character varying(7)");
+
+                    b.Property<string>("ImprintUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("LogoDataUrl")
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset?>("Modified")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("ModifierId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("PrivacyContact")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<string>("Subtitle")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("OrganizationSettings", "erp");
+                });
+
             modelBuilder.Entity("Fachschaften_ERP.Models.Entities.ProductEntity", b =>
                 {
                     b.Property<Guid>("Id")

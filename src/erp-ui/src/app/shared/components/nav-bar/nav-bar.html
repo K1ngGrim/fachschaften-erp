@@ -9,12 +9,18 @@
     class="sidenav"
   >
     <div class="sidenav-header">
-      <div class="logo-icon">
-        <mat-icon svgIcon="fridge-outline"></mat-icon>
-      </div>
+      @if (organization().logoDataUrl; as logo) {
+        <img class="logo-image" [src]="logo" alt="" />
+      } @else {
+        <div class="logo-icon">
+          <mat-icon svgIcon="fridge-outline"></mat-icon>
+        </div>
+      }
       <div class="org-info" [class.collapsed]="collapsed()">
-        <span class="org-name">FachschaftERP</span>
-        <span class="org-subtitle">Inventory &amp; Sales</span>
+        <span class="org-name">{{ organization().name }}</span>
+        @if (organization().subtitle) {
+          <span class="org-subtitle">{{ organization().subtitle }}</span>
+        }
       </div>
     </div>
 

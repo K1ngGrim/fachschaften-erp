@@ -267,6 +267,16 @@ html.dark {
   }
 }
 
+// ── Links ───────────────────────────────────────────────────────────────────
+// Bootstrap kompiliert die Linkfarbe fest ein; so folgt sie der Akzentfarbe aus den Einstellungen.
+a {
+  color: var(--brand-accent-strong);
+
+  &:hover {
+    color: var(--brand-accent);
+  }
+}
+
 // ── Formularfelder etwas kompakter ──────────────────────────────────────────
 // Über die Density, damit Höhe, Innenabstand und Label-Position zusammenpassen
 // (nur das Padding zu ändern lässt Text oben und Pfeil/Label verschoben sitzen).

@@ -39,6 +39,7 @@ const AREA_LABELS: Record<string, string> = {
   users: 'Benutzer',
   roles: 'Rollen',
   permissions: 'Rechte vergeben',
+  settings: 'Einstellungen',
 };
 
 @Component({
