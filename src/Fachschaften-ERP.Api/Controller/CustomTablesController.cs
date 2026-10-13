@@ -20,6 +20,7 @@ public class CustomTablesController(CoreContext db) : ControllerBase
 {
     private const int MaxColumns = 50;
     private const int MaxOptions = 100;
+    private const int MaxImportRows = 10_000;
 
     [RequirePermission(PermissionType.TablesRead)]
     [HttpGet]
@@ -71,6 +72,43 @@ public class CustomTablesController(CoreContext db) : ControllerBase
         };
 
         db.CustomTables.Add(table);
+        await db.SaveChangesAsync();
+        return CreatedAtAction(nameof(Get), new { id = table.Id }, ToDto(table));
+    }
+
+    /// <summary>
+    /// Legt eine Tabelle samt Einträgen an, z. B. aus einer CSV-Datei. Die Zeilen verweisen auf die
+    /// Spalten-Ids aus <see cref="ImportCustomTableRequest.Columns"/>, die der Aufrufer vergibt.
+    /// </summary>
+    [RequirePermission(PermissionType.TableDesignWrite)]
+    [RequirePermission(PermissionType.TablesWrite)]
+    [HttpPost("import")]
+    public async Task<ActionResult<CustomTableDto>> Import(ImportCustomTableRequest request)
+    {
+        if (request.Columns?.Any(c => string.IsNullOrWhiteSpace(c.Id)) != false)
+            return BadRequest("Every column needs an id.");
+
+        var (columns, error) = NormalizeColumns(new UpsertCustomTableRequest(request.Name, request.Description, request.Columns));
+        if (error is not null) return BadRequest(error);
+
+        var userId = ((Invoker)User).UserId;
+        var now = DateTimeOffset.UtcNow;
+        var table = new CustomTableEntity
+        {
+            Id = Guid.NewGuid(),
+            Name = request.Name.Trim(),
+            Description = string.IsNullOrWhiteSpace(request.Description) ? null : request.Description.Trim(),
+            Columns = columns!,
+            CreatorId = userId,
+            Created = now,
+            IsActive = true,
+        };
+
+        var (rows, rowError) = BuildRows(table, request.Rows, userId, now);
+        if (rowError is not null) return BadRequest(rowError);
+
+        db.CustomTables.Add(table);
+        db.CustomTableRows.AddRange(rows!);
         await db.SaveChangesAsync();
         return CreatedAtAction(nameof(Get), new { id = table.Id }, ToDto(table));
     }
@@ -151,6 +189,40 @@ public class CustomTablesController(CoreContext db) : ControllerBase
         return Ok(ToRowDto(row, await UserNamesAsync([row.CreatorId])));
     }
 
+    /// <summary>
+    /// Fügt viele Einträge auf einmal hinzu. Ist eine Zeile ungültig, wird nichts gespeichert.
+    /// Mit <see cref="ImportCustomTableRowsRequest.ReplaceExisting"/> werden die bisherigen Einträge entfernt.
+    /// </summary>
+    [RequirePermission(PermissionType.TablesWrite)]
+    [HttpPost("{id:guid}/rows/import")]
+    public async Task<ActionResult<ImportCustomTableRowsResultDto>> ImportRows(Guid id, ImportCustomTableRowsRequest request)
+    {
+        var table = await db.CustomTables.FirstOrDefaultAsync(t => t.Id == id && t.IsActive);
+        if (table is null) return NotFound();
+
+        var userId = ((Invoker)User).UserId;
+        var now = DateTimeOffset.UtcNow;
+        var (rows, error) = BuildRows(table, request.Rows, userId, now);
+        if (error is not null) return BadRequest(error);
+
+        var removed = 0;
+        if (request.ReplaceExisting)
+        {
+            var existing = await db.CustomTableRows.Where(r => r.TableId == id && r.IsActive).ToListAsync();
+            foreach (var row in existing)
+            {
+                row.IsActive = false;
+                row.ModifierId = userId;
+                row.Modified = now;
+            }
+            removed = existing.Count;
+        }
+
+        db.CustomTableRows.AddRange(rows!);
+        await db.SaveChangesAsync();
+        return Ok(new ImportCustomTableRowsResultDto(rows!.Count, removed));
+    }
+
     [RequirePermission(PermissionType.TablesWrite)]
     [HttpPut("{id:guid}/rows/{rowId:guid}")]
     public async Task<ActionResult<CustomTableRowDto>> UpdateRow(Guid id, Guid rowId, UpsertCustomTableRowRequest request)
@@ -184,6 +256,38 @@ public class CustomTablesController(CoreContext db) : ControllerBase
         row.Modified = DateTimeOffset.UtcNow;
         await db.SaveChangesAsync();
         return NoContent();
+    }
+
+    /// <summary>Prüft alle Zeilen eines Imports; Fehler nennen die Zeile (1-basiert).</summary>
+    private static (List<CustomTableRowEntity>? Rows, string? Error) BuildRows(
+        CustomTableEntity table,
+        IList<JsonElement>? input,
+        Guid userId,
+        DateTimeOffset now)
+    {
+        if (input is not { Count: > 0 }) return ([], null);
+        if (input.Count > MaxImportRows) return (null, $"At most {MaxImportRows} rows can be imported at once.");
+
+        var rows = new List<CustomTableRowEntity>(input.Count);
+        for (var i = 0; i < input.Count; i++)
+        {
+            var (values, error) = NormalizeValues(table.Columns, input[i]);
+            if (error is not null) return (null, $"Row {i + 1}: {error}");
+
+            rows.Add(new CustomTableRowEntity
+            {
+                Id = Guid.NewGuid(),
+                TableId = table.Id,
+                Values = values!,
+                CreatorId = userId,
+                // Die Einträge werden nach Created sortiert; je eine Mikrosekunde Abstand (Genauigkeit
+                // von PostgreSQL) erhält die Reihenfolge der Datei.
+                Created = now.AddMicroseconds(i),
+                IsActive = true,
+            });
+        }
+
+        return (rows, null);
     }
 
     /// <summary>Prüft die Struktur und vergibt neuen Spalten eine Id.</summary>
@@ -326,3 +430,17 @@ public record CustomTableRowDto(
     string? UpdatedBy);
 
 public record UpsertCustomTableRowRequest(JsonElement Values);
+
+/// <param name="Columns">Spalten mit vom Aufrufer vergebenen, eindeutigen Ids.</param>
+/// <param name="Rows">Objekte mit Werten je Spalten-Id.</param>
+public record ImportCustomTableRequest(
+    string Name,
+    string? Description,
+    IList<CustomTableColumn> Columns,
+    IList<JsonElement> Rows);
+
+/// <param name="Rows">Objekte mit Werten je Spalten-Id.</param>
+/// <param name="ReplaceExisting">Bisherige Einträge vorher entfernen.</param>
+public record ImportCustomTableRowsRequest(IList<JsonElement> Rows, bool ReplaceExisting);
+
+public record ImportCustomTableRowsResultDto(int Imported, int Removed);

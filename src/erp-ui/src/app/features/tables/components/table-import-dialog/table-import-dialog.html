@@ -1,0 +1,216 @@
+<h2 mat-dialog-title>
+  {{ isNew ? 'Tabelle aus CSV anlegen' : 'CSV in „' + table!.name + '“ importieren' }}
+</h2>
+
+<mat-dialog-content>
+  <div class="d-flex flex-column gap-3 pt-2">
+    <div class="d-flex align-items-center gap-3 flex-wrap">
+      <input
+        #fileInput
+        type="file"
+        accept=".csv,.txt,text/csv,text/plain"
+        hidden
+        (change)="selectFile(fileInput)"
+      />
+      <button mat-stroked-button class="d-flex" (click)="fileInput.click()">
+        <mat-icon svgIcon="file-upload-outline" class="d-flex" />
+        <span>{{ fileName() ? 'Andere Datei' : 'Datei auswählen' }}</span>
+      </button>
+      @if (fileName(); as name) {
+        <span class="text-truncate">
+          <span class="fw-medium">{{ name }}</span>
+          <span class="text-hint">
+            · {{ dataRecords().length }} {{ dataRecords().length === 1 ? 'Zeile' : 'Zeilen' }},
+            {{ headers().length }} {{ headers().length === 1 ? 'Spalte' : 'Spalten' }}
+          </span>
+        </span>
+      }
+    </div>
+    @if (fileError(); as message) {
+      <p class="text-negative small mb-0">{{ message }}</p>
+    }
+
+    @if (fileName()) {
+      <div class="settings">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Trennzeichen</mat-label>
+          <mat-select [ngModel]="delimiterChoice()" (ngModelChange)="setDelimiter($event)">
+            @for (option of delimiters; track option.value) {
+              <mat-option [value]="option.value">{{ option.label }}</mat-option>
+            }
+            <mat-option [value]="OTHER">Anderes …</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        @if (delimiterChoice() === OTHER) {
+          <mat-form-field appearance="outline" subscriptSizing="dynamic" class="custom-delimiter">
+            <mat-label>Zeichen</mat-label>
+            <input
+              matInput
+              maxlength="1"
+              [ngModel]="customDelimiter()"
+              (ngModelChange)="setCustomDelimiter($event)"
+            />
+          </mat-form-field>
+        }
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Dezimaltrennzeichen</mat-label>
+          <mat-select [ngModel]="decimal()" (ngModelChange)="setDecimal($event)">
+            <mat-option value=",">Komma (1.234,56)</mat-option>
+            <mat-option value=".">Punkt (1,234.56)</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-checkbox [checked]="hasHeader()" (change)="setHasHeader($event.checked)">
+          Erste Zeile enthält Spaltennamen
+        </mat-checkbox>
+      </div>
+
+      @if (isNew) {
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Name der Tabelle</mat-label>
+          <input matInput [ngModel]="tableName()" (ngModelChange)="tableName.set($event)" />
+        </mat-form-field>
+
+        <div class="section-heading">Spalten</div>
+        @for (column of newColumns(); track column.id; let i = $index) {
+          <div class="column-row" [class.excluded]="!column.include">
+            <mat-checkbox
+              [checked]="column.include"
+              (change)="updateColumn(i, { include: $event.checked })"
+              aria-label="Spalte importieren"
+            />
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="column-label">
+              <mat-label>Spaltenname</mat-label>
+              <input
+                matInput
+                [ngModel]="column.label"
+                (ngModelChange)="updateColumn(i, { label: $event })"
+                [disabled]="!column.include"
+              />
+              @if (sample(i); as example) {
+                <mat-hint class="text-truncate">z. B. {{ example }}</mat-hint>
+              }
+            </mat-form-field>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="column-type">
+              <mat-label>Typ</mat-label>
+              <mat-select
+                [ngModel]="column.type"
+                (ngModelChange)="updateColumn(i, { type: $event })"
+                [disabled]="!column.include"
+              >
+                @for (type of types; track type[0]) {
+                  <mat-option [value]="type[0]">{{ type[1] }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
+        }
+        <p class="text-hint small mb-0">
+          Die Typen sind aus den Werten geschätzt. Bei „Auswahl“ werden alle vorkommenden Werte zu
+          Optionen. Pflichtfelder legst du danach unter „Aufbau“ fest.
+        </p>
+      } @else {
+        <div class="section-heading">Zuordnung</div>
+        @for (column of table!.columns; track column.id) {
+          <div class="mapping-row">
+            <div class="mapping-target">
+              <div class="fw-medium text-truncate">
+                {{ column.label }}{{ column.required ? ' *' : '' }}
+              </div>
+              <small class="text-hint">{{ typeLabel(column.type) }}</small>
+            </div>
+            <mat-icon svgIcon="arrow-left" class="mapping-arrow" />
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="mapping-source">
+              <mat-label>Spalte der Datei</mat-label>
+              <mat-select
+                [ngModel]="sourceOf(column.id)"
+                (ngModelChange)="setMapping(column.id, $event)"
+              >
+                <mat-option [value]="null">– leer lassen –</mat-option>
+                @for (header of headers(); track $index) {
+                  <mat-option [value]="$index">{{ header }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
+        }
+
+        @if (existingRows) {
+          <mat-checkbox
+            [checked]="replaceExisting()"
+            (change)="replaceExisting.set($event.checked)"
+          >
+            Bisherige {{ existingRows }} {{ existingRows === 1 ? 'Eintrag' : 'Einträge' }} ersetzen
+          </mat-checkbox>
+        }
+      }
+
+      @if (previewColumns().length && previewRows().length) {
+        <div class="section-heading">Vorschau</div>
+        <div class="preview">
+          <table>
+            <thead>
+              <tr>
+                @for (column of previewColumns(); track column.id) {
+                  <th>{{ column.label }}</th>
+                }
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of previewRows(); track $index) {
+                <tr>
+                  @for (cell of row; track $index) {
+                    <td>{{ cell }}</td>
+                  }
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+
+      @if (errors().length) {
+        <div class="error-box">
+          <div class="fw-medium">
+            {{ invalidRowCount() }} von {{ dataRecords().length }}
+            {{ dataRecords().length === 1 ? 'Zeile ist' : 'Zeilen sind' }} fehlerhaft
+          </div>
+          <ul class="mb-1">
+            @for (error of errors().slice(0, 8); track $index) {
+              <li>Zeile {{ error.line }} · {{ error.column }}: {{ error.message }}</li>
+            }
+            @if (errors().length > 8) {
+              <li>… und {{ errors().length - 8 }} weitere</li>
+            }
+          </ul>
+          <mat-checkbox [checked]="skipInvalid()" (change)="skipInvalid.set($event.checked)">
+            Fehlerhafte Zeilen überspringen
+          </mat-checkbox>
+        </div>
+      }
+    }
+
+    @if (saveError(); as message) {
+      <p class="text-negative small mb-0">{{ message }}</p>
+    } @else if (fileName() && problem(); as message) {
+      <p class="text-hint small mb-0">{{ message }}</p>
+    }
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()">Abbrechen</button>
+  <button mat-flat-button (click)="save()" [disabled]="!!problem() || saving()">
+    @if (saving()) {
+      <mat-progress-spinner mode="indeterminate" diameter="18" />
+    } @else {
+      {{
+        importCount()
+          ? importCount() + ' ' + (importCount() === 1 ? 'Eintrag' : 'Einträge') + ' importieren'
+          : 'Importieren'
+      }}
+    }
+  </button>
+</mat-dialog-actions>

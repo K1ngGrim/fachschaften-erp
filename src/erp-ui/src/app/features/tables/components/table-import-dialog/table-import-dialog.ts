@@ -1,0 +1,400 @@
+import { Component, computed, inject, signal } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import {
+  MAT_DIALOG_DATA,
+  MatDialogActions,
+  MatDialogContent,
+  MatDialogRef,
+  MatDialogTitle,
+} from '@angular/material/dialog';
+import { FormsModule } from '@angular/forms';
+import { MatButton } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
+import { MatFormField, MatHint, MatInput, MatLabel } from '@angular/material/input';
+import { MatOption, MatSelect } from '@angular/material/select';
+import { MatCheckbox } from '@angular/material/checkbox';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
+import { lastValueFrom } from 'rxjs';
+import {
+  CustomTableColumn,
+  CustomTableColumnType,
+  CustomTableDto,
+  CustomTablesService,
+} from '../../../../../../projects/api/src/lib';
+import { COLUMN_TYPE_LABELS, formatValue } from '../../table-values';
+import {
+  convertCell,
+  CsvRecord,
+  DecimalSeparator,
+  decodeCsv,
+  DELIMITERS,
+  detectDelimiter,
+  distinctValues,
+  inferColumnType,
+  parseCsv,
+} from '../../csv';
+
+export interface TableImportDialogData {
+  /** Zieltabelle; ohne wird aus der Datei eine neue Tabelle angelegt. */
+  table: CustomTableDto | null;
+  rowCount?: number;
+}
+
+export interface TableImportDialogResult {
+  tableId: string;
+  imported: number;
+  /** Beim Ersetzen entfernte bisherige Einträge. */
+  removed: number;
+}
+
+/** Spalte der Datei beim Anlegen einer neuen Tabelle. */
+interface NewColumn {
+  id: string;
+  include: boolean;
+  label: string;
+  type: CustomTableColumnType;
+}
+
+interface RowError {
+  line: number;
+  column: string;
+  message: string;
+}
+
+const MAX_FILE_SIZE = 10 * 1024 * 1024;
+const MAX_ROWS = 10_000;
+const MAX_COLUMNS = 50;
+const MAX_OPTIONS = 100;
+const OTHER = 'other';
+
+@Component({
+  selector: 'app-table-import-dialog',
+  imports: [
+    MatDialogTitle,
+    MatDialogContent,
+    MatDialogActions,
+    FormsModule,
+    MatButton,
+    MatIcon,
+    MatFormField,
+    MatLabel,
+    MatHint,
+    MatInput,
+    MatSelect,
+    MatOption,
+    MatCheckbox,
+    MatProgressSpinner,
+  ],
+  templateUrl: './table-import-dialog.html',
+  styleUrl: './table-import-dialog.scss',
+})
+export class TableImportDialog {
+  private readonly dialogRef = inject(MatDialogRef<TableImportDialog, TableImportDialogResult>);
+  private readonly tablesController = inject(CustomTablesService);
+  private readonly data = inject<TableImportDialogData>(MAT_DIALOG_DATA);
+
+  public readonly table = this.data.table;
+  public readonly existingRows = this.data.rowCount ?? 0;
+  public readonly isNew = !this.table;
+  public readonly delimiters = DELIMITERS;
+  public readonly OTHER = OTHER;
+  public readonly types = Object.entries(COLUMN_TYPE_LABELS) as [CustomTableColumnType, string][];
+  public readonly typeLabel = (type: CustomTableColumnType) => COLUMN_TYPE_LABELS[type];
+
+  public readonly fileName = signal<string | null>(null);
+  public readonly fileError = signal<string | null>(null);
+  private readonly text = signal('');
+
+  public readonly delimiterChoice = signal<string>(';');
+  public readonly customDelimiter = signal('');
+  public readonly decimal = signal<DecimalSeparator>(',');
+  public readonly hasHeader = signal(true);
+
+  public readonly tableName = signal('');
+  public readonly newColumns = signal<NewColumn[]>([]);
+  /** Zuordnung Spalten-Id der Tabelle → Spaltennummer der Datei. */
+  public readonly mapping = signal<Record<string, number | null>>({});
+  public readonly replaceExisting = signal(false);
+  public readonly skipInvalid = signal(false);
+
+  public readonly saving = signal(false);
+  public readonly saveError = signal<string | null>(null);
+
+  public readonly delimiter = computed(() =>
+    this.delimiterChoice() === OTHER ? this.customDelimiter().slice(0, 1) : this.delimiterChoice(),
+  );
+
+  private readonly records = computed<CsvRecord[]>(() =>
+    this.text() && this.delimiter() ? parseCsv(this.text(), this.delimiter()) : [],
+  );
+
+  /** Spaltennamen der Datei; ohne Kopfzeile durchnummeriert. */
+  public readonly headers = computed<string[]>(() => {
+    const records = this.records();
+    const count = records.reduce((max, r) => Math.max(max, r.cells.length), 0);
+    return Array.from({ length: count }, (_, i) =>
+      this.hasHeader() ? records[0]?.cells[i]?.trim() || `Spalte ${i + 1}` : `Spalte ${i + 1}`,
+    );
+  });
+
+  public readonly dataRecords = computed(() =>
+    this.hasHeader() ? this.records().slice(1) : this.records(),
+  );
+
+  /** Zielspalten mit der Spalte der Datei, aus der sie befüllt werden. */
+  private readonly targets = computed<{ column: CustomTableColumn; source: number | null }[]>(
+    () => {
+      if (this.table) {
+        return this.table.columns.map((column) => ({
+          column,
+          source: this.mapping()[column.id] ?? null,
+        }));
+      }
+      return this.newColumns()
+        .map((c, index) => ({ c, index }))
+        .filter(({ c }) => c.include)
+        .map(({ c, index }) => ({
+          column: {
+            id: c.id,
+            label: c.label.trim(),
+            type: c.type,
+            required: false,
+            options: c.type === CustomTableColumnType.Select ? this.optionsOf(index) : null,
+          },
+          source: index,
+        }));
+    },
+  );
+
+  /** Umgewandelte Zeilen und Fehler je Zelle. */
+  private readonly converted = computed(() => {
+    const targets = this.targets();
+    const decimal = this.decimal();
+    const rows: { values: Record<string, unknown>; valid: boolean }[] = [];
+    const errors: RowError[] = [];
+
+    for (const record of this.dataRecords()) {
+      const values: Record<string, unknown> = {};
+      let valid = true;
+      for (const { column, source } of targets) {
+        const result = convertCell(
+          column,
+          source === null ? undefined : record.cells[source],
+          decimal,
+        );
+        if ('error' in result) {
+          valid = false;
+          errors.push({ line: record.line, column: column.label, message: result.error });
+        } else if (result.value !== undefined) {
+          values[column.id] = result.value;
+        }
+      }
+      rows.push({ values, valid });
+    }
+    return { rows, errors };
+  });
+
+  public readonly errors = computed(() => this.converted().errors);
+  public readonly invalidRowCount = computed(
+    () => this.converted().rows.filter((r) => !r.valid).length,
+  );
+  private readonly rowsToImport = computed(() =>
+    this.converted()
+      .rows.filter((r) => r.valid)
+      .map((r) => r.values),
+  );
+  public readonly importCount = computed(() => this.rowsToImport().length);
+
+  public readonly previewColumns = computed(() => this.targets().map((t) => t.column));
+  public readonly previewRows = computed(() =>
+    this.converted()
+      .rows.slice(0, 5)
+      .map((row) => this.previewColumns().map((c) => formatValue(c, row.values[c.id]))),
+  );
+
+  public readonly problem = computed<string | null>(() => {
+    if (!this.text()) return 'Wähle eine CSV-Datei aus.';
+    if (!this.delimiter()) return 'Gib ein Trennzeichen an.';
+    if (!this.dataRecords().length) return 'Die Datei enthält keine Einträge.';
+    if (this.dataRecords().length > MAX_ROWS) {
+      return `Es können höchstens ${MAX_ROWS.toLocaleString('de-DE')} Einträge auf einmal importiert werden.`;
+    }
+
+    const targets = this.targets();
+    if (this.isNew) {
+      if (!this.tableName().trim()) return 'Die Tabelle braucht einen Namen.';
+      if (!targets.length) return 'Wähle mindestens eine Spalte aus.';
+      if (targets.length > MAX_COLUMNS) return `Höchstens ${MAX_COLUMNS} Spalten sind möglich.`;
+      if (targets.some((t) => !t.column.label)) return 'Jede Spalte braucht einen Namen.';
+      const select = targets.find(
+        (t) =>
+          t.column.type === CustomTableColumnType.Select &&
+          (!t.column.options?.length || t.column.options.length > MAX_OPTIONS),
+      );
+      if (select) {
+        return `„${select.column.label}“ eignet sich nicht als Auswahl: Sie braucht 1 bis ${MAX_OPTIONS} verschiedene Werte.`;
+      }
+    } else if (targets.every((t) => t.source === null)) {
+      return 'Ordne mindestens eine Spalte zu.';
+    }
+
+    if (this.invalidRowCount() && !this.skipInvalid()) {
+      return 'Einige Zeilen sind fehlerhaft. Korrigiere die Datei oder überspringe diese Zeilen.';
+    }
+    if (!this.importCount()) return 'Es bleibt kein gültiger Eintrag zum Importieren.';
+    return null;
+  });
+
+  public async selectFile(input: HTMLInputElement) {
+    const file = input.files?.[0];
+    input.value = '';
+    if (!file) return;
+
+    this.fileError.set(null);
+    this.saveError.set(null);
+    if (file.size > MAX_FILE_SIZE) {
+      this.fileError.set('Die Datei ist zu groß (höchstens 10 MB).');
+      return;
+    }
+
+    const text = decodeCsv(await file.arrayBuffer());
+    this.fileName.set(file.name);
+    this.text.set(text);
+    this.tableName.set(
+      file.name
+        .replace(/\.[^.]+$/, '')
+        .replace(/[_-]+/g, ' ')
+        .trim(),
+    );
+
+    const delimiter = detectDelimiter(text);
+    this.delimiterChoice.set(delimiter);
+    this.decimal.set(delimiter === ',' ? '.' : ',');
+    this.resetColumns();
+  }
+
+  public setDelimiter(choice: string) {
+    this.delimiterChoice.set(choice);
+    if (choice === ',') this.decimal.set('.');
+    if (choice === ';') this.decimal.set(',');
+    this.resetColumns();
+  }
+
+  public setCustomDelimiter(value: string) {
+    this.customDelimiter.set(value);
+    this.resetColumns();
+  }
+
+  public setDecimal(value: DecimalSeparator) {
+    this.decimal.set(value);
+    this.resetColumns();
+  }
+
+  public setHasHeader(value: boolean) {
+    this.hasHeader.set(value);
+    this.resetColumns();
+  }
+
+  public updateColumn(index: number, patch: Partial<NewColumn>) {
+    this.newColumns.update((cols) => cols.map((c, i) => (i === index ? { ...c, ...patch } : c)));
+  }
+
+  public setMapping(columnId: string, source: number | null) {
+    this.mapping.update((m) => ({ ...m, [columnId]: source }));
+  }
+
+  public sourceOf(columnId: string): number | null {
+    return this.mapping()[columnId] ?? null;
+  }
+
+  /** Erster Wert einer Spalte der Datei als Beispiel. */
+  public sample(index: number): string {
+    const value = this.dataRecords()
+      .map((r) => r.cells[index]?.trim())
+      .find(Boolean);
+    return value ? (value.length > 40 ? value.slice(0, 40) + '…' : value) : '';
+  }
+
+  public async save() {
+    if (this.problem() || this.saving()) return;
+
+    this.saving.set(true);
+    this.saveError.set(null);
+    const rows = this.rowsToImport();
+    try {
+      if (this.table) {
+        const result = await lastValueFrom(
+          this.tablesController.apiCustomTablesIdRowsImportPost({
+            id: this.table.id,
+            importCustomTableRowsRequest: { rows, replaceExisting: this.replaceExisting() },
+          }),
+        );
+        this.dialogRef.close({
+          tableId: this.table.id,
+          imported: result.imported,
+          removed: result.removed,
+        });
+      } else {
+        const table = await lastValueFrom(
+          this.tablesController.apiCustomTablesImportPost({
+            importCustomTableRequest: {
+              name: this.tableName().trim(),
+              description: null,
+              columns: this.targets().map((t) => t.column),
+              rows,
+            },
+          }),
+        );
+        this.dialogRef.close({ tableId: table.id, imported: rows.length, removed: 0 });
+      }
+    } catch (error) {
+      const detail =
+        error instanceof HttpErrorResponse && typeof error.error === 'string' ? error.error : null;
+      this.saveError.set(
+        detail ? `Der Import wurde abgelehnt: ${detail}` : 'Der Import ist fehlgeschlagen.',
+      );
+    } finally {
+      this.saving.set(false);
+    }
+  }
+
+  public cancel() {
+    this.dialogRef.close();
+  }
+
+  /** Spalten neu aus der Datei ableiten: Typen vorschlagen bzw. nach Namen zuordnen. */
+  private resetColumns() {
+    const headers = this.headers();
+    const records = this.dataRecords();
+
+    if (this.table) {
+      const byName = new Map(headers.map((h, i) => [normalize(h), i] as const));
+      this.mapping.set(
+        Object.fromEntries(
+          this.table.columns.map((c) => [c.id, byName.get(normalize(c.label)) ?? null]),
+        ),
+      );
+      return;
+    }
+
+    this.newColumns.set(
+      headers.map((label, index) => ({
+        id: 'c' + crypto.randomUUID().replace(/-/g, '').slice(0, 10),
+        include: true,
+        label,
+        type: inferColumnType(
+          records.map((r) => r.cells[index] ?? ''),
+          this.decimal(),
+        ),
+      })),
+    );
+  }
+
+  private optionsOf(index: number): string[] {
+    return distinctValues(this.dataRecords().map((r) => r.cells[index] ?? ''));
+  }
+}
+
+function normalize(label: string): string {
+  return label.trim().toLowerCase();
+}

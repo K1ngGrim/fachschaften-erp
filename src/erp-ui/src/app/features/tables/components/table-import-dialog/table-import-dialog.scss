@@ -1,0 +1,106 @@
+.settings {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+
+  mat-form-field {
+    flex: 1 1 11rem;
+  }
+
+  .custom-delimiter {
+    flex: 0 0 6rem;
+  }
+}
+
+.section-heading {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--app-text-muted);
+  margin-top: 0.5rem;
+}
+
+.column-row,
+.mapping-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.column-row {
+  // Platz für den Beispielwert unter dem Namen.
+  padding-bottom: 0.25rem;
+
+  &.excluded {
+    opacity: 0.55;
+  }
+}
+
+.column-label {
+  flex: 2 1 12rem;
+  min-width: 0;
+}
+
+.column-type {
+  flex: 1 1 9rem;
+}
+
+.mapping-target {
+  flex: 1 1 10rem;
+  min-width: 0;
+}
+
+.mapping-arrow {
+  flex-shrink: 0;
+  color: var(--app-text-muted);
+}
+
+.mapping-source {
+  flex: 1 1 12rem;
+}
+
+.preview {
+  overflow-x: auto;
+  border: 1px solid var(--app-border);
+  border-radius: 8px;
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+  }
+
+  th,
+  td {
+    padding: 0.4rem 0.6rem;
+    text-align: left;
+    white-space: nowrap;
+    max-width: 16rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border-bottom: 1px solid var(--app-border);
+  }
+
+  th {
+    font-weight: 600;
+    color: var(--app-text-muted);
+  }
+
+  tbody tr:last-child td {
+    border-bottom: none;
+  }
+}
+
+.error-box {
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--app-border);
+  font-size: 0.875rem;
+
+  ul {
+    padding-left: 1.1rem;
+    margin-top: 0.35rem;
+  }
+}

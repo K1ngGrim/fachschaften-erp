@@ -78,6 +78,9 @@ model/delivery-overview-dto.ts
 model/delivery-position-dto.ts
 model/disable2-fa-request.ts
 model/forgot-password-request.ts
+model/import-custom-table-request.ts
+model/import-custom-table-rows-request.ts
+model/import-custom-table-rows-result-dto.ts
 model/inventory-transaction-dto.ts
 model/inventory-transaction-type.ts
 model/invite-request.ts

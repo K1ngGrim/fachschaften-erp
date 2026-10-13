@@ -34,24 +34,3 @@ export function formatValue(column: CustomTableColumn, value: unknown): string {
       return String(value);
   }
 }
-
-/** CSV für Excel: Semikolon, Dezimalkomma, UTF-8 mit BOM. */
-export function toCsv(columns: CustomTableColumn[], rows: Record<string, unknown>[]): string {
-  const escape = (text: string) => (/[;"\n\r]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text);
-  const cell = (column: CustomTableColumn, value: unknown) => {
-    if (value === undefined || value === null) return '';
-    if (
-      column.type === CustomTableColumnType.Currency ||
-      column.type === CustomTableColumnType.Number
-    ) {
-      return String(value).replace('.', ',');
-    }
-    return formatValue(column, value);
-  };
-
-  const lines = [
-    columns.map((c) => escape(c.label)).join(';'),
-    ...rows.map((row) => columns.map((c) => escape(cell(c, row[c.id]))).join(';')),
-  ];
-  return '﻿' + lines.join('\r\n');
-}

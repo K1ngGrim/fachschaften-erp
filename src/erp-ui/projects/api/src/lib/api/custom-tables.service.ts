@@ -23,6 +23,12 @@ import { CustomTableRowDto } from '../model/custom-table-row-dto';
 // @ts-ignore
 import { CustomTableSummaryDto } from '../model/custom-table-summary-dto';
 // @ts-ignore
+import { ImportCustomTableRequest } from '../model/import-custom-table-request';
+// @ts-ignore
+import { ImportCustomTableRowsRequest } from '../model/import-custom-table-rows-request';
+// @ts-ignore
+import { ImportCustomTableRowsResultDto } from '../model/import-custom-table-rows-result-dto';
+// @ts-ignore
 import { UpsertCustomTableRequest } from '../model/upsert-custom-table-request';
 // @ts-ignore
 import { UpsertCustomTableRowRequest } from '../model/upsert-custom-table-row-request';
@@ -36,9 +42,11 @@ import {
     ApiCustomTablesIdGetRequestParams,
     ApiCustomTablesIdPutRequestParams,
     ApiCustomTablesIdRowsGetRequestParams,
+    ApiCustomTablesIdRowsImportPostRequestParams,
     ApiCustomTablesIdRowsPostRequestParams,
     ApiCustomTablesIdRowsRowIdDeleteRequestParams,
     ApiCustomTablesIdRowsRowIdPutRequestParams,
+    ApiCustomTablesImportPostRequestParams,
     ApiCustomTablesPostRequestParams
 } from './custom-tables.serviceInterface';
 
@@ -452,6 +460,88 @@ export class CustomTablesService implements CustomTablesServiceInterface {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
+    public apiCustomTablesIdRowsImportPost(requestParameters: ApiCustomTablesIdRowsImportPostRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<ImportCustomTableRowsResultDto>;
+    public apiCustomTablesIdRowsImportPost(requestParameters: ApiCustomTablesIdRowsImportPostRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ImportCustomTableRowsResultDto>>;
+    public apiCustomTablesIdRowsImportPost(requestParameters: ApiCustomTablesIdRowsImportPostRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ImportCustomTableRowsResultDto>>;
+    public apiCustomTablesIdRowsImportPost(requestParameters: ApiCustomTablesIdRowsImportPostRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const id = requestParameters?.id;
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling apiCustomTablesIdRowsImportPost.');
+        }
+        const importCustomTableRowsRequest = requestParameters?.importCustomTableRowsRequest;
+        if (importCustomTableRowsRequest === null || importCustomTableRowsRequest === undefined) {
+            throw new Error('Required parameter importCustomTableRowsRequest was null or undefined when calling apiCustomTablesIdRowsImportPost.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        let localVarHttpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
+        if (localVarHttpHeaderAcceptSelected === undefined) {
+            // to determine the Accept header
+            const httpHeaderAccepts: string[] = [
+                'text/plain',
+                'application/json',
+                'text/json'
+            ];
+            localVarHttpHeaderAcceptSelected = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        }
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        let localVarHttpContext: HttpContext | undefined = options && options.context;
+        if (localVarHttpContext === undefined) {
+            localVarHttpContext = new HttpContext();
+        }
+
+        let localVarTransferCache: boolean | undefined = options && options.transferCache;
+        if (localVarTransferCache === undefined) {
+            localVarTransferCache = true;
+        }
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json',
+            'text/json',
+            'application/*+json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/custom-tables/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}/rows/import`;
+        return this.httpClient.request<ImportCustomTableRowsResultDto>('post', `${this.configuration.basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: importCustomTableRowsRequest,
+                responseType: <any>responseType_,
+                withCredentials: this.configuration.withCredentials,
+                headers: localVarHeaders,
+                observe: observe,
+                transferCache: localVarTransferCache,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * @param requestParameters
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     */
     public apiCustomTablesIdRowsPost(requestParameters: ApiCustomTablesIdRowsPostRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<CustomTableRowDto>;
     public apiCustomTablesIdRowsPost(requestParameters: ApiCustomTablesIdRowsPostRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<CustomTableRowDto>>;
     public apiCustomTablesIdRowsPost(requestParameters: ApiCustomTablesIdRowsPostRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<CustomTableRowDto>>;
@@ -672,6 +762,84 @@ export class CustomTablesService implements CustomTablesServiceInterface {
             {
                 context: localVarHttpContext,
                 body: upsertCustomTableRowRequest,
+                responseType: <any>responseType_,
+                withCredentials: this.configuration.withCredentials,
+                headers: localVarHeaders,
+                observe: observe,
+                transferCache: localVarTransferCache,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * @param requestParameters
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     */
+    public apiCustomTablesImportPost(requestParameters: ApiCustomTablesImportPostRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<CustomTableDto>;
+    public apiCustomTablesImportPost(requestParameters: ApiCustomTablesImportPostRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<CustomTableDto>>;
+    public apiCustomTablesImportPost(requestParameters: ApiCustomTablesImportPostRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<CustomTableDto>>;
+    public apiCustomTablesImportPost(requestParameters: ApiCustomTablesImportPostRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const importCustomTableRequest = requestParameters?.importCustomTableRequest;
+        if (importCustomTableRequest === null || importCustomTableRequest === undefined) {
+            throw new Error('Required parameter importCustomTableRequest was null or undefined when calling apiCustomTablesImportPost.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        let localVarHttpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
+        if (localVarHttpHeaderAcceptSelected === undefined) {
+            // to determine the Accept header
+            const httpHeaderAccepts: string[] = [
+                'text/plain',
+                'application/json',
+                'text/json'
+            ];
+            localVarHttpHeaderAcceptSelected = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        }
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        let localVarHttpContext: HttpContext | undefined = options && options.context;
+        if (localVarHttpContext === undefined) {
+            localVarHttpContext = new HttpContext();
+        }
+
+        let localVarTransferCache: boolean | undefined = options && options.transferCache;
+        if (localVarTransferCache === undefined) {
+            localVarTransferCache = true;
+        }
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json',
+            'text/json',
+            'application/*+json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/custom-tables/import`;
+        return this.httpClient.request<CustomTableDto>('post', `${this.configuration.basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: importCustomTableRequest,
                 responseType: <any>responseType_,
                 withCredentials: this.configuration.withCredentials,
                 headers: localVarHeaders,

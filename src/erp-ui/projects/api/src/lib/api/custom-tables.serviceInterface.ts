@@ -14,6 +14,9 @@ import { Observable }                                        from 'rxjs';
 import { CustomTableDto } from '../model/models';
 import { CustomTableRowDto } from '../model/models';
 import { CustomTableSummaryDto } from '../model/models';
+import { ImportCustomTableRequest } from '../model/models';
+import { ImportCustomTableRowsRequest } from '../model/models';
+import { ImportCustomTableRowsResultDto } from '../model/models';
 import { UpsertCustomTableRequest } from '../model/models';
 import { UpsertCustomTableRowRequest } from '../model/models';
 
@@ -38,6 +41,11 @@ export interface ApiCustomTablesIdRowsGetRequestParams {
     id: string;
 }
 
+export interface ApiCustomTablesIdRowsImportPostRequestParams {
+    id: string;
+    importCustomTableRowsRequest: ImportCustomTableRowsRequest;
+}
+
 export interface ApiCustomTablesIdRowsPostRequestParams {
     id: string;
     upsertCustomTableRowRequest: UpsertCustomTableRowRequest;
@@ -52,6 +60,10 @@ export interface ApiCustomTablesIdRowsRowIdPutRequestParams {
     id: string;
     rowId: string;
     upsertCustomTableRowRequest: UpsertCustomTableRowRequest;
+}
+
+export interface ApiCustomTablesImportPostRequestParams {
+    importCustomTableRequest: ImportCustomTableRequest;
 }
 
 export interface ApiCustomTablesPostRequestParams {
@@ -102,6 +114,13 @@ export interface CustomTablesServiceInterface {
      * 
 * @param requestParameters
      */
+    apiCustomTablesIdRowsImportPost(requestParameters: ApiCustomTablesIdRowsImportPostRequestParams, extraHttpRequestParams?: any): Observable<ImportCustomTableRowsResultDto>;
+
+    /**
+     * 
+     * 
+* @param requestParameters
+     */
     apiCustomTablesIdRowsPost(requestParameters: ApiCustomTablesIdRowsPostRequestParams, extraHttpRequestParams?: any): Observable<CustomTableRowDto>;
 
     /**
@@ -117,6 +136,13 @@ export interface CustomTablesServiceInterface {
 * @param requestParameters
      */
     apiCustomTablesIdRowsRowIdPut(requestParameters: ApiCustomTablesIdRowsRowIdPutRequestParams, extraHttpRequestParams?: any): Observable<CustomTableRowDto>;
+
+    /**
+     * 
+     * 
+* @param requestParameters
+     */
+    apiCustomTablesImportPost(requestParameters: ApiCustomTablesImportPostRequestParams, extraHttpRequestParams?: any): Observable<CustomTableDto>;
 
     /**
      * 

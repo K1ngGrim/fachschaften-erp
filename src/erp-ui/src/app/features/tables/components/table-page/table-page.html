@@ -11,10 +11,26 @@
   } @else {
     <app-page-header [title]="table()!.name" [subtitle]="table()!.description ?? ''">
       <div class="d-flex flex-wrap gap-2">
-        <button mat-stroked-button class="d-flex" (click)="downloadCsv()">
+        <button mat-stroked-button class="d-flex" [matMenuTriggerFor]="exportMenu">
           <mat-icon svgIcon="download-outline" class="d-flex" />
-          <span>CSV</span>
+          <span>Export</span>
         </button>
+        <mat-menu #exportMenu="matMenu">
+          <button mat-menu-item (click)="downloadCsv(EXCEL_FORMAT)">
+            <mat-icon svgIcon="microsoft-excel" />
+            <span>CSV für Excel (Semikolon)</span>
+          </button>
+          <button mat-menu-item (click)="downloadCsv(STANDARD_FORMAT)">
+            <mat-icon svgIcon="file-delimited-outline" />
+            <span>CSV Standard (Komma)</span>
+          </button>
+        </mat-menu>
+        @if (canWrite) {
+          <button mat-stroked-button class="d-flex" (click)="importCsv()">
+            <mat-icon svgIcon="file-upload-outline" class="d-flex" />
+            <span>Import</span>
+          </button>
+        }
         @if (canDesign) {
           <button mat-stroked-button class="d-flex" (click)="editStructure()">
             <mat-icon svgIcon="table-cog" class="d-flex" />
@@ -36,6 +52,8 @@
 
     @if (error(); as message) {
       <div class="alert alert-warning" role="alert">{{ message }}</div>
+    } @else if (notice(); as message) {
+      <div class="alert alert-success" role="status">{{ message }}</div>
     }
 
     <app-data-grid

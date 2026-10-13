@@ -3,6 +3,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatTooltip } from '@angular/material/tooltip';
+import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
 import { MatDialog } from '@angular/material/dialog';
 import { lastValueFrom } from 'rxjs';
 import {
@@ -21,12 +22,18 @@ import { Auth } from '../../../../core/services/auth';
 import { DialogService } from '../../../../core/services/dialog-service';
 import { PermissionType } from '../../../../shared/models/permission-type';
 import { downloadText, toFileName } from '../../../../shared/models/download';
-import { formatValue, toCsv } from '../../table-values';
+import { formatValue } from '../../table-values';
+import { CsvFormat, EXCEL_FORMAT, STANDARD_FORMAT, toCsv } from '../../csv';
 import {
   TableStructureDialog,
   TableStructureDialogData,
 } from '../table-structure-dialog/table-structure-dialog';
 import { TableRowDialog, TableRowDialogData } from '../table-row-dialog/table-row-dialog';
+import {
+  TableImportDialog,
+  TableImportDialogData,
+  TableImportDialogResult,
+} from '../table-import-dialog/table-import-dialog';
 
 /** Zeile für das Grid: formatierte Texte je Spalte (durchsuchbar) plus Original. */
 type GridRow = Record<string, string> & { __row: CustomTableRowDto };
@@ -39,6 +46,9 @@ type GridRow = Record<string, string> & { __row: CustomTableRowDto };
     MatIconButton,
     MatIcon,
     MatTooltip,
+    MatMenu,
+    MatMenuItem,
+    MatMenuTrigger,
     DataGrid,
     GridActionCellDirective,
     PageHeader,
@@ -58,6 +68,9 @@ export class TablePage implements OnInit {
   public readonly rows = signal<CustomTableRowDto[]>([]);
   public readonly loading = signal(true);
   public readonly error = signal<string | null>(null);
+  public readonly notice = signal<string | null>(null);
+  public readonly EXCEL_FORMAT = EXCEL_FORMAT;
+  public readonly STANDARD_FORMAT = STANDARD_FORMAT;
 
   public readonly canWrite = this.auth.hasPermission(PermissionType.TablesCanWrite);
   public readonly canDesign = this.auth.hasPermission(PermissionType.TableDesignCanWrite);
@@ -161,14 +174,43 @@ export class TablePage implements OnInit {
     await this.router.navigate(['/tables']);
   }
 
-  public downloadCsv() {
+  public downloadCsv(format: CsvFormat) {
     const table = this.table();
     if (!table) return;
     const csv = toCsv(
       table.columns,
       this.rows().map((r) => (r.values ?? {}) as Record<string, unknown>),
+      format,
     );
     downloadText(toFileName(table.name, 'csv'), csv, 'text/csv');
+  }
+
+  public async importCsv() {
+    const table = this.table();
+    if (!table) return;
+
+    const result = await lastValueFrom(
+      this.dialog
+        .open<TableImportDialog, TableImportDialogData, TableImportDialogResult>(
+          TableImportDialog,
+          {
+            width: '760px',
+            maxWidth: '95vw',
+            maxHeight: '90vh',
+            data: { table, rowCount: this.rows().length },
+          },
+        )
+        .afterClosed(),
+    );
+    if (!result) return;
+
+    this.error.set(null);
+    const imported =
+      result.imported === 1 ? '1 Eintrag importiert' : `${result.imported} Einträge importiert`;
+    this.notice.set(
+      result.removed ? `${imported}, ${result.removed} bisherige entfernt.` : `${imported}.`,
+    );
+    await this.load();
   }
 
   private openRowDialog(values: Record<string, unknown> | null) {
@@ -187,6 +229,7 @@ export class TablePage implements OnInit {
 
   private async run(action: () => Promise<unknown>) {
     this.error.set(null);
+    this.notice.set(null);
     try {
       await action();
     } catch {

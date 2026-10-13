@@ -18,6 +18,11 @@ import {
   TableStructureDialog,
   TableStructureDialogData,
 } from '../table-structure-dialog/table-structure-dialog';
+import {
+  TableImportDialog,
+  TableImportDialogData,
+  TableImportDialogResult,
+} from '../table-import-dialog/table-import-dialog';
 
 @Component({
   selector: 'app-tables-page',
@@ -31,7 +36,11 @@ export class TablesPage implements OnInit {
   private readonly router = inject(Router);
 
   public readonly tables = signal<CustomTableSummaryDto[]>([]);
-  public readonly canDesign = inject(Auth).hasPermission(PermissionType.TableDesignCanWrite);
+  private readonly auth = inject(Auth);
+  public readonly canDesign = this.auth.hasPermission(PermissionType.TableDesignCanWrite);
+  /** Eine Tabelle aus CSV braucht auch das Recht, Einträge anzulegen. */
+  public readonly canImport =
+    this.canDesign && this.auth.hasPermission(PermissionType.TablesCanWrite);
   public readonly formatDate = formatDate;
 
   async ngOnInit() {
@@ -54,5 +63,18 @@ export class TablesPage implements OnInit {
       this.tablesController.apiCustomTablesPost({ upsertCustomTableRequest: request }),
     );
     await this.router.navigate(['/tables', table.id]);
+  }
+
+  public async importCsv() {
+    const result = await lastValueFrom(
+      this.dialog
+        .open<
+          TableImportDialog,
+          TableImportDialogData,
+          TableImportDialogResult
+        >(TableImportDialog, { width: '760px', maxWidth: '95vw', maxHeight: '90vh', data: { table: null } })
+        .afterClosed(),
+    );
+    if (result) await this.router.navigate(['/tables', result.tableId]);
   }
 }
