@@ -12,6 +12,21 @@ public class ProductBase
     public decimal PurchasePrice { get; set; }
     public decimal InternalSellingPrice { get; set; }
     public decimal ExternalSellingPrice { get; set; }
+
+    /// <summary>
+    /// Einheit für Bestand, Mindestbestand und Einkaufspreis, z. B. Kiste.
+    /// Ohne Angabe gilt <see cref="DefaultUnit"/>.
+    /// </summary>
+    public string? Unit { get; set; }
+
+    /// <summary>
+    /// Einheit der Verkaufspreise ("Preis pro …"), z. B. Flasche; kann von <see cref="Unit"/>
+    /// abweichen. Ohne Angabe gilt <see cref="Unit"/>.
+    /// </summary>
+    public string? PriceUnit { get; set; }
+
+    public const string DefaultUnit = "Stück";
+    public const int MaxUnitLength = 50;
     public int LowStockThreshold { get; set; }
     public bool TrackStock { get; set; }
     

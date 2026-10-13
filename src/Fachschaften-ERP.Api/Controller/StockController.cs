@@ -85,11 +85,12 @@ public class StockController(
                 x.Name,
                 stock.GetValueOrDefault(x.Id),
                 x.LowStockThreshold,
-                "Stück",
+                x.Unit ?? ProductBase.DefaultUnit,
                 x.PurchasePrice,
                 x.InternalSellingPrice,
                 x.ExternalSellingPrice,
-                x.TrackStock
+                x.TrackStock,
+                x.PriceUnit ?? x.Unit ?? ProductBase.DefaultUnit
             ))
             .ToList();
     }
@@ -110,6 +111,6 @@ public class StockController(
     }
 }
 
-public record StockOverviewDto(Guid ProductId, string Name, int Stock, int Threshold, string Unit, decimal PurchasePrice, decimal SellingPriceInternal, decimal SellingPriceExternal, bool TrackStock);
+public record StockOverviewDto(Guid ProductId, string Name, int Stock, int Threshold, string Unit, decimal PurchasePrice, decimal SellingPriceInternal, decimal SellingPriceExternal, bool TrackStock, string PriceUnit);
 public record StockUpdatePositionDto(Guid ProductId, int NewStock, InventoryTransactionType Type, string? Note);
 public record StockUpdateRequest(string? Note, IList<StockUpdatePositionDto> Positions);

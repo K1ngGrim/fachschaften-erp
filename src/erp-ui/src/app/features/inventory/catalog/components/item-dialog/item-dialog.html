@@ -29,22 +29,44 @@
         </mat-select>
       </mat-form-field>
     </div>
+    <div class="col-12 col-sm-6">
+      <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
+        <mat-label>Bestand in</mat-label>
+        <input matInput formControlName="unit" placeholder="Stück" maxlength="50" />
+        <mat-hint>Z. B. Kiste; gilt auch für den EK.</mat-hint>
+      </mat-form-field>
+    </div>
+    <div class="col-12 col-sm-6">
+      <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
+        <mat-label>Verkaufspreis pro</mat-label>
+        <input
+          matInput
+          formControlName="priceUnit"
+          [placeholder]="stockUnitLabel()"
+          maxlength="50"
+        />
+        <mat-hint>Z. B. Flasche. Leer = wie Bestand.</mat-hint>
+      </mat-form-field>
+    </div>
     <div class="col-12 col-sm-4">
       <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
         <mat-label>Einkaufspreis (€)</mat-label>
         <input matInput type="number" step="0.01" min="0" formControlName="purchasePrice" />
+        <mat-hint>pro {{ stockUnitLabel() }}</mat-hint>
       </mat-form-field>
     </div>
     <div class="col-12 col-sm-4">
       <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
         <mat-label>VK Mitglieder (€)</mat-label>
         <input matInput type="number" step="0.01" min="0" formControlName="internalSellingPrice" />
+        <mat-hint>pro {{ priceUnitLabel() }}</mat-hint>
       </mat-form-field>
     </div>
     <div class="col-12 col-sm-4">
       <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
         <mat-label>VK Gäste (€)</mat-label>
         <input matInput type="number" step="0.01" min="0" formControlName="externalSellingPrice" />
+        <mat-hint>pro {{ priceUnitLabel() }}</mat-hint>
       </mat-form-field>
     </div>
     @if (!isEdit) {

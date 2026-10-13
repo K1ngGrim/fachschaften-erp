@@ -45,13 +45,13 @@ export class WarehousePage {
         key: 'sellingPriceInternal',
         label: 'VK Mitglieder',
         align: 'end',
-        value: (row) => formatCurrency(row.sellingPriceInternal),
+        value: (row) => formatCurrency(row.sellingPriceInternal) + perPriceUnit(row),
       },
       {
         key: 'sellingPriceExternal',
         label: 'VK Gäste',
         align: 'end',
-        value: (row) => formatCurrency(row.sellingPriceExternal),
+        value: (row) => formatCurrency(row.sellingPriceExternal) + perPriceUnit(row),
       },
     ]);
     await this.fetchItems();
@@ -84,4 +84,9 @@ export class WarehousePage {
     const rows = await lastValueFrom(this.stockController.apiStockGet());
     this.rows.set(rows);
   }
+}
+
+/** Hängt die Einheit an Verkaufspreise an, wenn sie von der Bestandseinheit abweicht. */
+function perPriceUnit(row: StockOverviewDto): string {
+  return row.priceUnit.toLowerCase() !== row.unit.toLowerCase() ? ` / ${row.priceUnit}` : '';
 }

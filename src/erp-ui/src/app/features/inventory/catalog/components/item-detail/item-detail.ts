@@ -18,6 +18,11 @@ import {
 import { formatCurrency, formatDate } from '../../../../../shared/models/finance';
 import { Auth } from '../../../../../core/services/auth';
 import { PermissionType } from '../../../../../shared/models/permission-type';
+import {
+  hasSeparatePriceUnit,
+  priceUnit,
+  stockUnit,
+} from '../../../../../shared/models/product-unit';
 import { ItemDialog, ItemDialogData } from '../item-dialog/item-dialog';
 
 const MOVEMENT_LABELS: Record<InventoryTransactionType, string> = {
@@ -61,6 +66,11 @@ export class ItemDetail implements OnInit {
 
   public readonly formatCurrency = formatCurrency;
   public readonly formatDate = formatDate;
+
+  public readonly stockUnit = computed(() => stockUnit(this.product()));
+  public readonly priceUnit = computed(() => priceUnit(this.product()));
+  /** Bei verschiedenen Einheiten von EK und VK lässt sich keine Marge berechnen. */
+  public readonly separatePriceUnit = computed(() => hasSeparatePriceUnit(this.product()));
 
   public readonly isLowStock = computed(() => {
     const p = this.product();

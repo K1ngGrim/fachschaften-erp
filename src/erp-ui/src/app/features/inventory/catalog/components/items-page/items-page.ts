@@ -22,6 +22,11 @@ import {
   SuppliersService,
 } from '../../../../../../../projects/api/src/lib';
 import { formatCurrency } from '../../../../../shared/models/finance';
+import {
+  hasSeparatePriceUnit,
+  priceUnit,
+  stockUnit,
+} from '../../../../../shared/models/product-unit';
 
 @Component({
   selector: 'app-items-page',
@@ -62,6 +67,15 @@ export class ItemsPage {
         width: '10rem',
         cellTemplate: this.typeTemplate(),
         value: (row) => this.itemTypes().find((t) => t.id === row.itemTypeId)?.name ?? '—',
+      },
+      {
+        key: 'unit',
+        label: 'Einheit',
+        width: '11rem',
+        value: (row) =>
+          hasSeparatePriceUnit(row)
+            ? `${stockUnit(row)} · VK pro ${priceUnit(row)}`
+            : stockUnit(row),
       },
       {
         key: 'purchasePrice',

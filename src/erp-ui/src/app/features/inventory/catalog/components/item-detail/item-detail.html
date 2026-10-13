@@ -39,17 +39,30 @@
             <dl class="row g-3 mb-0">
               <div class="col-6 col-md-4">
                 <dt class="text-hint small">Einkaufspreis</dt>
-                <dd class="fs-5 fw-semibold mb-0">{{ formatCurrency(p.purchasePrice) }}</dd>
+                <dd class="fs-5 fw-semibold mb-0">
+                  {{ formatCurrency(p.purchasePrice)
+                  }}<span class="per-unit">/ {{ stockUnit() }}</span>
+                </dd>
               </div>
               <div class="col-6 col-md-4">
                 <dt class="text-hint small">VK Mitglieder</dt>
-                <dd class="fs-5 fw-semibold mb-0">{{ formatCurrency(p.internalSellingPrice) }}</dd>
-                <small class="text-hint">Marge {{ margin(p.internalSellingPrice) }}</small>
+                <dd class="fs-5 fw-semibold mb-0">
+                  {{ formatCurrency(p.internalSellingPrice)
+                  }}<span class="per-unit">/ {{ priceUnit() }}</span>
+                </dd>
+                @if (!separatePriceUnit()) {
+                  <small class="text-hint">Marge {{ margin(p.internalSellingPrice) }}</small>
+                }
               </div>
               <div class="col-6 col-md-4">
                 <dt class="text-hint small">VK Gäste</dt>
-                <dd class="fs-5 fw-semibold mb-0">{{ formatCurrency(p.externalSellingPrice) }}</dd>
-                <small class="text-hint">Marge {{ margin(p.externalSellingPrice) }}</small>
+                <dd class="fs-5 fw-semibold mb-0">
+                  {{ formatCurrency(p.externalSellingPrice)
+                  }}<span class="per-unit">/ {{ priceUnit() }}</span>
+                </dd>
+                @if (!separatePriceUnit()) {
+                  <small class="text-hint">Marge {{ margin(p.externalSellingPrice) }}</small>
+                }
               </div>
               <div class="col-6 col-md-4">
                 <dt class="text-hint small">Lieferant</dt>
@@ -68,7 +81,7 @@
           <mat-card-content>
             @if (p.trackStock) {
               <p class="stock-value" [class.text-negative]="isLowStock()">{{ p.stock }}</p>
-              <p class="text-hint small">Stück im Lager</p>
+              <p class="text-hint small">im Lager, Einheit: {{ stockUnit() }}</p>
               <div class="d-flex justify-content-between small py-1">
                 <span class="text-hint">Mindestbestand</span>
                 <span class="fw-medium">{{ p.lowStockThreshold }}</span>

@@ -661,6 +661,10 @@ namespace Fachschaften_ERP.Api.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
+                    b.Property<string>("PriceUnit")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
                     b.Property<decimal>("PurchasePrice")
                         .HasColumnType("numeric(10,2)");
 
@@ -669,6 +673,10 @@ namespace Fachschaften_ERP.Api.Migrations
 
                     b.Property<bool>("TrackStock")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("Unit")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.HasKey("Id");
 

@@ -1,5 +1,5 @@
-import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import {
   MAT_DIALOG_DATA,
   MatDialogActions,
@@ -28,8 +28,9 @@ import {
   SupplierDto,
   SuppliersService,
 } from '../../../../../../../projects/api/src/lib';
-import { lastValueFrom } from 'rxjs';
+import { lastValueFrom, map } from 'rxjs';
 import { MatDivider } from '@angular/material/list';
+import { priceUnit, stockUnit } from '../../../../../shared/models/product-unit';
 import { MatCheckbox } from '@angular/material/checkbox';
 
 export interface ItemDialogData {
@@ -86,6 +87,14 @@ export class ItemDialog implements OnInit {
       validators: Validators.required,
     }),
     supplierId: new FormControl<string | null>(this.product?.supplierId ?? null),
+    unit: new FormControl(this.product?.unit ?? '', {
+      nonNullable: true,
+      validators: Validators.maxLength(50),
+    }),
+    priceUnit: new FormControl(this.product?.priceUnit ?? '', {
+      nonNullable: true,
+      validators: Validators.maxLength(50),
+    }),
     purchasePrice: new FormControl(this.product?.purchasePrice ?? 0, {
       nonNullable: true,
       validators: [Validators.required, Validators.min(0)],
@@ -106,6 +115,19 @@ export class ItemDialog implements OnInit {
     }),
     trackStock: new FormControl(this.product?.trackStock ?? true, { nonNullable: true }),
   });
+
+  /** Einheiten für die Hinweise an den Preisen, wie sie nach dem Speichern gelten. */
+  private readonly units = toSignal(
+    this.form.valueChanges.pipe(
+      map(() => ({
+        unit: this.form.controls.unit.value,
+        priceUnit: this.form.controls.priceUnit.value,
+      })),
+    ),
+    { initialValue: { unit: this.product?.unit ?? '', priceUnit: this.product?.priceUnit ?? '' } },
+  );
+  public readonly stockUnitLabel = computed(() => stockUnit(this.units()));
+  public readonly priceUnitLabel = computed(() => priceUnit(this.units()));
 
   protected readonly CustomFieldType = CustomFieldType;
 
@@ -144,6 +166,8 @@ export class ItemDialog implements OnInit {
       purchasePrice: value.purchasePrice,
       internalSellingPrice: value.internalSellingPrice,
       externalSellingPrice: value.externalSellingPrice,
+      unit: value.unit.trim() || null,
+      priceUnit: value.priceUnit.trim() || null,
       stock: this.isEdit ? (this.product?.stock ?? 0) : value.initialStock,
       lowStockThreshold: value.lowStockThreshold,
       trackStock: value.trackStock,

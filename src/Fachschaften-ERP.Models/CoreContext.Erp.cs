@@ -110,6 +110,12 @@ public partial class CoreContext
             entity.Property(p => p.PurchasePrice)
                 .HasColumnType("numeric(10,2)");
 
+            entity.Property(p => p.Unit)
+                .HasMaxLength(ProductBase.MaxUnitLength);
+
+            entity.Property(p => p.PriceUnit)
+                .HasMaxLength(ProductBase.MaxUnitLength);
+
             entity.Property(p => p.InternalSellingPrice)
                 .HasColumnType("numeric(10,2)");
 

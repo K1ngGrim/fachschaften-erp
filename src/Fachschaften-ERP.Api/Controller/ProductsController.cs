@@ -31,6 +31,8 @@ public class ProductsController(CoreContext db) : ControllerBase
                 PurchasePrice = x.PurchasePrice,
                 InternalSellingPrice = x.InternalSellingPrice,
                 ExternalSellingPrice = x.ExternalSellingPrice,
+                Unit = x.Unit,
+                PriceUnit = x.PriceUnit,
                 Stock = 0,
                 LowStockThreshold = x.LowStockThreshold,
                 TrackStock = x.TrackStock,
@@ -59,6 +61,8 @@ public class ProductsController(CoreContext db) : ControllerBase
                 PurchasePrice = x.PurchasePrice,
                 InternalSellingPrice = x.InternalSellingPrice,
                 ExternalSellingPrice = x.ExternalSellingPrice,
+                Unit = x.Unit,
+                PriceUnit = x.PriceUnit,
                 LowStockThreshold = x.LowStockThreshold,
                 TrackStock = x.TrackStock,
                 CustomFieldValues = x.CustomFieldValues,
@@ -87,6 +91,11 @@ public class ProductsController(CoreContext db) : ControllerBase
             if (!supplierExists) return BadRequest("Invalid SupplierId.");
         }
 
+        var unit = NormalizeUnit(request.Value.Unit);
+        var priceUnit = NormalizeUnit(request.Value.PriceUnit);
+        if (unit?.Length > ProductBase.MaxUnitLength || priceUnit?.Length > ProductBase.MaxUnitLength)
+            return BadRequest($"Units must not be longer than {ProductBase.MaxUnitLength} characters.");
+
         if (request.Id is null)
         {
             var entity = new ProductEntity
@@ -98,6 +107,8 @@ public class ProductsController(CoreContext db) : ControllerBase
                 PurchasePrice = request.Value.PurchasePrice,
                 InternalSellingPrice = request.Value.InternalSellingPrice,
                 ExternalSellingPrice = request.Value.ExternalSellingPrice,
+                Unit = unit,
+                PriceUnit = priceUnit,
                 LowStockThreshold = request.Value.LowStockThreshold,
                 TrackStock = request.Value.TrackStock,
                 CustomFieldValues = request.Value.CustomFieldValues,
@@ -140,6 +151,8 @@ public class ProductsController(CoreContext db) : ControllerBase
             entity.PurchasePrice = request.Value.PurchasePrice;
             entity.InternalSellingPrice = request.Value.InternalSellingPrice;
             entity.ExternalSellingPrice = request.Value.ExternalSellingPrice;
+            entity.Unit = unit;
+            entity.PriceUnit = priceUnit;
             entity.LowStockThreshold = request.Value.LowStockThreshold;
             entity.TrackStock = request.Value.TrackStock;
             // JsonDocument.ToString() liefert den Typnamen, nicht das JSON; deshalb GetRawText.
@@ -166,6 +179,9 @@ public class ProductsController(CoreContext db) : ControllerBase
         await db.SaveChangesAsync();
         return NoContent();
     }
+
+    private static string? NormalizeUnit(string? unit) =>
+        string.IsNullOrWhiteSpace(unit) ? null : unit.Trim();
 
     private Guid GetUserId() =>
         Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? Guid.Empty.ToString());

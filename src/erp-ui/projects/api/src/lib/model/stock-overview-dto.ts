@@ -19,5 +19,6 @@ export interface StockOverviewDto {
     sellingPriceInternal: number;
     sellingPriceExternal: number;
     trackStock: boolean;
+    priceUnit: string;
 }
 
