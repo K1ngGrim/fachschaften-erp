@@ -77,6 +77,7 @@ model/me-dto.ts
 model/models.ts
 model/month-summary-dto.ts
 model/password-policy-dto.ts
+model/product-detail-dto.ts
 model/product-dto.ts
 model/reset-password-request.ts
 model/reset2-fa-request.ts

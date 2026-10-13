@@ -12,6 +12,7 @@ import { HttpHeaders }                                       from '@angular/comm
 import { Observable }                                        from 'rxjs';
 
 import { ItemUpsertRequestOfProductDto } from '../model/models';
+import { ProductDetailDto } from '../model/models';
 import { ProductDto } from '../model/models';
 
 
@@ -53,7 +54,7 @@ export interface ProductsServiceInterface {
      * 
 * @param requestParameters
      */
-    apiProductsIdGet(requestParameters: ApiProductsIdGetRequestParams, extraHttpRequestParams?: any): Observable<{}>;
+    apiProductsIdGet(requestParameters: ApiProductsIdGetRequestParams, extraHttpRequestParams?: any): Observable<ProductDetailDto>;
 
     /**
      * 

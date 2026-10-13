@@ -34,13 +34,15 @@ public class InventoryTransactionsController(
 
         var entries = await db.InventoryTransactions
             .Where(x => x.IsActive && x.ProductId == productId)
+            .OrderByDescending(x => x.Created)
             .Select(x => new SimpleInventoryTransactionDto(
                 x.Id,
                 x.ProductId,
                 x.Created,
                 x.Type,
                 x.Quantity,
-                x.Quantity * productPrice
+                x.Quantity * productPrice,
+                x.Note
             ))
             .ToListAsync();
 
@@ -135,4 +137,4 @@ public class InventoryTransactionsController(
 }
 
 public record InventoryTransactionDto(Guid Id, Guid ProductId, DateTimeOffset Date, InventoryTransactionType Type, int Quantity, decimal Amount, string? Note);
-public record SimpleInventoryTransactionDto(Guid Id, Guid ProductId, DateTimeOffset Date, InventoryTransactionType Type, int Quantity, decimal Amount);
+public record SimpleInventoryTransactionDto(Guid Id, Guid ProductId, DateTimeOffset Date, InventoryTransactionType Type, int Quantity, decimal Amount, string? Note);

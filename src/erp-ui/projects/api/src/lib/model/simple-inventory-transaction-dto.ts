@@ -17,6 +17,7 @@ export interface SimpleInventoryTransactionDto {
     type: InventoryTransactionType;
     quantity: number;
     amount: number;
+    note: string | null;
 }
 
 

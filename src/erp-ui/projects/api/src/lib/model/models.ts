@@ -35,6 +35,7 @@ export * from './login-result';
 export * from './me-dto';
 export * from './month-summary-dto';
 export * from './password-policy-dto';
+export * from './product-detail-dto';
 export * from './product-dto';
 export * from './reset2-fa-request';
 export * from './reset-password-request';

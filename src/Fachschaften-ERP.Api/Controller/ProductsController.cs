@@ -43,14 +43,35 @@ public class ProductsController(CoreContext db) : ControllerBase
 
     [RequirePermission(PermissionType.ProductsRead)]
     [HttpGet("{id:guid}")]
-    public async Task<IActionResult> Get(Guid id)
+    public async Task<ActionResult<ProductDetailDto>> Get(Guid id)
     {
-        var entity = await db.Products
-            .Include(x => x.ItemType)
-            .Include(x => x.Supplier)
-            .FirstOrDefaultAsync(x => x.Id == id && x.IsActive);
+        var product = await db.Products
+            .Where(x => x.Id == id && x.IsActive)
+            .Select(x => new ProductDetailDto
+            {
+                Id = x.Id,
+                Name = x.Name,
+                ItemTypeId = x.ItemTypeId,
+                ItemTypeName = x.ItemType!.Name,
+                ItemTypeIcon = x.ItemType.Icon,
+                SupplierId = x.SupplierId,
+                SupplierName = x.Supplier != null ? x.Supplier.Name : null,
+                PurchasePrice = x.PurchasePrice,
+                InternalSellingPrice = x.InternalSellingPrice,
+                ExternalSellingPrice = x.ExternalSellingPrice,
+                LowStockThreshold = x.LowStockThreshold,
+                TrackStock = x.TrackStock,
+                CustomFieldValues = x.CustomFieldValues,
+            })
+            .FirstOrDefaultAsync();
+        if (product is null) return NotFound();
 
-        return entity is null ? NotFound() : Ok(entity);
+        // Der Bestand ergibt sich aus der Summe der Lagerbewegungen.
+        product.Stock = await db.InventoryTransactions
+            .Where(x => x.IsActive && x.ProductId == id)
+            .SumAsync(x => x.Quantity);
+
+        return Ok(product);
     }
 
     [RequirePermission(PermissionType.ProductsWrite)]
@@ -121,7 +142,8 @@ public class ProductsController(CoreContext db) : ControllerBase
             entity.ExternalSellingPrice = request.Value.ExternalSellingPrice;
             entity.LowStockThreshold = request.Value.LowStockThreshold;
             entity.TrackStock = request.Value.TrackStock;
-            entity.CustomFieldValues = JsonDocument.Parse(request.Value.CustomFieldValues.ToString() ?? "{}");
+            // JsonDocument.ToString() liefert den Typnamen, nicht das JSON; deshalb GetRawText.
+            entity.CustomFieldValues = JsonDocument.Parse(request.Value.CustomFieldValues.RootElement.GetRawText());
             entity.Modified = DateTimeOffset.UtcNow;
             entity.ModifierId = GetUserId();
 
@@ -153,4 +175,12 @@ public class ProductDto : ProductBase
 {
     public new Guid? Id { get; set; }
     public int Stock { get; set; }
+}
+
+/// <summary>Artikel mit Namen von Typ und Lieferant, damit die Detailseite keine weiteren Rechte braucht.</summary>
+public class ProductDetailDto : ProductDto
+{
+    public string ItemTypeName { get; set; } = string.Empty;
+    public string? ItemTypeIcon { get; set; }
+    public string? SupplierName { get; set; }
 }

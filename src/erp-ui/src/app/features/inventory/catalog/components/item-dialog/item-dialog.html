@@ -13,7 +13,7 @@
         <mat-label>Artikeltyp</mat-label>
         <mat-select formControlName="itemTypeId" required>
           @for (t of itemTypes(); track t.id) {
-            <mat-option [value]="t.id">{{ t.icon }} {{ t.name }}</mat-option>
+            <mat-option [value]="t.id">{{ t.name }}</mat-option>
           }
         </mat-select>
       </mat-form-field>
