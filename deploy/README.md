@@ -144,6 +144,10 @@ their data is kept.
   version; stored documents keep a reference to the version they were made with.
   Templates may import packages from the official Typst package registry, so the
   API container needs outbound HTTPS for that.
+  Shared files (logos, fonts, Typst snippets, uploaded as files or whole folders)
+  and variables (address, bank details, …) are managed under **Einstellungen →
+  Dokumente** and available in every template as `/template/<path>` and
+  `daten.variablen.<name>`.
 
 ## HTTPS
 

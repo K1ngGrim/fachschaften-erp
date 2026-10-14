@@ -1,21 +1,17 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { MatCard, MatCardContent, MatCardHeader, MatCardTitle } from '@angular/material/card';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatFormField, MatHint, MatInput, MatLabel } from '@angular/material/input';
 import { lastValueFrom } from 'rxjs';
 import { SettingsService } from '../../../../../../../projects/api/src/lib';
-import { PageHeader } from '../../../../../shared/components/page-header/page-header';
 import { Organization, readableTextOn } from '../../../../../core/services/organization';
 
 const MAX_LOGO_BYTES = 256 * 1024;
 const LOGO_TYPES = ['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml'];
 const HEX_COLOR = /^#[0-9a-fA-F]{6}$/;
-
-import { RecoveryKeyCard } from '../recovery-key-card/recovery-key-card';
-import { BackupCard } from '../backup-card/backup-card';
-import { ModulesCard } from '../modules-card/modules-card';
 
 @Component({
   selector: 'app-settings-page',
@@ -31,10 +27,6 @@ import { ModulesCard } from '../modules-card/modules-card';
     MatLabel,
     MatHint,
     MatInput,
-    PageHeader,
-    RecoveryKeyCard,
-    BackupCard,
-    ModulesCard,
   ],
   templateUrl: './settings-page.html',
   styleUrl: './settings-page.scss',
@@ -42,6 +34,10 @@ import { ModulesCard } from '../modules-card/modules-card';
 export class SettingsPage implements OnInit {
   private readonly settingsController = inject(SettingsService);
   private readonly organization = inject(Organization);
+
+  /** Welcher Bereich angezeigt wird (aus den Routendaten). */
+  public readonly section: 'design' | 'privacy' =
+    inject(ActivatedRoute).snapshot.data['section'] === 'privacy' ? 'privacy' : 'design';
 
   public readonly name = signal('');
   public readonly subtitle = signal('');

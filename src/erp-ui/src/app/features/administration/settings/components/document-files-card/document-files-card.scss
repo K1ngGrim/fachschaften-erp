@@ -1,0 +1,70 @@
+code {
+  font-size: 0.85em;
+}
+
+.upload-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 0.75rem;
+
+  .target {
+    flex: 1 1 14rem;
+  }
+
+  button {
+    margin-top: 0.25rem;
+  }
+}
+
+.file-tree {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--app-border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.folder + .folder {
+  border-top: 1px solid var(--app-border);
+}
+
+.folder-head,
+.file {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.5rem;
+  padding: 0 0.25rem 0 0.75rem;
+
+  button {
+    --mat-icon-button-icon-size: 18px;
+    --mat-icon-button-state-layer-size: 32px;
+    color: var(--app-text-muted);
+  }
+}
+
+.folder-head {
+  background: var(--app-canvas);
+
+  mat-icon {
+    width: 18px;
+    height: 18px;
+    color: var(--app-text-muted);
+  }
+
+  code {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+.file {
+  padding-left: 2.25rem;
+  font-size: 0.875rem;
+
+  span {
+    flex: 1;
+    min-width: 0;
+  }
+}

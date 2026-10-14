@@ -1,3 +1,4 @@
+import { inject } from '@angular/core';
 import { Routes } from '@angular/router';
 import {
   authGuard,
@@ -8,6 +9,7 @@ import {
 } from './core/guards/auth-guard';
 import { PermissionType } from './shared/models/permission-type';
 import { AppModule } from './core/services/modules';
+import { Auth } from './core/services/auth';
 import { AppShell } from './shared/components/app-shell/app-shell';
 
 export const routes: Routes = [
@@ -312,11 +314,86 @@ export const routes: Routes = [
       },
       {
         path: 'settings',
-        canActivate: [permissionGuard(PermissionType.SettingsCanWrite)],
+        canActivate: [
+          permissionGuard(PermissionType.SettingsCanWrite, PermissionType.DocumentTemplatesCanWrite),
+        ],
         loadComponent: () =>
-          import('./features/administration/settings/components/settings-page/settings-page').then(
-            (m) => m.SettingsPage,
+          import('./features/administration/settings/components/settings-layout/settings-layout').then(
+            (m) => m.SettingsLayout,
           ),
+        children: [
+          {
+            path: '',
+            pathMatch: 'full',
+            // Wer nur Vorlagen pflegt, landet direkt bei den gemeinsamen Dateien.
+            redirectTo: () =>
+              inject(Auth).hasPermission(PermissionType.SettingsCanWrite) ? 'design' : 'document-files',
+          },
+          {
+            path: 'design',
+            data: { section: 'design' },
+            canActivate: [permissionGuard(PermissionType.SettingsCanWrite)],
+            loadComponent: () =>
+              import('./features/administration/settings/components/settings-page/settings-page').then(
+                (m) => m.SettingsPage,
+              ),
+          },
+          {
+            path: 'privacy',
+            data: { section: 'privacy' },
+            canActivate: [permissionGuard(PermissionType.SettingsCanWrite)],
+            loadComponent: () =>
+              import('./features/administration/settings/components/settings-page/settings-page').then(
+                (m) => m.SettingsPage,
+              ),
+          },
+          {
+            path: 'modules',
+            canActivate: [permissionGuard(PermissionType.SettingsCanWrite)],
+            loadComponent: () =>
+              import('./features/administration/settings/components/modules-card/modules-card').then(
+                (m) => m.ModulesCard,
+              ),
+          },
+          {
+            path: 'backup',
+            canActivate: [permissionGuard(PermissionType.SettingsCanWrite)],
+            loadComponent: () =>
+              import('./features/administration/settings/components/backup-card/backup-card').then(
+                (m) => m.BackupCard,
+              ),
+          },
+          {
+            path: 'encryption',
+            canActivate: [permissionGuard(PermissionType.SettingsCanWrite)],
+            loadComponent: () =>
+              import(
+                './features/administration/settings/components/recovery-key-card/recovery-key-card'
+              ).then((m) => m.RecoveryKeyCard),
+          },
+          {
+            path: 'document-files',
+            canActivate: [
+              moduleGuard(AppModule.Documents),
+              permissionGuard(PermissionType.DocumentTemplatesCanWrite),
+            ],
+            loadComponent: () =>
+              import(
+                './features/administration/settings/components/document-files-card/document-files-card'
+              ).then((m) => m.DocumentFilesCard),
+          },
+          {
+            path: 'document-variables',
+            canActivate: [
+              moduleGuard(AppModule.Documents),
+              permissionGuard(PermissionType.DocumentTemplatesCanWrite),
+            ],
+            loadComponent: () =>
+              import(
+                './features/administration/settings/components/document-variables-card/document-variables-card'
+              ).then((m) => m.DocumentVariablesCard),
+          },
+        ],
       },
       {
         path: 'forbidden',

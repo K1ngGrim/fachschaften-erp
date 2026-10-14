@@ -532,6 +532,46 @@ namespace Fachschaften_ERP.Api.Migrations
                     b.ToTable("DocumentAssets", "erp");
                 });
 
+            modelBuilder.Entity("Fachschaften_ERP.Models.Entities.DocumentPublicFileEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("Created")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("CreatorId")
+                        .HasColumnType("uuid");
+
+                    b.Property<byte[]>("Data")
+                        .IsRequired()
+                        .HasColumnType("bytea");
+
+                    b.Property<DateTimeOffset?>("Modified")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("ModifierId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Path")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Path")
+                        .IsUnique();
+
+                    b.ToTable("DocumentPublicFiles", "erp");
+                });
+
             modelBuilder.Entity("Fachschaften_ERP.Models.Entities.DocumentTemplateEntity", b =>
                 {
                     b.Property<Guid>("Id")
@@ -613,6 +653,29 @@ namespace Fachschaften_ERP.Api.Migrations
                         .IsUnique();
 
                     b.ToTable("DocumentTemplateVersions", "erp");
+                });
+
+            modelBuilder.Entity("Fachschaften_ERP.Models.Entities.DocumentVariableEntity", b =>
+                {
+                    b.Property<string>("Key")
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasMaxLength(5000)
+                        .HasColumnType("character varying(5000)");
+
+                    b.HasKey("Key");
+
+                    b.ToTable("DocumentVariables", "erp");
                 });
 
             modelBuilder.Entity("Fachschaften_ERP.Models.Entities.GeneratedDocumentEntity", b =>

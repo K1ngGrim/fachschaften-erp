@@ -215,9 +215,31 @@
 
 daten.text.&lt;schlüssel&gt;     // formatiert: „14.10.2026“, „12,50 €“, „Ja“
 daten.felder.&lt;schlüssel&gt;   // roh: "2026-10-14", 12.5, true (leer: none)
+daten.variablen.&lt;name&gt;     // gemeinsame Variablen (Einstellungen)
 daten.erstellt              // heutiges Datum
-daten.organisation          // Name der Fachschaft</pre
+daten.organisation          // Name der Fachschaft
+
+#image("logo.png")                // Datei dieser Vorlage
+#image("/template/logos/fs.png")  // gemeinsame Datei (Einstellungen)</pre
             >
+            @if (variableKeys().length) {
+              <div class="mb-1">
+                Variablen:
+                @for (key of variableKeys(); track key; let last = $last) {
+                  <code>{{ key }}</code
+                  >{{ last ? '' : ', ' }}
+                }
+              </div>
+            }
+            @if (publicPaths().length) {
+              <div class="mb-1">
+                Gemeinsame Dateien:
+                @for (path of publicPaths(); track path; let last = $last) {
+                  <code>/template/{{ path }}</code
+                  >{{ last ? '' : ', ' }}
+                }
+              </div>
+            }
             <a href="https://typst.app/docs/" target="_blank" rel="noopener">Typst-Dokumentation</a>
           </details>
           <textarea

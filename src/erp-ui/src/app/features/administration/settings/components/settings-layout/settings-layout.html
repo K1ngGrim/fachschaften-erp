@@ -1,0 +1,28 @@
+<div class="container-fluid p-4">
+  <app-page-header [title]="'Einstellungen'" [subtitle]="'Für die ganze Fachschaft.'" />
+
+  <div class="settings-layout">
+    <nav class="settings-nav" aria-label="Bereiche der Einstellungen">
+      @for (group of groups(); track group.label) {
+        <div class="settings-group">
+          <div class="settings-group-label">{{ group.label }}</div>
+          @for (item of group.items; track item.route) {
+            <a
+              class="settings-link"
+              [routerLink]="item.route"
+              routerLinkActive="active"
+              [attr.aria-label]="item.label"
+            >
+              <mat-icon [svgIcon]="item.icon" />
+              <span>{{ item.label }}</span>
+            </a>
+          }
+        </div>
+      }
+    </nav>
+
+    <section class="settings-content">
+      <router-outlet />
+    </section>
+  </div>
+</div>

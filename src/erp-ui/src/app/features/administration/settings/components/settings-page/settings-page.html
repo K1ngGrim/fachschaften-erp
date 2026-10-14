@@ -1,11 +1,4 @@
-<div class="container-fluid p-4">
-  <app-page-header
-    [title]="'Einstellungen'"
-    [subtitle]="'Name, Logo und Farbe deiner Fachschaft sowie die Angaben für den Datenschutz.'"
-  >
-    <button mat-flat-button (click)="save()" [disabled]="!canSave()">Speichern</button>
-  </app-page-header>
-
+<div class="d-flex flex-column gap-3">
   @if (error(); as message) {
     <div class="alert alert-warning" role="alert">{{ message }}</div>
   }
@@ -14,144 +7,148 @@
   }
 
   <div class="row g-4">
-    <div class="col-12 col-lg-7">
-      <mat-card appearance="outlined" class="mb-4">
-        <mat-card-header class="mb-2">
-          <mat-card-title class="fs-6">Erscheinungsbild</mat-card-title>
-        </mat-card-header>
-        <mat-card-content class="d-flex flex-column gap-3">
-          <mat-form-field appearance="outline" subscriptSizing="dynamic">
-            <mat-label>Name der Fachschaft</mat-label>
-            <input matInput [ngModel]="name()" (ngModelChange)="name.set($event)" required />
-            <mat-hint>Erscheint in der Navigation, auf der Anmeldeseite und in E-Mails.</mat-hint>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" subscriptSizing="dynamic">
-            <mat-label>Untertitel (optional)</mat-label>
-            <input matInput [ngModel]="subtitle()" (ngModelChange)="subtitle.set($event)" />
-          </mat-form-field>
-
-          <div class="d-flex align-items-center gap-3">
-            <input
-              type="color"
-              class="color-picker"
-              [ngModel]="colorValid() ? accentColor() : '#e8912a'"
-              (ngModelChange)="accentColor.set($event)"
-              aria-label="Akzentfarbe wählen"
-            />
-            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="flex-grow-1">
-              <mat-label>Akzentfarbe</mat-label>
-              <input matInput [ngModel]="accentColor()" (ngModelChange)="accentColor.set($event)" />
-              @if (!colorValid()) {
-                <mat-hint class="text-negative">Format: #rrggbb</mat-hint>
-              }
+    @if (section === 'design') {
+      <div class="col-12 col-lg-7">
+        <mat-card appearance="outlined">
+          <mat-card-header class="mb-2">
+            <mat-card-title class="fs-6">Erscheinungsbild</mat-card-title>
+          </mat-card-header>
+          <mat-card-content class="d-flex flex-column gap-3">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+              <mat-label>Name der Fachschaft</mat-label>
+              <input matInput [ngModel]="name()" (ngModelChange)="name.set($event)" required />
+              <mat-hint>Erscheint in der Navigation, auf der Anmeldeseite und in E-Mails.</mat-hint>
             </mat-form-field>
-          </div>
 
-          <div>
-            <div class="field-label">Logo</div>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+              <mat-label>Untertitel (optional)</mat-label>
+              <input matInput [ngModel]="subtitle()" (ngModelChange)="subtitle.set($event)" />
+            </mat-form-field>
+
             <div class="d-flex align-items-center gap-3">
-              @if (logoDataUrl(); as logo) {
-                <img class="logo-preview" [src]="logo" alt="Logo" />
-              } @else {
-                <span class="text-hint small">Kein Logo – es wird ein Symbol angezeigt.</span>
-              }
-              <label class="d-inline-block">
+              <input
+                type="color"
+                class="color-picker"
+                [ngModel]="colorValid() ? accentColor() : '#e8912a'"
+                (ngModelChange)="accentColor.set($event)"
+                aria-label="Akzentfarbe wählen"
+              />
+              <mat-form-field appearance="outline" subscriptSizing="dynamic" class="flex-grow-1">
+                <mat-label>Akzentfarbe</mat-label>
                 <input
-                  type="file"
-                  class="d-none"
-                  accept="image/png,image/jpeg,image/webp,image/svg+xml"
-                  (change)="onLogoSelected($event)"
+                  matInput
+                  [ngModel]="accentColor()"
+                  (ngModelChange)="accentColor.set($event)"
                 />
-                <span mat-stroked-button class="mdc-button mat-mdc-button-base upload-button">
-                  <mat-icon svgIcon="upload-outline" />
-                  Bild wählen
-                </span>
-              </label>
-              @if (logoDataUrl()) {
-                <button mat-button (click)="logoDataUrl.set(null)">Entfernen</button>
-              }
+                @if (!colorValid()) {
+                  <mat-hint class="text-negative">Format: #rrggbb</mat-hint>
+                }
+              </mat-form-field>
             </div>
-            <small class="text-hint">PNG, JPG, WebP oder SVG, höchstens 256 KB.</small>
-          </div>
-        </mat-card-content>
-      </mat-card>
 
-      <mat-card appearance="outlined">
-        <mat-card-header class="mb-2">
-          <mat-card-title class="fs-6">Datenschutz</mat-card-title>
-        </mat-card-header>
-        <mat-card-content class="d-flex flex-column gap-3">
-          <mat-form-field appearance="outline" subscriptSizing="dynamic">
-            <mat-label>Verantwortliche Stelle</mat-label>
-            <textarea
-              matInput
-              rows="5"
-              [ngModel]="privacyContact()"
-              (ngModelChange)="privacyContact.set($event)"
-              placeholder="Fachschaft Informatik&#10;Musterstraße 1&#10;12345 Musterstadt&#10;fachschaft@example.org"
-            ></textarea>
-            <mat-hint>Name, Anschrift und Kontakt; erscheint auf der Datenschutzseite.</mat-hint>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" subscriptSizing="dynamic">
-            <mat-label>Link zum Impressum (optional)</mat-label>
-            <input
-              matInput
-              type="url"
-              [ngModel]="imprintUrl()"
-              (ngModelChange)="imprintUrl.set($event)"
-              placeholder="https://"
-            />
-          </mat-form-field>
-        </mat-card-content>
-      </mat-card>
-    </div>
-
-    <div class="col-12 col-lg-5">
-      <mat-card appearance="outlined">
-        <mat-card-header class="mb-2">
-          <mat-card-title class="fs-6">Vorschau</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <div class="preview">
-            <div class="preview-header">
-              @if (logoDataUrl(); as logo) {
-                <img class="preview-logo" [src]="logo" alt="" />
-              } @else {
-                <span class="preview-logo preview-logo--icon" [style.background]="accentColor()">
-                  <mat-icon svgIcon="fridge-outline" />
-                </span>
-              }
-              <div>
-                <div class="preview-name">{{ name() || 'Name' }}</div>
-                @if (subtitle()) {
-                  <div class="preview-subtitle">{{ subtitle() }}</div>
+            <div>
+              <div class="field-label">Logo</div>
+              <div class="d-flex align-items-center gap-3">
+                @if (logoDataUrl(); as logo) {
+                  <img class="logo-preview" [src]="logo" alt="Logo" />
+                } @else {
+                  <span class="text-hint small">Kein Logo – es wird ein Symbol angezeigt.</span>
+                }
+                <label class="d-inline-block">
+                  <input
+                    type="file"
+                    class="d-none"
+                    accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                    (change)="onLogoSelected($event)"
+                  />
+                  <span mat-stroked-button class="mdc-button mat-mdc-button-base upload-button">
+                    <mat-icon svgIcon="upload-outline" />
+                    Bild wählen
+                  </span>
+                </label>
+                @if (logoDataUrl()) {
+                  <button mat-button (click)="logoDataUrl.set(null)">Entfernen</button>
                 }
               </div>
+              <small class="text-hint">PNG, JPG, WebP oder SVG, höchstens 256 KB.</small>
             </div>
-            <span
-              class="preview-button"
-              [style.background]="colorValid() ? accentColor() : '#e8912a'"
-              [style.color]="previewText()"
-            >
-              Beispiel-Button
-            </span>
-          </div>
-        </mat-card-content>
-      </mat-card>
-    </div>
+            <div class="d-flex justify-content-end">
+              <button mat-flat-button (click)="save()" [disabled]="!canSave()">Speichern</button>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    } @else {
+      <div class="col-12 col-xl-8">
+        <mat-card appearance="outlined">
+          <mat-card-header class="mb-2">
+            <mat-card-title class="fs-6">Datenschutz</mat-card-title>
+          </mat-card-header>
+          <mat-card-content class="d-flex flex-column gap-3">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+              <mat-label>Verantwortliche Stelle</mat-label>
+              <textarea
+                matInput
+                rows="5"
+                [ngModel]="privacyContact()"
+                (ngModelChange)="privacyContact.set($event)"
+                placeholder="Fachschaft Informatik&#10;Musterstraße 1&#10;12345 Musterstadt&#10;fachschaft@example.org"
+              ></textarea>
+              <mat-hint>Name, Anschrift und Kontakt; erscheint auf der Datenschutzseite.</mat-hint>
+            </mat-form-field>
 
-    <div class="col-12 col-lg-7">
-      <app-modules-card />
-    </div>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+              <mat-label>Link zum Impressum (optional)</mat-label>
+              <input
+                matInput
+                type="url"
+                [ngModel]="imprintUrl()"
+                (ngModelChange)="imprintUrl.set($event)"
+                placeholder="https://"
+              />
+            </mat-form-field>
+            <div class="d-flex justify-content-end">
+              <button mat-flat-button (click)="save()" [disabled]="!canSave()">Speichern</button>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    }
 
-    <div class="col-12 col-lg-7">
-      <app-backup-card />
-    </div>
-
-    <div class="col-12 col-lg-7">
-      <app-recovery-key-card />
-    </div>
+    @if (section === 'design') {
+      <div class="col-12 col-lg-5">
+        <mat-card appearance="outlined">
+          <mat-card-header class="mb-2">
+            <mat-card-title class="fs-6">Vorschau</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="preview">
+              <div class="preview-header">
+                @if (logoDataUrl(); as logo) {
+                  <img class="preview-logo" [src]="logo" alt="" />
+                } @else {
+                  <span class="preview-logo preview-logo--icon" [style.background]="accentColor()">
+                    <mat-icon svgIcon="fridge-outline" />
+                  </span>
+                }
+                <div>
+                  <div class="preview-name">{{ name() || 'Name' }}</div>
+                  @if (subtitle()) {
+                    <div class="preview-subtitle">{{ subtitle() }}</div>
+                  }
+                </div>
+              </div>
+              <span
+                class="preview-button"
+                [style.background]="colorValid() ? accentColor() : '#e8912a'"
+                [style.color]="previewText()"
+              >
+                Beispiel-Button
+              </span>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    }
   </div>
 </div>

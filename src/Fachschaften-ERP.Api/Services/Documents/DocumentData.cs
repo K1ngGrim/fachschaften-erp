@@ -9,6 +9,7 @@ namespace Fachschaften_ERP.Api.Services.Documents;
 /// <list type="bullet">
 /// <item><c>felder</c>: Werte je Feld-Id (Datum als JJJJ-MM-TT, Zahlen als Zahl, Ja/Nein als bool)</item>
 /// <item><c>text</c>: dieselben Werte fertig formatiert („14.10.2026“, „12,50 €“, „Ja“)</item>
+/// <item><c>variablen</c>: gemeinsame Werte aller Vorlagen (Einstellungen → Variablen)</item>
 /// <item><c>erstellt</c>, <c>organisation</c></item>
 /// </list>
 /// Jedes Feld ist immer vorhanden (leer: <c>none</c> bzw. ""), damit Vorlagen nicht an fehlenden Schlüsseln scheitern.
@@ -21,7 +22,8 @@ public static class DocumentData
         IList<CustomTableColumn> fields,
         JsonElement values,
         string organization,
-        DateTimeOffset localNow)
+        DateTimeOffset localNow,
+        IReadOnlyDictionary<string, string>? variables = null)
     {
         var raw = new Dictionary<string, object?>();
         var text = new Dictionary<string, string>();
@@ -71,6 +73,7 @@ public static class DocumentData
         {
             ["felder"] = raw,
             ["text"] = text,
+            ["variablen"] = variables ?? new Dictionary<string, string>(),
             ["erstellt"] = localNow.ToString("dd.MM.yyyy", German),
             ["organisation"] = organization,
         });

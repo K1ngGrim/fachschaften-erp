@@ -155,7 +155,7 @@ export class Navigation {
           label: 'Einstellungen',
           route: '/settings',
           icon: 'cog-outline',
-          permissions: [PermissionType.SettingsCanWrite],
+          permissions: [PermissionType.SettingsCanWrite, PermissionType.DocumentTemplatesCanWrite],
         },
       ],
     },

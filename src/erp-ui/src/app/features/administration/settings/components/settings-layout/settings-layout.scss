@@ -1,0 +1,92 @@
+.settings-layout {
+  display: grid;
+  grid-template-columns: 15rem minmax(0, 1fr);
+  gap: 2rem;
+  align-items: start;
+}
+
+.settings-nav {
+  position: sticky;
+  top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.settings-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.settings-group-label {
+  padding: 0 0.75rem 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--app-text-muted);
+}
+
+.settings-link {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  color: var(--app-text);
+  text-decoration: none;
+  font-size: 0.9rem;
+
+  mat-icon {
+    width: 18px;
+    height: 18px;
+    color: var(--app-text-muted);
+  }
+
+  &:hover {
+    background: var(--app-hover);
+  }
+
+  &.active {
+    background: color-mix(in srgb, var(--brand-accent) 12%, transparent);
+    font-weight: 600;
+
+    mat-icon {
+      color: var(--brand-accent);
+    }
+  }
+}
+
+.settings-content {
+  min-width: 0;
+  max-width: 64rem;
+}
+
+// Schmal: Navigation als waagrechte Leiste über dem Inhalt.
+@media (max-width: 900px) {
+  .settings-layout {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .settings-nav {
+    position: static;
+    flex-direction: row;
+    overflow-x: auto;
+    gap: 0.25rem;
+    padding-bottom: 0.25rem;
+  }
+
+  .settings-group {
+    flex-direction: row;
+  }
+
+  .settings-group-label {
+    display: none;
+  }
+
+  .settings-link {
+    white-space: nowrap;
+  }
+}

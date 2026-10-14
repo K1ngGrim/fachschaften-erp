@@ -1,0 +1,109 @@
+<mat-card appearance="outlined">
+  <mat-card-header class="mb-2">
+    <mat-card-title class="fs-6">Gemeinsame Dateien</mat-card-title>
+  </mat-card-header>
+  <mat-card-content class="d-flex flex-column gap-3">
+    <p class="small mb-0">
+      Logos, Schriften oder Typst-Bausteine für alle Vorlagen. Beim Übersetzen liegen sie im Ordner
+      <code>template</code> neben der Vorlage, samt Unterordnern:
+      <code>#image("/template/logos/fachschaft.png")</code> oder
+      <code>#import "/template/bausteine/brief.typ": *</code>. Schriften erkennt Typst automatisch.
+    </p>
+
+    <div class="upload-row">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="target">
+        <mat-label>In Ordner (optional)</mat-label>
+        <input
+          matInput
+          [ngModel]="target()"
+          (ngModelChange)="target.set($event)"
+          placeholder="z. B. logos"
+        />
+        <mat-hint>Gleiche Pfade werden ersetzt.</mat-hint>
+      </mat-form-field>
+      <input #filesInput type="file" multiple hidden (change)="upload(filesInput)" />
+      <input
+        #folderInput
+        type="file"
+        webkitdirectory
+        multiple
+        hidden
+        (change)="upload(folderInput)"
+      />
+      <button
+        mat-stroked-button
+        class="d-flex"
+        (click)="filesInput.click()"
+        [disabled]="!!progress()"
+      >
+        <mat-icon svgIcon="file-upload-outline" class="d-flex" />
+        <span>Dateien</span>
+      </button>
+      <button
+        mat-stroked-button
+        class="d-flex"
+        (click)="folderInput.click()"
+        [disabled]="!!progress()"
+      >
+        <mat-icon svgIcon="folder-upload-outline" class="d-flex" />
+        <span>Ordner</span>
+      </button>
+    </div>
+
+    @if (progress(); as text) {
+      <p class="small text-hint mb-0">{{ text }}</p>
+    }
+    @if (errors().length) {
+      <div class="alert alert-warning small mb-0">
+        <div class="fw-medium">Nicht hochgeladen:</div>
+        <ul class="mb-0 ps-3">
+          @for (error of errors(); track $index) {
+            <li>{{ error }}</li>
+          }
+        </ul>
+      </div>
+    }
+
+    <div class="file-tree">
+      @for (folder of folders(); track folder.path) {
+        <div class="folder">
+          <div class="folder-head">
+            <mat-icon [svgIcon]="folder.path ? 'folder-outline' : 'folder-home-outline'" />
+            <code class="text-truncate">template/{{ folder.path }}</code>
+            <small class="text-hint">{{ folder.files.length }}</small>
+            @if (folder.path) {
+              <button mat-icon-button matTooltip="Ordner löschen" (click)="deleteFolder(folder)">
+                <mat-icon svgIcon="delete-outline" />
+              </button>
+            }
+          </div>
+          @for (file of folder.files; track file.id) {
+            <div class="file">
+              <span class="text-truncate">{{ fileName(file) }}</span>
+              <small class="text-hint">{{ formatSize(file.size) }}</small>
+              <button
+                mat-icon-button
+                [matTooltip]="copied() === file.id ? 'Kopiert' : 'Pfad kopieren'"
+                (click)="copy(file)"
+              >
+                <mat-icon [svgIcon]="copied() === file.id ? 'check' : 'content-copy'" />
+              </button>
+              <button mat-icon-button matTooltip="Löschen" (click)="deleteFile(file)">
+                <mat-icon svgIcon="delete-outline" />
+              </button>
+            </div>
+          }
+        </div>
+      } @empty {
+        <p class="text-hint small mb-0">Noch keine gemeinsamen Dateien.</p>
+      }
+    </div>
+
+    @if (files().length) {
+      <small class="text-hint">
+        {{ files().length }} {{ files().length === 1 ? 'Datei' : 'Dateien' }} ·
+        {{ formatSize(totalSize()) }} von höchstens 200 MB
+      </small>
+    }
+  </mat-card-content>
+</mat-card>

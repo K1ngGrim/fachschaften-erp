@@ -11,6 +11,10 @@ public class TypstException(string message, Exception? inner = null) : Exception
 /// Übersetzt Typst-Quelltext mit dem typst-CLI zu PDF. Jede Übersetzung läuft in einem eigenen
 /// temporären Ordner, der zugleich Wurzel ist: Typst liest nur Dateien darin, hat keinen
 /// Shell-Zugriff und lädt höchstens Pakete aus dem offiziellen Paketverzeichnis.
+/// <code>
+/// &lt;wurzel&gt;/work/      main.typ, data.json, Dateien der Vorlage
+/// &lt;wurzel&gt;/template/  gemeinsame Dateien mit Unterordnern, z. B. /template/logos/fs.png
+/// </code>
 /// </summary>
 public partial class TypstCompiler(IConfiguration configuration, ILogger<TypstCompiler> logger)
 {
@@ -27,6 +31,7 @@ public partial class TypstCompiler(IConfiguration configuration, ILogger<TypstCo
         string source,
         IEnumerable<(string FileName, byte[] Data)> assets,
         string dataJson,
+        string? publicDirectory,
         CancellationToken ct)
     {
         if (!await Gate.WaitAsync(TimeSpan.FromSeconds(30), ct))
@@ -35,10 +40,12 @@ public partial class TypstCompiler(IConfiguration configuration, ILogger<TypstCo
         var dir = Directory.CreateTempSubdirectory("erp-typst-");
         try
         {
+            var work = Directory.CreateDirectory(Path.Combine(dir.FullName, "work")).FullName;
             foreach (var (fileName, data) in assets)
-                await File.WriteAllBytesAsync(Path.Combine(dir.FullName, Path.GetFileName(fileName)), data, ct);
-            await File.WriteAllTextAsync(Path.Combine(dir.FullName, "data.json"), dataJson, Utf8, ct);
-            await File.WriteAllTextAsync(Path.Combine(dir.FullName, "main.typ"), source, Utf8, ct);
+                await File.WriteAllBytesAsync(Path.Combine(work, Path.GetFileName(fileName)), data, ct);
+            await File.WriteAllTextAsync(Path.Combine(work, "data.json"), dataJson, Utf8, ct);
+            await File.WriteAllTextAsync(Path.Combine(work, "main.typ"), source, Utf8, ct);
+            if (publicDirectory is not null) CopyDirectory(publicDirectory, Path.Combine(dir.FullName, "template"));
 
             var output = Path.Combine(dir.FullName, "output.pdf");
             await RunAsync(dir.FullName, output, ct);
@@ -74,7 +81,7 @@ public partial class TypstCompiler(IConfiguration configuration, ILogger<TypstCo
         foreach (var arg in new[]
                  {
                      "compile", "--root", root, "--font-path", root, "--diagnostic-format", "short",
-                     "main.typ", output,
+                     Path.Combine(root, "work", "main.typ"), output,
                  })
             start.ArgumentList.Add(arg);
         // Paket-Cache an einen beschreibbaren Ort (im Container hat der App-Benutzer kein Home).
@@ -122,11 +129,29 @@ public partial class TypstCompiler(IConfiguration configuration, ILogger<TypstCo
     private static string CleanDiagnostics(string text, string root)
     {
         text = AnsiEscape().Replace(text, string.Empty);
-        // macOS meldet temporäre Pfade mit /private davor; beide Formen entfernen.
+        // macOS meldet temporäre Pfade mit /private davor; beide Formen entfernen. Dateien der Vorlage
+        // erscheinen so als "main.typ", gemeinsame als "template/…".
         foreach (var prefix in new[] { "/private" + root, root })
-            text = text.Replace(prefix + Path.DirectorySeparatorChar, string.Empty).Replace(prefix, string.Empty);
+        {
+            var work = prefix + Path.DirectorySeparatorChar + "work" + Path.DirectorySeparatorChar;
+            text = text.Replace(work, string.Empty)
+                .Replace(prefix + Path.DirectorySeparatorChar, string.Empty)
+                .Replace(prefix, string.Empty);
+        }
+        // Typst nennt Dateien relativ zur Wurzel ("work/main.typ:3:1: …"); am Zeilenanfang kürzen.
+        text = WorkPrefix().Replace(text, string.Empty);
         text = text.Trim();
         return text.Length > 3000 ? text[..3000] + " …" : text;
+    }
+
+    private static void CopyDirectory(string source, string target)
+    {
+        foreach (var file in Directory.EnumerateFiles(source, "*", SearchOption.AllDirectories))
+        {
+            var destination = Path.Combine(target, Path.GetRelativePath(source, file));
+            Directory.CreateDirectory(Path.GetDirectoryName(destination)!);
+            File.Copy(file, destination);
+        }
     }
 
     private string ResolveTypst()
@@ -146,4 +171,7 @@ public partial class TypstCompiler(IConfiguration configuration, ILogger<TypstCo
 
     [GeneratedRegex(@"\x1B\[[0-9;]*m")]
     private static partial Regex AnsiEscape();
+
+    [GeneratedRegex(@"(?m)^work[/\\]")]
+    private static partial Regex WorkPrefix();
 }

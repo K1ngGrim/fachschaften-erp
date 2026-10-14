@@ -15,6 +15,7 @@ import {
   CustomTableColumn,
   CustomTableColumnType,
   DocumentAssetDto,
+  DocumentLibraryService,
   DocumentsService,
   DocumentTemplateDto,
   DocumentTemplateVersionDto,
@@ -81,6 +82,7 @@ Unterschrift
 })
 export class TemplateEditorPage implements OnInit, OnDestroy {
   private readonly documentsController = inject(DocumentsService);
+  private readonly libraryController = inject(DocumentLibraryService);
   private readonly pdf = inject(DocumentsPdf);
   private readonly dialog = inject(MatDialog);
   private readonly dialogService = inject(DialogService);
@@ -103,6 +105,9 @@ export class TemplateEditorPage implements OnInit, OnDestroy {
   public readonly assets = signal<DocumentAssetDto[]>([]);
   public readonly comment = signal('');
   public readonly testValues = signal<Record<string, unknown>>({ name: 'Erika Musterfrau' });
+  /** Was alle Vorlagen nutzen können (für die Hilfe). */
+  public readonly variableKeys = signal<string[]>([]);
+  public readonly publicPaths = signal<string[]>([]);
 
   public readonly saving = signal(false);
   public readonly uploading = signal(false);
@@ -171,6 +176,7 @@ export class TemplateEditorPage implements OnInit, OnDestroy {
   }
 
   async ngOnInit() {
+    void this.loadLibrary();
     const id = this.id();
     try {
       if (id)
@@ -183,6 +189,15 @@ export class TemplateEditorPage implements OnInit, OnDestroy {
     } finally {
       this.loading.set(false);
     }
+  }
+
+  private async loadLibrary() {
+    const [variables, files] = await Promise.all([
+      lastValueFrom(this.libraryController.apiDocumentsVariablesGet()).catch(() => []),
+      lastValueFrom(this.libraryController.apiDocumentsPublicFilesGet()).catch(() => []),
+    ]);
+    this.variableKeys.set(variables.map((v) => v.key));
+    this.publicPaths.set(files.map((f) => f.path));
   }
 
   ngOnDestroy() {

@@ -32,6 +32,8 @@ public partial class CoreContext
     public DbSet<DocumentTemplateVersionEntity> DocumentTemplateVersions => Set<DocumentTemplateVersionEntity>();
     public DbSet<DocumentAssetEntity> DocumentAssets => Set<DocumentAssetEntity>();
     public DbSet<GeneratedDocumentEntity> GeneratedDocuments => Set<GeneratedDocumentEntity>();
+    public DbSet<DocumentPublicFileEntity> DocumentPublicFiles => Set<DocumentPublicFileEntity>();
+    public DbSet<DocumentVariableEntity> DocumentVariables => Set<DocumentVariableEntity>();
     
     private static void OnErpCreating(ModelBuilder modelBuilder)
     {
@@ -122,6 +124,22 @@ public partial class CoreContext
             entity.HasIndex(a => a.TemplateId);
             entity.Property(a => a.FileName).IsRequired().HasMaxLength(200);
             entity.Property(a => a.ContentType).IsRequired().HasMaxLength(100);
+        });
+
+        modelBuilder.Entity<DocumentPublicFileEntity>(entity =>
+        {
+            entity.HasKey(f => f.Id);
+            entity.HasIndex(f => f.Path).IsUnique();
+            entity.Property(f => f.Path).IsRequired().HasMaxLength(300);
+            entity.Property(f => f.ContentType).IsRequired().HasMaxLength(100);
+        });
+
+        modelBuilder.Entity<DocumentVariableEntity>(entity =>
+        {
+            entity.HasKey(v => v.Key);
+            entity.Property(v => v.Key).HasMaxLength(40);
+            entity.Property(v => v.Value).IsRequired().HasMaxLength(5000);
+            entity.Property(v => v.Description).HasMaxLength(300);
         });
 
         modelBuilder.Entity<GeneratedDocumentEntity>(entity =>

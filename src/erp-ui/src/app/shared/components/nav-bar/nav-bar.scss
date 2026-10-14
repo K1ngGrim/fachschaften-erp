@@ -173,6 +173,11 @@ $sidenav-collapsed-width: 64px;
   &.collapsed {
     margin-left: $sidenav-collapsed-width !important;
   }
+
+  // Auf dem Handy liegt die Navigation über dem Inhalt (mode "over"): kein Abstand links.
+  &.mobile {
+    margin-left: 0 !important;
+  }
 }
 
 .content-wrapper {

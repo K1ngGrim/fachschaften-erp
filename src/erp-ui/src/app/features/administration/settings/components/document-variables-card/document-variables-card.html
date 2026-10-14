@@ -1,0 +1,87 @@
+<mat-card appearance="outlined">
+  <mat-card-header class="mb-2">
+    <mat-card-title class="fs-6">Variablen</mat-card-title>
+  </mat-card-header>
+  <mat-card-content class="d-flex flex-column gap-3">
+    <p class="small mb-0">
+      Werte, die in vielen Vorlagen vorkommen, z. B. Anschrift, Bankverbindung oder Vorsitz. Ändert
+      sich etwas, reicht eine Stelle. In Vorlagen:
+      <code>#let daten = json("data.json")</code>, dann <code>#daten.variablen.anschrift</code>.
+    </p>
+
+    @for (
+      variable of variables();
+      track variable.uid;
+      let i = $index;
+      let first = $first;
+      let last = $last
+    ) {
+      <div class="variable">
+        <div class="variable-fields">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic" class="key">
+            <mat-label>Name</mat-label>
+            <input
+              matInput
+              class="mono"
+              [ngModel]="variable.key"
+              (ngModelChange)="update(i, { key: $event })"
+              placeholder="anschrift"
+            />
+          </mat-form-field>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic" class="description">
+            <mat-label>Beschreibung (optional)</mat-label>
+            <input
+              matInput
+              [ngModel]="variable.description"
+              (ngModelChange)="update(i, { description: $event })"
+            />
+          </mat-form-field>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic" class="value">
+            <mat-label>Wert</mat-label>
+            <textarea
+              matInput
+              rows="3"
+              [ngModel]="variable.value"
+              (ngModelChange)="update(i, { value: $event })"
+            ></textarea>
+          </mat-form-field>
+        </div>
+        <div class="row-actions">
+          <button mat-icon-button matTooltip="Nach oben" [disabled]="first" (click)="move(i, -1)">
+            <mat-icon svgIcon="arrow-up" />
+          </button>
+          <button mat-icon-button matTooltip="Nach unten" [disabled]="last" (click)="move(i, 1)">
+            <mat-icon svgIcon="arrow-down" />
+          </button>
+          <button mat-icon-button matTooltip="Entfernen" (click)="remove(i)">
+            <mat-icon svgIcon="delete-outline" />
+          </button>
+        </div>
+      </div>
+    } @empty {
+      <p class="text-hint small mb-0">Noch keine Variablen.</p>
+    }
+
+    @if (message(); as info) {
+      <div
+        class="alert small mb-0"
+        [class.alert-success]="info.ok"
+        [class.alert-warning]="!info.ok"
+      >
+        {{ info.text }}
+      </div>
+    } @else if (problem(); as text) {
+      <p class="text-hint small mb-0">{{ text }}</p>
+    }
+
+    <div class="d-flex flex-wrap gap-2">
+      <button mat-stroked-button class="d-flex" (click)="add()">
+        <mat-icon svgIcon="plus" class="d-flex" />
+        <span>Variable hinzufügen</span>
+      </button>
+      <button mat-flat-button (click)="save()" [disabled]="!dirty() || !!problem() || saving()">
+        Speichern
+      </button>
+    </div>
+  </mat-card-content>
+</mat-card>

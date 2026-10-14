@@ -24,6 +24,7 @@ public partial class DocumentsController(
     CoreContext db,
     TypstCompiler typst,
     OrganizationSettingsService organizationSettings,
+    PublicFilesCache publicFiles,
     IConfiguration configuration) : ControllerBase
 {
     private const int MaxAssetBytes = 5 * 1024 * 1024;
@@ -31,9 +32,10 @@ public partial class DocumentsController(
     private const int MaxFields = 50;
     private const int MaxSourceLength = 200_000;
 
-    private static readonly HashSet<string> AllowedExtensions =
+    /// <summary>Dateitypen, die Typst lesen kann (Bilder inkl. PDF, Schriften, Daten, Typst-Dateien).</summary>
+    internal static readonly HashSet<string> AllowedExtensions =
     [
-        ".png", ".jpg", ".jpeg", ".gif", ".svg", ".webp", ".ttf", ".otf", ".ttc",
+        ".png", ".jpg", ".jpeg", ".gif", ".svg", ".webp", ".pdf", ".ttf", ".otf", ".ttc",
         ".typ", ".csv", ".json", ".yaml", ".yml", ".toml", ".bib", ".txt", ".xml",
     ];
 
@@ -334,10 +336,14 @@ public partial class DocumentsController(
     {
         var organization = (await organizationSettings.GetAsync(ct)).Name;
         var localNow = TimeZoneInfo.ConvertTime(DateTimeOffset.UtcNow, AppTimeZone.From(configuration));
-        var data = DocumentData.Build(fields, values, organization, localNow);
+        var variables = await db.DocumentVariables.AsNoTracking()
+            .ToDictionaryAsync(v => v.Key, v => v.Value, ct);
+        var data = DocumentData.Build(fields, values, organization, localNow, variables);
         try
         {
-            var pdf = await typst.CompileAsync(source, assets.Select(a => (a.FileName, a.Data)), data, ct);
+            var publicDirectory = await publicFiles.GetDirectoryAsync(db, ct);
+            var pdf = await typst.CompileAsync(
+                source, assets.Select(a => (a.FileName, a.Data)), data, publicDirectory, ct);
             return File(pdf, "application/pdf");
         }
         catch (TypstException e)
@@ -424,12 +430,13 @@ public partial class DocumentsController(
     private static string FileName(string title) =>
         (Regex.Replace(title, @"[^\w\-. ]", "").Trim() is { Length: > 0 } name ? name : "dokument") + ".pdf";
 
-    private static string ContentType(string extension) => extension switch
+    internal static string ContentType(string extension) => extension switch
     {
         ".png" => "image/png",
         ".jpg" or ".jpeg" => "image/jpeg",
         ".gif" => "image/gif",
         ".svg" => "image/svg+xml",
+        ".pdf" => "application/pdf",
         ".webp" => "image/webp",
         ".ttf" or ".otf" or ".ttc" => "font/" + extension.TrimStart('.'),
         ".json" => "application/json",

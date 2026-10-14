@@ -21,6 +21,8 @@ api/custom-tables.service.ts
 api/custom-tables.serviceInterface.ts
 api/deliveries.service.ts
 api/deliveries.serviceInterface.ts
+api/document-library.service.ts
+api/document-library.serviceInterface.ts
 api/documents.service.ts
 api/documents.serviceInterface.ts
 api/inventory-transactions.service.ts
@@ -94,10 +96,12 @@ model/delivery-overview-dto.ts
 model/delivery-position-dto.ts
 model/disable2-fa-request.ts
 model/document-asset-dto.ts
+model/document-public-file-dto.ts
 model/document-template-dto.ts
 model/document-template-summary-dto.ts
 model/document-template-version-dto.ts
 model/document-template-version-summary-dto.ts
+model/document-variable-dto.ts
 model/encrypt-table-request.ts
 model/encrypted-row-dto.ts
 model/forgot-password-request.ts
@@ -157,6 +161,7 @@ model/tax-area.ts
 model/test-backup-connection-request.ts
 model/update-user-request.ts
 model/upload-document-asset-request.ts
+model/upload-document-public-file-request.ts
 model/upsert-custom-table-request.ts
 model/upsert-custom-table-row-request.ts
 model/upsert-item-type-request.ts

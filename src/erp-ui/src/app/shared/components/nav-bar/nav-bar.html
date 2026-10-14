@@ -69,7 +69,12 @@
     </mat-nav-list>
   </mat-sidenav>
 
-  <mat-sidenav-content #content class="sidenav-content" [class.collapsed]="collapsed()">
+  <mat-sidenav-content
+    #content
+    class="sidenav-content"
+    [class.collapsed]="collapsed()"
+    [class.mobile]="isMobile()"
+  >
     <div class="content-wrapper content">
       <mat-toolbar class="toolbar">
         <button

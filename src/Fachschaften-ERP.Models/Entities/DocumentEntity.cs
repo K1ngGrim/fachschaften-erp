@@ -83,3 +83,31 @@ public class GeneratedDocumentEntity : IBaseEntity
     public DateTimeOffset? Modified { get; set; }
     public bool IsActive { get; set; }
 }
+
+/// <summary>
+/// Datei, die allen Vorlagen zur Verfügung steht (z. B. Logos, Schriften, gemeinsame .typ-Dateien).
+/// Ordner werden nicht eigens verwaltet: <see cref="Path"/> ist der relative Pfad samt Unterordnern.
+/// </summary>
+public class DocumentPublicFileEntity
+{
+    public Guid Id { get; set; }
+
+    /// <summary>Relativer Pfad mit "/" als Trenner, z. B. "logos/fachschaft.png".</summary>
+    public string Path { get; set; } = string.Empty;
+
+    public string ContentType { get; set; } = string.Empty;
+    public byte[] Data { get; set; } = [];
+    public Guid CreatorId { get; set; }
+    public DateTimeOffset Created { get; set; }
+    public Guid? ModifierId { get; set; }
+    public DateTimeOffset? Modified { get; set; }
+}
+
+/// <summary>Wert, den alle Vorlagen über <c>daten.variablen.&lt;schlüssel&gt;</c> lesen.</summary>
+public class DocumentVariableEntity
+{
+    public string Key { get; set; } = string.Empty;
+    public string Value { get; set; } = string.Empty;
+    public string? Description { get; set; }
+    public int SortOrder { get; set; }
+}
