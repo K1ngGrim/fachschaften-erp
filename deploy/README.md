@@ -131,6 +131,20 @@ services:
 Available keys are `RequiredLength`, `RequiredUniqueChars`, `RequireLowercase`,
 `RequireUppercase`, `RequireDigit` and `RequireNonAlphanumeric`.
 
+### Modules
+
+Optional features can be switched on and off under **Einstellungen → Module**.
+Switched off, they disappear from the navigation and their API answers with 404;
+their data is kept.
+
+- **Dokumente**: fill in [Typst](https://typst.app) templates online and create
+  PDFs. The `typst` binary is part of the API image. Each template decides whether
+  generated documents are stored (e.g. contracts) or only created for printing
+  (personal data, nothing is stored). Every change to a template creates a new
+  version; stored documents keep a reference to the version they were made with.
+  Templates may import packages from the official Typst package registry, so the
+  API container needs outbound HTTPS for that.
+
 ## HTTPS
 
 The stack itself speaks plain HTTP. For anything beyond a local test, put a

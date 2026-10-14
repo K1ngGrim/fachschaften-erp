@@ -423,7 +423,7 @@ public class CustomTablesController(CoreContext db) : ControllerBase
     }
 
     /// <summary>Prüft die Werte gegen die Spalten; unbekannte Schlüssel werden verworfen.</summary>
-    private static (JsonDocument? Values, string? Error) NormalizeValues(
+    internal static (JsonDocument? Values, string? Error) NormalizeValues(
         IList<CustomTableColumn> columns,
         JsonElement input)
     {

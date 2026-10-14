@@ -1,6 +1,7 @@
 import { CanActivateFn, Router } from '@angular/router';
 import { inject } from '@angular/core';
 import { Auth } from '../services/auth';
+import { Modules } from '../services/modules';
 
 export const authGuard: CanActivateFn = async () => {
   const authService = inject(Auth);
@@ -67,4 +68,14 @@ export const permissionGuard =
     }
 
     return true;
+  };
+
+/** Seiten eines ausgeschalteten Moduls gibt es nicht; dann zurück zur Startseite. */
+export const moduleGuard =
+  (key: string): CanActivateFn =>
+  async () => {
+    const modules = inject(Modules);
+    await modules.load();
+    if (modules.isEnabled(key)) return true;
+    return inject(Router).createUrlTree(['/']);
   };

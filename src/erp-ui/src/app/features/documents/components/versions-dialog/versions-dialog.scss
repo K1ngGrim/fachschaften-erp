@@ -1,0 +1,57 @@
+.versions-layout {
+  display: grid;
+  grid-template-columns: minmax(12rem, 16rem) minmax(0, 1fr);
+  gap: 1rem;
+  min-height: 24rem;
+
+  @media (max-width: 700px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.version-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.version {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.6rem 0.75rem;
+  text-align: left;
+  color: inherit;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--app-hover);
+  }
+
+  &.active {
+    border-color: var(--brand-accent);
+  }
+}
+
+.version-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.source {
+  margin: 0;
+  padding: 0.75rem;
+  max-height: 50vh;
+  overflow: auto;
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 0.8rem;
+  background: var(--app-canvas);
+  border: 1px solid var(--app-border);
+  border-radius: 8px;
+  white-space: pre-wrap;
+}

@@ -1,0 +1,65 @@
+<h2 mat-dialog-title>Versionen</h2>
+
+<mat-dialog-content>
+  <div class="versions-layout">
+    <div class="version-list">
+      @for (version of versions(); track version.version) {
+        <button
+          type="button"
+          class="version"
+          [class.active]="selected()?.version === version.version"
+          (click)="select(version.version)"
+        >
+          <span class="fw-medium">
+            Version {{ version.version }}
+            @if (version.version === data.currentVersion) {
+              <span class="pill pill--positive">aktuell</span>
+            }
+          </span>
+          <small class="text-hint"
+            >{{ formatDate(version.createdAt) }} · {{ version.createdBy }}</small
+          >
+          @if (version.comment) {
+            <small>{{ version.comment }}</small>
+          }
+        </button>
+      }
+    </div>
+
+    <div class="version-detail">
+      @if (selected(); as version) {
+        <div class="small">
+          <strong>Felder:</strong>
+          @for (field of version.fields; track field.id; let last = $last) {
+            {{ field.label }} <code>{{ field.id }}</code> ({{ typeLabels[field.type] }}){{
+              last ? '' : ', '
+            }}
+          } @empty {
+            keine
+          }
+        </div>
+        <div class="small">
+          <strong>Dateien:</strong>
+          @for (asset of version.assets; track asset.id; let last = $last) {
+            <code>{{ asset.fileName }}</code
+            >{{ last ? '' : ', ' }}
+          } @empty {
+            keine
+          }
+        </div>
+        <pre class="source">{{ version.source }}</pre>
+      }
+    </div>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="close()">Schließen</button>
+  <button
+    mat-flat-button
+    (click)="restore()"
+    [disabled]="!selected() || selected()?.version === data.currentVersion"
+  >
+    In den Editor übernehmen
+  </button>
+</mat-dialog-actions>

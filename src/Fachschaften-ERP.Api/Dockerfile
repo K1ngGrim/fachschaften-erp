@@ -12,6 +12,18 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends postgresql-client-17 \
     && apt-get purge -y curl gnupg && apt-get autoremove -y \
     && rm -rf /var/lib/apt/lists/*
+# Typst für das Dokumente-Modul (einzelne Binärdatei, passend zur Architektur des Images).
+ARG TYPST_VERSION=0.15.1
+ARG TARGETARCH
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl xz-utils \
+    && case "$TARGETARCH" in arm64) arch=aarch64 ;; *) arch=x86_64 ;; esac \
+    && curl -fsSL "https://github.com/typst/typst/releases/download/v${TYPST_VERSION}/typst-${arch}-unknown-linux-musl.tar.xz" \
+       | tar -xJ -C /tmp \
+    && mv "/tmp/typst-${arch}-unknown-linux-musl/typst" /usr/local/bin/typst \
+    && rm -rf "/tmp/typst-${arch}-unknown-linux-musl" \
+    && apt-get purge -y curl xz-utils && apt-get autoremove -y \
+    && rm -rf /var/lib/apt/lists/*
 # Verzeichnis für die Data-Protection-Schlüssel (Volume), muss dem App-Benutzer gehören.
 RUN mkdir -p /keys && chown $APP_UID /keys
 USER $APP_UID

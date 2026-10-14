@@ -1,0 +1,28 @@
+.template-card-link {
+  display: block;
+  height: 100%;
+  color: inherit;
+  text-decoration: none;
+
+  mat-card {
+    transition: border-color 0.15s ease;
+  }
+
+  &:hover mat-card {
+    border-color: var(--brand-accent);
+  }
+}
+
+.description {
+  margin: 0.15rem 0;
+}
+
+.min-w-0 {
+  min-width: 0;
+}
+
+.lock-icon {
+  width: 16px;
+  height: 16px;
+  color: var(--app-text-muted);
+}

@@ -5,6 +5,8 @@ using Fachschaften_ERP.Api.Models;
 using Fachschaften_ERP.Api.Provider;
 using Fachschaften_ERP.Api.Services;
 using Fachschaften_ERP.Api.Services.Backup;
+using Fachschaften_ERP.Api.Services.Documents;
+using Fachschaften_ERP.Api.Services.Modules;
 using Fachschaften_ERP.Api.Services.Email;
 using Fachschaften_ERP.Models;
 using Fachschaften_ERP.Models.Entities.Identity;
@@ -163,6 +165,9 @@ builder.Services.AddEmailSender(builder.Configuration);
 builder.Services.AddAppRateLimiting();
 builder.Services.AddScoped<OrganizationSettingsService>();
 builder.Services.AddScoped<BackupService>();
+builder.Services.AddMemoryCache();
+builder.Services.AddScoped<ModuleService>();
+builder.Services.AddSingleton<TypstCompiler>();
 builder.Services.AddScoped<BackupCsvExporter>();
 // Große Backups brauchen beim Hochladen länger als die Standard-Zeitüberschreitung von 100 s.
 builder.Services.AddHttpClient(nameof(BackupService), client => client.Timeout = TimeSpan.FromMinutes(30));

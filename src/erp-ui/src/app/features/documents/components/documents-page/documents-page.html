@@ -1,0 +1,56 @@
+<div class="container-fluid p-4">
+  <app-page-header
+    [title]="'Dokumente'"
+    [subtitle]="'Vorlagen ausfüllen und als PDF erzeugen, z. B. Bescheinigungen oder Verträge.'"
+  >
+    @if (canDesign) {
+      <a mat-flat-button class="d-flex" routerLink="/documents/templates/new">
+        <mat-icon svgIcon="plus" class="d-flex" />
+        <span>Neue Vorlage</span>
+      </a>
+    }
+  </app-page-header>
+
+  <div class="row g-3">
+    @for (template of templates(); track template.id) {
+      <div class="col-12 col-md-6 col-xl-4">
+        <a [routerLink]="['/documents/templates', template.id]" class="template-card-link">
+          <mat-card appearance="outlined" class="h-100">
+            <mat-card-content class="d-flex gap-3 align-items-start">
+              <span class="icon-tile">
+                <mat-icon svgIcon="file-document-edit-outline" />
+              </span>
+              <div class="min-w-0">
+                <div class="fw-medium">{{ template.name }}</div>
+                @if (template.description) {
+                  <div class="text-hint small description">{{ template.description }}</div>
+                }
+                <div class="d-flex flex-wrap gap-2 align-items-center mt-1">
+                  <span class="pill" [class.pill--positive]="template.storeDocuments">
+                    {{ template.storeDocuments ? 'Wird abgelegt' : 'Nur drucken' }}
+                  </span>
+                  <small class="text-hint">
+                    Version {{ template.currentVersion }} · {{ template.fieldCount }}
+                    {{ template.fieldCount === 1 ? 'Feld' : 'Felder' }}
+                    @if (template.storeDocuments) {
+                      · {{ template.documentCount }} abgelegt
+                    }
+                  </small>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </a>
+      </div>
+    } @empty {
+      @if (loaded()) {
+        <p class="text-hint text-center py-5">
+          Noch keine Vorlagen.
+          @if (canDesign) {
+            Lege mit „Neue Vorlage“ die erste an.
+          }
+        </p>
+      }
+    }
+  </div>
+</div>

@@ -1,5 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 import { PermissionType } from '../../shared/models/permission-type';
+import { AppModule } from './modules';
 
 @Injectable({
   providedIn: 'root',
@@ -91,6 +92,13 @@ export class Navigation {
           icon: 'table-large',
           permissions: [PermissionType.TablesCanRead],
         },
+        {
+          label: 'Dokumente',
+          route: '/documents',
+          icon: 'file-document-edit-outline',
+          permissions: [PermissionType.DocumentsCanRead],
+          module: AppModule.Documents,
+        },
       ],
     },
     {
@@ -166,4 +174,6 @@ export interface NavigationItem {
   /** Nur bei exakt gleicher URL aktiv, z. B. wenn Unterseiten eigene Einträge haben. */
   exact?: boolean;
   permissions?: string[];
+  /** Nur sichtbar, wenn dieses optionale Modul eingeschaltet ist. */
+  module?: string;
 }

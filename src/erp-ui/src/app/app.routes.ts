@@ -4,8 +4,10 @@ import {
   passwordChangeGuard,
   permissionGuard,
   setup2faGuard,
+  moduleGuard,
 } from './core/guards/auth-guard';
 import { PermissionType } from './shared/models/permission-type';
+import { AppModule } from './core/services/modules';
 import { AppShell } from './shared/components/app-shell/app-shell';
 
 export const routes: Routes = [
@@ -269,6 +271,44 @@ export const routes: Routes = [
         canActivate: [permissionGuard(PermissionType.TablesCanRead)],
         loadComponent: () =>
           import('./features/tables/components/table-page/table-page').then((m) => m.TablePage),
+      },
+      {
+        path: 'documents',
+        canActivate: [moduleGuard(AppModule.Documents), permissionGuard(PermissionType.DocumentsCanRead)],
+        loadComponent: () =>
+          import('./features/documents/components/documents-page/documents-page').then(
+            (m) => m.DocumentsPage,
+          ),
+      },
+      {
+        path: 'documents/templates/new',
+        canActivate: [
+          moduleGuard(AppModule.Documents),
+          permissionGuard(PermissionType.DocumentTemplatesCanWrite),
+        ],
+        loadComponent: () =>
+          import('./features/documents/components/template-editor-page/template-editor-page').then(
+            (m) => m.TemplateEditorPage,
+          ),
+      },
+      {
+        path: 'documents/templates/:id/edit',
+        canActivate: [
+          moduleGuard(AppModule.Documents),
+          permissionGuard(PermissionType.DocumentTemplatesCanWrite),
+        ],
+        loadComponent: () =>
+          import('./features/documents/components/template-editor-page/template-editor-page').then(
+            (m) => m.TemplateEditorPage,
+          ),
+      },
+      {
+        path: 'documents/templates/:id',
+        canActivate: [moduleGuard(AppModule.Documents), permissionGuard(PermissionType.DocumentsCanRead)],
+        loadComponent: () =>
+          import('./features/documents/components/document-page/document-page').then(
+            (m) => m.DocumentPage,
+          ),
       },
       {
         path: 'settings',

@@ -1,0 +1,37 @@
+.back-link {
+  margin-left: -0.75rem;
+}
+
+.section-heading {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--app-text-muted);
+}
+
+.stored {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.5rem 0.25rem 0.5rem 0.75rem;
+  border: 1px solid var(--app-border);
+  border-radius: 8px;
+
+  button {
+    --mat-icon-button-icon-size: 18px;
+    --mat-icon-button-state-layer-size: 34px;
+  }
+}
+
+.min-w-0 {
+  min-width: 0;
+}
+
+.preview {
+  display: block;
+  height: 80vh;
+  position: sticky;
+  top: 1rem;
+}

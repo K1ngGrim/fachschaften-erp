@@ -1,0 +1,130 @@
+<div class="container-fluid p-4">
+  <a mat-button routerLink="/documents" class="mb-2 back-link">
+    <mat-icon svgIcon="arrow-left" />
+    Alle Vorlagen
+  </a>
+
+  @if (!loaded()) {
+    <p class="text-hint">Wird geladen …</p>
+  } @else if (template(); as t) {
+    <app-page-header [title]="t.name" [subtitle]="t.description ?? ''">
+      @if (canDesign) {
+        <a mat-stroked-button class="d-flex" [routerLink]="['/documents/templates', t.id, 'edit']">
+          <mat-icon svgIcon="pencil-outline" class="d-flex" />
+          <span>Vorlage bearbeiten</span>
+        </a>
+      }
+    </app-page-header>
+
+    <p class="small text-hint">
+      <span class="pill" [class.pill--positive]="t.storeDocuments">
+        {{ t.storeDocuments ? 'Wird abgelegt' : 'Nur drucken' }}
+      </span>
+      @if (t.storeDocuments) {
+        Erzeugte Dokumente werden mit Version {{ t.currentVersion }} der Vorlage gespeichert.
+      } @else {
+        Es wird nichts gespeichert; das PDF entsteht nur zum Herunterladen oder Drucken.
+      }
+    </p>
+
+    @if (message(); as info) {
+      <div
+        class="alert"
+        [class.alert-success]="info.ok"
+        [class.alert-warning]="!info.ok"
+        role="status"
+      >
+        {{ info.text }}
+      </div>
+    }
+
+    <div class="row g-4">
+      <div class="col-12 col-xl-5 d-flex flex-column gap-4">
+        @if (canWrite) {
+          <section class="d-flex flex-column gap-3">
+            @if (t.storeDocuments) {
+              <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                <mat-label>Titel</mat-label>
+                <input
+                  matInput
+                  [ngModel]="title()"
+                  (ngModelChange)="title.set($event)"
+                  [placeholder]="t.name"
+                />
+                <mat-hint>Zum Wiederfinden in der Ablage.</mat-hint>
+              </mat-form-field>
+            }
+            <app-fields-form [fields]="fields()" [(values)]="values" />
+            <div class="d-flex flex-wrap gap-2">
+              @if (t.storeDocuments) {
+                <button mat-flat-button class="d-flex" (click)="store()" [disabled]="!!busy()">
+                  <mat-icon svgIcon="tray-arrow-down" class="d-flex" />
+                  <span>Erstellen und ablegen</span>
+                </button>
+              }
+              <button mat-stroked-button class="d-flex" (click)="download()" [disabled]="!!busy()">
+                <mat-icon svgIcon="download-outline" class="d-flex" />
+                <span>{{ t.storeDocuments ? 'Nur herunterladen' : 'PDF herunterladen' }}</span>
+              </button>
+              <button mat-stroked-button class="d-flex" (click)="print()" [disabled]="!!busy()">
+                <mat-icon svgIcon="printer" class="d-flex" />
+                <span>Drucken</span>
+              </button>
+            </div>
+            @if (missing().length) {
+              <small class="text-hint">Noch auszufüllen: {{ missing().join(', ') }}</small>
+            }
+          </section>
+        } @else {
+          <p class="text-hint small mb-0">Zum Ausfüllen fehlt dir die Berechtigung.</p>
+        }
+
+        @if (t.storeDocuments) {
+          <section class="d-flex flex-column gap-2">
+            <div class="section-heading">Abgelegt</div>
+            @for (doc of documents(); track doc.id) {
+              <div class="stored">
+                <div class="min-w-0">
+                  <div class="fw-medium text-truncate">{{ doc.title }}</div>
+                  <small class="text-hint">
+                    {{ formatDate(doc.createdAt) }} · {{ doc.createdBy }} · Version
+                    {{ doc.templateVersion }}
+                  </small>
+                </div>
+                <div class="d-flex">
+                  <button mat-icon-button matTooltip="Herunterladen" (click)="downloadStored(doc)">
+                    <mat-icon svgIcon="download-outline" />
+                  </button>
+                  @if (canWrite) {
+                    <button mat-icon-button matTooltip="Werte übernehmen" (click)="reuse(doc)">
+                      <mat-icon svgIcon="content-copy" />
+                    </button>
+                    <button mat-icon-button matTooltip="Löschen" (click)="deleteStored(doc)">
+                      <mat-icon svgIcon="delete-outline" />
+                    </button>
+                  }
+                </div>
+              </div>
+            } @empty {
+              <p class="text-hint small mb-0">Noch nichts abgelegt.</p>
+            }
+          </section>
+        }
+      </div>
+
+      @if (canWrite) {
+        <div class="col-12 col-xl-7">
+          <app-pdf-preview
+            class="preview"
+            [blob]="previewBlob()"
+            [error]="previewError()"
+            [loading]="previewLoading()"
+            placeholder="Vorschau wird erstellt …"
+          />
+        </div>
+      }
+    </div>
+  } @else {
+    <p class="text-hint">Diese Vorlage gibt es nicht oder sie wurde gelöscht.</p>
+  }
+</div>

@@ -30,6 +30,7 @@ import { MatProgressBar } from '@angular/material/progress-bar';
 import { Auth } from '../../../core/services/auth';
 import { LoadingService } from '../../../core/services/loading-service';
 import { Organization } from '../../../core/services/organization';
+import { Modules } from '../../../core/services/modules';
 
 @Component({
   selector: 'app-nav-bar',
@@ -59,6 +60,7 @@ export class NavBar implements OnInit, OnDestroy {
   private readonly loadingService = inject(LoadingService);
   private readonly navigation = inject(Navigation);
   private readonly auth = inject(Auth);
+  protected readonly modules = inject(Modules);
 
   readonly initials = this.auth.initials;
   readonly userName = this.auth.displayName;
@@ -104,6 +106,7 @@ export class NavBar implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    void this.modules.load();
     this.sub = this.breakpointObserver
       .observe([Breakpoints.XSmall, Breakpoints.Small])
       .subscribe((result) => this.isMobile.set(result.matches));

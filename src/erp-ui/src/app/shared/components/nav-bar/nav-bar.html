@@ -26,12 +26,12 @@
 
     <mat-nav-list class="nav-list flex-grow-1 d-flex flex-column">
       @for (group of navItems(); track group.label) {
-        @if ((group.items | filterNavigation).length !== 0) {
+        @if ((group.items | filterNavigation: modules.enabled()).length !== 0) {
           <div class="nav-section">
             @if (!collapsed()) {
               <span class="section-label">{{ group.label }}</span>
             }
-            @for (item of group.items | filterNavigation; track item.route) {
+            @for (item of group.items | filterNavigation: modules.enabled(); track item.route) {
               <a
                 mat-list-item
                 [routerLink]="item.route"

@@ -47,14 +47,7 @@ public class BackupService(
         }
     }
 
-    public TimeZoneInfo TimeZone
-    {
-        get
-        {
-            var id = configuration["Backup:TimeZone"] ?? "Europe/Berlin";
-            return TimeZoneInfo.TryFindSystemTimeZoneById(id, out var zone) ? zone : TimeZoneInfo.Utc;
-        }
-    }
+    public TimeZoneInfo TimeZone => AppTimeZone.From(configuration);
 
     public async Task<BackupSettingsEntity> GetSettingsAsync(CancellationToken ct = default) =>
         await db.BackupSettings.FirstOrDefaultAsync(s => s.Id == BackupSettingsEntity.SingletonId, ct)

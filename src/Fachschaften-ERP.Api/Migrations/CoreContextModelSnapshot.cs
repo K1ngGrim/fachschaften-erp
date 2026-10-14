@@ -496,6 +496,175 @@ namespace Fachschaften_ERP.Api.Migrations
                     b.ToTable("DeliveryPositions", "erp");
                 });
 
+            modelBuilder.Entity("Fachschaften_ERP.Models.Entities.DocumentAssetEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("Created")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("CreatorId")
+                        .HasColumnType("uuid");
+
+                    b.Property<byte[]>("Data")
+                        .IsRequired()
+                        .HasColumnType("bytea");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<Guid>("TemplateId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TemplateId");
+
+                    b.ToTable("DocumentAssets", "erp");
+                });
+
+            modelBuilder.Entity("Fachschaften_ERP.Models.Entities.DocumentTemplateEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("Created")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("CreatorId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("CurrentVersion")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTimeOffset?>("Modified")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("ModifierId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<bool>("StoreDocuments")
+                        .HasColumnType("boolean");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("DocumentTemplates", "erp");
+                });
+
+            modelBuilder.Entity("Fachschaften_ERP.Models.Entities.DocumentTemplateVersionEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("AssetIds")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<string>("Comment")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTimeOffset>("Created")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("CreatorId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Fields")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("TemplateId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Version")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TemplateId", "Version")
+                        .IsUnique();
+
+                    b.ToTable("DocumentTemplateVersions", "erp");
+                });
+
+            modelBuilder.Entity("Fachschaften_ERP.Models.Entities.GeneratedDocumentEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("Created")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("CreatorId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTimeOffset?>("Modified")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("ModifierId")
+                        .HasColumnType("uuid");
+
+                    b.Property<byte[]>("Pdf")
+                        .IsRequired()
+                        .HasColumnType("bytea");
+
+                    b.Property<Guid>("TemplateId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("TemplateVersion")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("TemplateVersionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Values")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TemplateId");
+
+                    b.ToTable("GeneratedDocuments", "erp");
+                });
+
             modelBuilder.Entity("Fachschaften_ERP.Models.Entities.Identity.IdentityRoleEntity", b =>
                 {
                     b.Property<Guid>("Id")
@@ -698,6 +867,26 @@ namespace Fachschaften_ERP.Api.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("ItemTypes", "erp");
+                });
+
+            modelBuilder.Entity("Fachschaften_ERP.Models.Entities.ModuleStateEntity", b =>
+                {
+                    b.Property<string>("Key")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<bool>("Enabled")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTimeOffset?>("Modified")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("ModifierId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Key");
+
+                    b.ToTable("ModuleStates", "erp");
                 });
 
             modelBuilder.Entity("Fachschaften_ERP.Models.Entities.OrganizationSettingsEntity", b =>
@@ -1188,6 +1377,17 @@ namespace Fachschaften_ERP.Api.Migrations
                     b.Navigation("Product");
                 });
 
+            modelBuilder.Entity("Fachschaften_ERP.Models.Entities.DocumentTemplateVersionEntity", b =>
+                {
+                    b.HasOne("Fachschaften_ERP.Models.Entities.DocumentTemplateEntity", "Template")
+                        .WithMany("Versions")
+                        .HasForeignKey("TemplateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Template");
+                });
+
             modelBuilder.Entity("Fachschaften_ERP.Models.Entities.InventoryTransactionEntity", b =>
                 {
                     b.HasOne("Fachschaften_ERP.Models.Entities.ProductEntity", "Product")
@@ -1303,6 +1503,11 @@ namespace Fachschaften_ERP.Api.Migrations
             modelBuilder.Entity("Fachschaften_ERP.Models.Entities.DeliveryEntity", b =>
                 {
                     b.Navigation("Positions");
+                });
+
+            modelBuilder.Entity("Fachschaften_ERP.Models.Entities.DocumentTemplateEntity", b =>
+                {
+                    b.Navigation("Versions");
                 });
 
             modelBuilder.Entity("Fachschaften_ERP.Models.Entities.ItemTypeEntity", b =>

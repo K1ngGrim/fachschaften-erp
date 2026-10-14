@@ -1,0 +1,263 @@
+<div class="container-fluid p-4">
+  <a
+    mat-button
+    [routerLink]="id() ? ['/documents/templates', id()] : '/documents'"
+    class="mb-2 back-link"
+  >
+    <mat-icon svgIcon="arrow-left" />
+    {{ id() ? 'Zur Vorlage' : 'Alle Vorlagen' }}
+  </a>
+
+  <app-page-header
+    [title]="id() ? name() || 'Vorlage' : 'Neue Vorlage'"
+    [subtitle]="
+      id()
+        ? 'Version ' + currentVersion() + (dirty() ? ' · ungespeicherte Änderungen' : '')
+        : 'Noch nicht gespeichert'
+    "
+  >
+    <div class="d-flex flex-wrap gap-2">
+      @if (id()) {
+        <button mat-stroked-button class="d-flex" (click)="showVersions()">
+          <mat-icon svgIcon="history" class="d-flex" />
+          <span>Versionen</span>
+        </button>
+        <button mat-stroked-button class="d-flex" (click)="deleteTemplate()">
+          <mat-icon svgIcon="delete-outline" class="d-flex" />
+          <span>Löschen</span>
+        </button>
+      }
+      <button mat-flat-button class="d-flex" (click)="save()" [disabled]="!!problem() || saving()">
+        <mat-icon svgIcon="content-save-outline" class="d-flex" />
+        <span>{{ saving() ? 'Speichert …' : 'Speichern' }}</span>
+      </button>
+    </div>
+  </app-page-header>
+
+  @if (message(); as info) {
+    <div
+      class="alert"
+      [class.alert-success]="info.ok"
+      [class.alert-warning]="!info.ok"
+      role="status"
+    >
+      {{ info.text }}
+    </div>
+  } @else if (problem(); as text) {
+    <p class="text-hint small">{{ text }}</p>
+  }
+
+  @if (!loading()) {
+    <div class="row g-4">
+      <div class="col-12 col-xl-7 d-flex flex-column gap-4">
+        <section class="editor-section">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Name</mat-label>
+            <input matInput [ngModel]="name()" (ngModelChange)="name.set($event)" required />
+          </mat-form-field>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Beschreibung (optional)</mat-label>
+            <input matInput [ngModel]="description()" (ngModelChange)="description.set($event)" />
+          </mat-form-field>
+          <div class="d-flex flex-column gap-1">
+            <mat-slide-toggle
+              [checked]="storeDocuments()"
+              (change)="storeDocuments.set($event.checked)"
+            >
+              Erzeugte Dokumente ablegen
+            </mat-slide-toggle>
+            <small class="text-hint">
+              @if (storeDocuments()) {
+                PDF und eingegebene Werte werden gespeichert, z. B. für Verträge.
+              } @else {
+                Nur erzeugen und drucken; es wird nichts gespeichert. Richtig für personenbezogene
+                Dokumente.
+              }
+            </small>
+          </div>
+        </section>
+
+        <section class="editor-section">
+          <div class="section-heading">Felder</div>
+          <p class="text-hint small mb-0">
+            Werden beim Ausfüllen abgefragt. In der Vorlage über den Schlüssel, z. B.
+            <code>daten.text.name</code>.
+          </p>
+          @for (
+            field of fields();
+            track field.uid;
+            let i = $index;
+            let first = $first;
+            let last = $last
+          ) {
+            <div class="field-row">
+              <div class="field-inputs">
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="field-label">
+                  <mat-label>Bezeichnung</mat-label>
+                  <input
+                    matInput
+                    [ngModel]="field.label"
+                    (ngModelChange)="updateField(i, { label: $event })"
+                  />
+                </mat-form-field>
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="field-key">
+                  <mat-label>Schlüssel</mat-label>
+                  <input
+                    matInput
+                    class="mono"
+                    [ngModel]="field.key"
+                    (ngModelChange)="updateField(i, { key: $event })"
+                  />
+                </mat-form-field>
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="field-type">
+                  <mat-label>Typ</mat-label>
+                  <mat-select
+                    [ngModel]="field.type"
+                    (ngModelChange)="updateField(i, { type: $event })"
+                  >
+                    @for (type of types; track type[0]) {
+                      <mat-option [value]="type[0]">{{ type[1] }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+                @if (field.type !== Type.Boolean) {
+                  <mat-checkbox
+                    [checked]="field.required"
+                    (change)="updateField(i, { required: $event.checked })"
+                  >
+                    Pflicht
+                  </mat-checkbox>
+                }
+                @if (field.type === Type.Select) {
+                  <mat-form-field
+                    appearance="outline"
+                    subscriptSizing="dynamic"
+                    class="field-options"
+                  >
+                    <mat-label>Optionen</mat-label>
+                    <input
+                      matInput
+                      [ngModel]="field.options"
+                      (ngModelChange)="updateField(i, { options: $event })"
+                    />
+                    <mat-hint>Mit Komma trennen</mat-hint>
+                  </mat-form-field>
+                }
+              </div>
+              <div class="row-actions">
+                <button
+                  mat-icon-button
+                  matTooltip="Nach oben"
+                  [disabled]="first"
+                  (click)="moveField(i, -1)"
+                >
+                  <mat-icon svgIcon="arrow-up" />
+                </button>
+                <button
+                  mat-icon-button
+                  matTooltip="Nach unten"
+                  [disabled]="last"
+                  (click)="moveField(i, 1)"
+                >
+                  <mat-icon svgIcon="arrow-down" />
+                </button>
+                <button mat-icon-button matTooltip="Feld entfernen" (click)="removeField(i)">
+                  <mat-icon svgIcon="delete-outline" />
+                </button>
+              </div>
+            </div>
+          }
+          <button mat-stroked-button class="align-self-start d-flex" (click)="addField()">
+            <mat-icon svgIcon="plus" class="d-flex" />
+            <span>Feld hinzufügen</span>
+          </button>
+        </section>
+
+        <section class="editor-section">
+          <div class="section-heading">Dateien</div>
+          @if (id()) {
+            <p class="text-hint small mb-0">
+              Bilder, Schriften oder weitere .typ-Dateien, z. B. <code>#image("logo.png")</code>.
+              Gleichnamige Dateien werden ersetzt.
+            </p>
+            @for (asset of assets(); track asset.id) {
+              <div class="asset">
+                <code class="text-truncate">{{ asset.fileName }}</code>
+                <small class="text-hint">{{ formatSize(asset.size) }}</small>
+                <button mat-icon-button matTooltip="Entfernen" (click)="removeAsset(asset)">
+                  <mat-icon svgIcon="close" />
+                </button>
+              </div>
+            }
+            <input #fileInput type="file" multiple hidden (change)="upload(fileInput)" />
+            <button
+              mat-stroked-button
+              class="align-self-start d-flex"
+              (click)="fileInput.click()"
+              [disabled]="uploading()"
+            >
+              <mat-icon svgIcon="file-upload-outline" class="d-flex" />
+              <span>{{ uploading() ? 'Wird hochgeladen …' : 'Dateien hinzufügen' }}</span>
+            </button>
+          } @else {
+            <p class="text-hint small mb-0">
+              Dateien kannst du nach dem ersten Speichern hinzufügen.
+            </p>
+          }
+        </section>
+
+        <section class="editor-section">
+          <div class="section-heading">Typst-Quelltext</div>
+          <details class="help small">
+            <summary>So kommst du an die Werte</summary>
+            <pre class="mono">
+#let daten = json("data.json")
+
+daten.text.&lt;schlüssel&gt;     // formatiert: „14.10.2026“, „12,50 €“, „Ja“
+daten.felder.&lt;schlüssel&gt;   // roh: "2026-10-14", 12.5, true (leer: none)
+daten.erstellt              // heutiges Datum
+daten.organisation          // Name der Fachschaft</pre
+            >
+            <a href="https://typst.app/docs/" target="_blank" rel="noopener">Typst-Dokumentation</a>
+          </details>
+          <textarea
+            class="source mono"
+            spellcheck="false"
+            [ngModel]="source()"
+            (ngModelChange)="source.set($event)"
+            (keydown)="onSourceKeydown($event)"
+            aria-label="Typst-Quelltext"
+          ></textarea>
+        </section>
+
+        <section class="editor-section">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Was hat sich geändert? (optional)</mat-label>
+            <input matInput [ngModel]="comment()" (ngModelChange)="comment.set($event)" />
+            <mat-hint>Erscheint im Versionsverlauf.</mat-hint>
+          </mat-form-field>
+        </section>
+      </div>
+
+      <div class="col-12 col-xl-5">
+        <div class="preview-column">
+          <details class="test-values" open>
+            <summary class="section-heading">Testwerte für die Vorschau</summary>
+            <div class="pt-3">
+              <app-fields-form [fields]="columns()" [(values)]="testValues" />
+            </div>
+          </details>
+          <app-pdf-preview
+            class="preview"
+            [blob]="previewBlob()"
+            [error]="previewError()"
+            [loading]="previewLoading()"
+            [placeholder]="
+              id() ? 'Vorschau wird erstellt …' : 'Die Vorschau gibt es nach dem ersten Speichern.'
+            "
+          />
+        </div>
+      </div>
+    </div>
+  }
+</div>

@@ -8,10 +8,12 @@ import { NavigationItem } from '../../core/services/navigation';
 export class FilterNavigationPipe implements PipeTransform {
   private auth = inject(Auth);
 
-  transform(items: NavigationItem[]): NavigationItem[] {
+  /** <paramref name="enabledModules"/> als Argument, damit die Pipe bei Änderungen neu rechnet. */
+  transform(items: NavigationItem[], enabledModules: ReadonlySet<string>): NavigationItem[] {
     return items.filter(
       (item) =>
-        !item.permissions?.length || item.permissions.some((p) => this.auth.hasPermission(p)),
+        (!item.module || enabledModules.has(item.module)) &&
+        (!item.permissions?.length || item.permissions.some((p) => this.auth.hasPermission(p))),
     );
   }
 }

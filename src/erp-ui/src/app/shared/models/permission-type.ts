@@ -23,4 +23,7 @@ export enum PermissionType {
   TablesCanWrite = 'tables.canwrite',
   TableDesignCanWrite = 'tabledesign.canwrite',
   SettingsCanWrite = 'settings.canwrite',
+  DocumentsCanRead = 'documents.canread',
+  DocumentsCanWrite = 'documents.canwrite',
+  DocumentTemplatesCanWrite = 'documenttemplates.canwrite',
 }

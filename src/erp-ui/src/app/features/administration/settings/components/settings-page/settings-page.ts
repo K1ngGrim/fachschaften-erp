@@ -15,6 +15,7 @@ const HEX_COLOR = /^#[0-9a-fA-F]{6}$/;
 
 import { RecoveryKeyCard } from '../recovery-key-card/recovery-key-card';
 import { BackupCard } from '../backup-card/backup-card';
+import { ModulesCard } from '../modules-card/modules-card';
 
 @Component({
   selector: 'app-settings-page',
@@ -33,6 +34,7 @@ import { BackupCard } from '../backup-card/backup-card';
     PageHeader,
     RecoveryKeyCard,
     BackupCard,
+    ModulesCard,
   ],
   templateUrl: './settings-page.html',
   styleUrl: './settings-page.scss',
