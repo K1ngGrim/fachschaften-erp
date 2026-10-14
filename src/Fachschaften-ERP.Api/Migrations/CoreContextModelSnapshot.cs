@@ -38,6 +38,93 @@ namespace Fachschaften_ERP.Api.Migrations
                     b.ToTable("ItemTypeCustomFields", "erp");
                 });
 
+            modelBuilder.Entity("Fachschaften_ERP.Models.Entities.BackupRunEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("FileName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<DateTimeOffset?>("Finished")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Message")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)");
+
+                    b.Property<long?>("SizeBytes")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset>("Started")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Trigger")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid?>("TriggeredById")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Started");
+
+                    b.ToTable("BackupRuns", "erp");
+                });
+
+            modelBuilder.Entity("Fachschaften_ERP.Models.Entities.BackupSettingsEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("Enabled")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IncludeCsv")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("KeepCount")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset?>("Modified")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("ModifierId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("NotifyEmail")
+                        .HasMaxLength(320)
+                        .HasColumnType("character varying(320)");
+
+                    b.Property<string>("ProtectedArchivePassword")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<string>("ProtectedPassword")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<TimeOnly>("Time")
+                        .HasColumnType("time without time zone");
+
+                    b.Property<string>("Username")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("WebDavUrl")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("BackupSettings", "erp");
+                });
+
             modelBuilder.Entity("Fachschaften_ERP.Models.Entities.BookingCategoryEntity", b =>
                 {
                     b.Property<Guid>("Id")

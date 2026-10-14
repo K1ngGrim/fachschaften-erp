@@ -5,6 +5,8 @@ api.module.ts
 api/api.ts
 api/auth.service.ts
 api/auth.serviceInterface.ts
+api/backup.service.ts
+api/backup.serviceInterface.ts
 api/booking-categories.service.ts
 api/booking-categories.serviceInterface.ts
 api/bookings.service.ts
@@ -57,6 +59,11 @@ model/accept-invite-request.ts
 model/accept-invite-result.ts
 model/add-recovery-key-request.ts
 model/annual-report-dto.ts
+model/backup-run-dto.ts
+model/backup-settings-dto.ts
+model/backup-status.ts
+model/backup-test-result-dto.ts
+model/backup-trigger.ts
 model/booking-category-dto.ts
 model/booking-dto.ts
 model/booking-summary-dto.ts
@@ -118,6 +125,7 @@ model/reset-password-request.ts
 model/reset2-fa-request.ts
 model/role-dto.ts
 model/rotate-table-key-request.ts
+model/save-backup-settings-request.ts
 model/save-vault-request.ts
 model/setup2-fa-request.ts
 model/setup2-fa-result.ts
@@ -133,6 +141,7 @@ model/table-access-dto.ts
 model/table-access-member-dto.ts
 model/tax-area-summary-dto.ts
 model/tax-area.ts
+model/test-backup-connection-request.ts
 model/update-user-request.ts
 model/upsert-custom-table-request.ts
 model/upsert-custom-table-row-request.ts

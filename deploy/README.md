@@ -180,22 +180,59 @@ updating.
 The data lives in two named volumes:
 
 - `db-data`: the PostgreSQL database
-- `api-keys`: the keys that sign login cookies and invitation links. If this
-  volume is lost, every user is logged out and open invitations become invalid,
-  but no data is lost.
+- `api-keys`: the keys that sign login cookies and invitation links and that
+  encrypt the backup passwords stored in the settings. If this volume is lost,
+  every user is logged out, open invitations become invalid and the backup
+  passwords have to be entered again, but no data is lost.
 
-To back up the database:
+#### Automatic backups to WebDAV
+
+Under **Einstellungen → Backup** the app backs itself up once a day to a WebDAV
+folder, for example in a Nextcloud
+(`https://cloud.example.org/remote.php/dav/files/<user>/Backups/ERP/`, use an
+app password). Each backup is a ZIP file `erp-backup-<date>_<time>.zip` with:
+
+- `database.dump`: the complete database (`pg_dump`, custom format)
+- `csv/`: readable copies of the data for Excel (optional)
+- `wiki/`: the wiki pages as Markdown (optional)
+- `LIESMICH.txt`: what is inside and how to restore it
+
+With a backup password the ZIP is encrypted with AES-256. Open it with 7-Zip,
+Keka or `bsdtar`; the built-in unzip tools of macOS and Windows cannot. Older
+backups beyond the configured number are deleted from the folder. A missed
+backup (server was off) is made up as soon as the app is running again.
+
+Confidential tables are end-to-end encrypted and therefore only contained in
+`database.dump`, never in the CSV files. After a restore they can be read again
+with a vault that has access or with the recovery key.
+
+The schedule uses the time zone `Europe/Berlin`. Set `Backup__TimeZone` on the
+`api` service to change it.
+
+#### Manual backup
 
 ```bash
 docker compose exec -T db sh -c 'pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Fc' > erp-$(date +%F).dump
 ```
 
-To restore it into a running, empty stack:
+#### Restore
 
-```bash
-docker compose exec -T db sh -c 'pg_restore -U "$POSTGRES_USER" -d "$POSTGRES_DB" --clean --if-exists' < erp-2026-01-31.dump
-docker compose restart api
-```
+1. Unpack the backup (skip for a manual dump):
+
+   ```bash
+   7z x erp-backup-2026-01-31_0300.zip            # asks for the backup password
+   # or: bsdtar -xf erp-backup-2026-01-31_0300.zip --passphrase '<password>'
+   ```
+
+2. Restore the database into the running stack and restart the API:
+
+   ```bash
+   docker compose exec -T db sh -c 'pg_restore -U "$POSTGRES_USER" -d "$POSTGRES_DB" --clean --if-exists --no-owner' < database.dump
+   docker compose restart api
+   ```
+
+`--clean` replaces the current data. To try a backup first, restore it into a
+fresh stack on another machine.
 
 ### Stopping
 

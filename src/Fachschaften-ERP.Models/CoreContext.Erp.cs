@@ -25,6 +25,8 @@ public partial class CoreContext
     public DbSet<CustomTableRowEntity> CustomTableRows => Set<CustomTableRowEntity>();
     public DbSet<CustomTableKeyEntity> CustomTableKeys => Set<CustomTableKeyEntity>();
     public DbSet<VaultEntity> Vaults => Set<VaultEntity>();
+    public DbSet<BackupSettingsEntity> BackupSettings => Set<BackupSettingsEntity>();
+    public DbSet<BackupRunEntity> BackupRuns => Set<BackupRunEntity>();
     
     private static void OnErpCreating(ModelBuilder modelBuilder)
     {
@@ -63,6 +65,25 @@ public partial class CoreContext
                         (a, b) => a!.RootElement.GetRawText() == b!.RootElement.GetRawText(),
                         v => v.RootElement.GetRawText().GetHashCode(),
                         v => JsonDocument.Parse(v.RootElement.GetRawText(), default)));
+        });
+
+        modelBuilder.Entity<BackupSettingsEntity>(entity =>
+        {
+            entity.HasKey(s => s.Id);
+            entity.Property(s => s.Id).ValueGeneratedNever();
+            entity.Property(s => s.WebDavUrl).HasMaxLength(1000);
+            entity.Property(s => s.Username).HasMaxLength(200);
+            entity.Property(s => s.ProtectedPassword).HasMaxLength(2000);
+            entity.Property(s => s.ProtectedArchivePassword).HasMaxLength(2000);
+            entity.Property(s => s.NotifyEmail).HasMaxLength(320);
+        });
+
+        modelBuilder.Entity<BackupRunEntity>(entity =>
+        {
+            entity.HasKey(r => r.Id);
+            entity.HasIndex(r => r.Started);
+            entity.Property(r => r.FileName).HasMaxLength(200);
+            entity.Property(r => r.Message).HasMaxLength(4000);
         });
 
         modelBuilder.Entity<VaultEntity>(entity =>

@@ -264,6 +264,9 @@ Generated_Code/
 # because we have git ;-)
 _UpgradeReport_Files/
 Backup*/
+# Ausnahme: Quellcode des Backup-Features (die Regel oben gilt Sicherungen von Visual Studio).
+!Fachschaften-ERP.Api/Services/Backup/
+!erp-ui/src/app/features/administration/settings/components/backup-card/
 UpgradeLog*.XML
 UpgradeLog*.htm
 ServiceFabricBackup/

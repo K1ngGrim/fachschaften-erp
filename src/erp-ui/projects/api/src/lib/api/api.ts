@@ -1,6 +1,9 @@
 export * from './auth.service';
 import { AuthService } from './auth.service';
 export * from './auth.serviceInterface';
+export * from './backup.service';
+import { BackupService } from './backup.service';
+export * from './backup.serviceInterface';
 export * from './booking-categories.service';
 import { BookingCategoriesService } from './booking-categories.service';
 export * from './booking-categories.serviceInterface';
@@ -67,4 +70,4 @@ export * from './vault.serviceInterface';
 export * from './wiki.service';
 import { WikiService } from './wiki.service';
 export * from './wiki.serviceInterface';
-export const APIS = [AuthService, BookingCategoriesService, BookingsService, CashBooksService, CustomFieldsService, CustomTableAccessService, CustomTablesService, DeliveriesService, InventoryTransactionsService, InviteService, ItemTypesService, PermissionsService, ProductsService, ReportsService, RolesService, SettingsService, StockService, StockTakesService, SuppliersService, TwoFactorService, UsersService, VaultService, WikiService];
+export const APIS = [AuthService, BackupService, BookingCategoriesService, BookingsService, CashBooksService, CustomFieldsService, CustomTableAccessService, CustomTablesService, DeliveriesService, InventoryTransactionsService, InviteService, ItemTypesService, PermissionsService, ProductsService, ReportsService, RolesService, SettingsService, StockService, StockTakesService, SuppliersService, TwoFactorService, UsersService, VaultService, WikiService];

@@ -1,0 +1,198 @@
+<mat-card appearance="outlined">
+  <mat-card-header class="mb-2">
+    <mat-card-title class="fs-6">Backup</mat-card-title>
+  </mat-card-header>
+  <mat-card-content class="d-flex flex-column gap-3">
+    <p class="small mb-0">
+      Sichert täglich die komplette Datenbank und auf Wunsch lesbare CSV-Dateien als ZIP in einen
+      WebDAV-Ordner, z. B. in eine Nextcloud. Vertrauliche Tabellen stecken nur verschlüsselt im
+      Datenbank-Dump.
+    </p>
+
+    @if (settings(); as current) {
+      <mat-slide-toggle [checked]="enabled()" (change)="enabled.set($event.checked)">
+        Tägliches Backup
+      </mat-slide-toggle>
+
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>WebDAV-Ordner</mat-label>
+        <input
+          matInput
+          [ngModel]="url()"
+          (ngModelChange)="url.set($event)"
+          placeholder="https://cloud.example.org/remote.php/dav/files/benutzer/Backups/ERP/"
+        />
+        <mat-hint>Fehlt der letzte Ordner, wird er angelegt.</mat-hint>
+      </mat-form-field>
+
+      <div class="field-row">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Benutzername</mat-label>
+          <input
+            matInput
+            autocomplete="off"
+            [ngModel]="username()"
+            (ngModelChange)="username.set($event)"
+          />
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Passwort</mat-label>
+          <input
+            matInput
+            type="password"
+            autocomplete="new-password"
+            [placeholder]="current.hasPassword ? 'gespeichert' : ''"
+            [ngModel]="password()"
+            (ngModelChange)="password.set($event)"
+          />
+          <mat-hint>
+            {{
+              current.hasPassword
+                ? 'Leer lassen, um es zu behalten.'
+                : 'Bei Nextcloud ein App-Passwort.'
+            }}
+          </mat-hint>
+        </mat-form-field>
+      </div>
+
+      <div class="field-row">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Uhrzeit</mat-label>
+          <input matInput type="time" [ngModel]="time()" (ngModelChange)="time.set($event)" />
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Backups behalten</mat-label>
+          <input
+            matInput
+            type="number"
+            min="1"
+            max="365"
+            [ngModel]="keepCount()"
+            (ngModelChange)="keepCount.set(+$event)"
+          />
+          <mat-hint>Ältere werden gelöscht.</mat-hint>
+        </mat-form-field>
+      </div>
+
+      <mat-checkbox [checked]="includeCsv()" (change)="includeCsv.set($event.checked)">
+        Lesbare CSV-Dateien und Wiki-Seiten mitsichern
+      </mat-checkbox>
+
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Backup-Passwort (Verschlüsselung)</mat-label>
+        <input
+          matInput
+          type="password"
+          autocomplete="new-password"
+          [placeholder]="
+            current.hasArchivePassword && !removeArchivePassword() ? 'gespeichert' : ''
+          "
+          [disabled]="removeArchivePassword()"
+          [ngModel]="archivePassword()"
+          (ngModelChange)="archivePassword.set($event)"
+        />
+        <mat-hint>
+          Verschlüsselt die ZIP mit AES-256; öffnen z. B. mit 7-Zip oder Keka. Ohne dieses Passwort
+          ist das Backup nicht lesbar.
+        </mat-hint>
+      </mat-form-field>
+      @if (current.hasArchivePassword) {
+        <mat-checkbox
+          [checked]="removeArchivePassword()"
+          (change)="removeArchivePassword.set($event.checked)"
+        >
+          Verschlüsselung entfernen
+        </mat-checkbox>
+      } @else if (!archivePassword()) {
+        <p class="text-hint small mb-0">
+          Ohne Passwort liegen die Daten unverschlüsselt beim WebDAV-Anbieter.
+        </p>
+      }
+
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Bei Fehlern benachrichtigen (optional)</mat-label>
+        <input
+          matInput
+          type="email"
+          [ngModel]="notifyEmail()"
+          (ngModelChange)="notifyEmail.set($event)"
+        />
+      </mat-form-field>
+
+      @if (message(); as info) {
+        <div
+          class="alert small mb-0"
+          [class.alert-success]="info.ok"
+          [class.alert-warning]="!info.ok"
+          role="status"
+        >
+          {{ info.text }}
+        </div>
+      } @else if (problem(); as text) {
+        <p class="text-hint small mb-0">{{ text }}</p>
+      }
+
+      <div class="d-flex flex-wrap gap-2">
+        <button mat-flat-button (click)="save()" [disabled]="!!problem() || !!busy()">
+          @if (busy() === 'save') {
+            <mat-progress-spinner mode="indeterminate" diameter="18" />
+          } @else {
+            Speichern
+          }
+        </button>
+        <button mat-stroked-button (click)="test()" [disabled]="!url().trim() || !!busy()">
+          @if (busy() === 'test') {
+            <mat-progress-spinner mode="indeterminate" diameter="18" />
+          } @else {
+            Verbindung testen
+          }
+        </button>
+        <button
+          mat-stroked-button
+          (click)="runNow()"
+          [disabled]="!current.webDavUrl || running() || !!busy()"
+        >
+          Jetzt sichern
+        </button>
+      </div>
+      @if (current.webDavUrl && url().trim() !== current.webDavUrl) {
+        <p class="text-hint small mb-0">„Jetzt sichern“ nutzt die gespeicherten Einstellungen.</p>
+      }
+
+      <div class="section-heading">Letzte Backups</div>
+      @if (current.enabled && current.nextRun) {
+        <p class="small mb-0">
+          Nächstes automatisches Backup: {{ formatDateTime(current.nextRun) }}
+        </p>
+      }
+      @for (run of runs(); track run.id) {
+        <div class="run">
+          <span
+            class="pill"
+            [class.pill--positive]="run.status === BackupStatus.Succeeded"
+            [class.pill--warn]="run.status === BackupStatus.Running"
+            [class.pill--danger]="run.status === BackupStatus.Failed"
+          >
+            {{ statusLabel(run) }}
+          </span>
+          <div class="run-details">
+            <div>
+              {{ formatDateTime(run.started) }}
+              <span class="text-hint">· {{ triggerLabel(run) }}</span>
+            </div>
+            @if (run.fileName) {
+              <small class="text-hint">{{ run.fileName }} · {{ formatSize(run.sizeBytes) }}</small>
+            }
+            @if (run.message) {
+              <small [class.text-negative]="run.status === BackupStatus.Failed">
+                {{ run.message }}
+              </small>
+            }
+          </div>
+        </div>
+      } @empty {
+        <p class="text-hint small mb-0">Noch keine Backups.</p>
+      }
+    }
+  </mat-card-content>
+</mat-card>
