@@ -12,5 +12,7 @@
 export interface ImportCustomTableRowsRequest { 
     rows: Array<any>;
     replaceExisting: boolean;
+    encryptedRows?: Array<string> | null;
+    keyVersion?: number | null;
 }
 

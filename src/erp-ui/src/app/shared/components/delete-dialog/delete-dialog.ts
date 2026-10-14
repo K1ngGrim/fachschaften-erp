@@ -29,7 +29,7 @@ export interface DeleteDialogData {
       </p>
     </mat-dialog-content>
     <mat-dialog-actions align="end">
-      <button mat-button (click)="dialogRef.close(false)">Cancel</button>
+      <button mat-button (click)="dialogRef.close(false)">Abbrechen</button>
       <button mat-raised-button color="warn" (click)="dialogRef.close(true)">
         {{ data.confirmLabel ?? 'Delete' }}
       </button>

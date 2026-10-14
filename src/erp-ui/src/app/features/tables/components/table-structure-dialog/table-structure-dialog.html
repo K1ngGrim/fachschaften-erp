@@ -12,6 +12,22 @@
       <input matInput [ngModel]="description()" (ngModelChange)="description.set($event)" />
     </mat-form-field>
 
+    @if (isNew) {
+      <mat-checkbox [checked]="confidential()" (change)="confidential.set($event.checked)">
+        Vertraulich: Einträge Ende-zu-Ende verschlüsseln
+      </mat-checkbox>
+      @if (confidential()) {
+        <p class="text-hint small mb-0">
+          Nur Personen, denen du die Tabelle freigibst, können die Einträge lesen, auch
+          Server-Admins nicht. Name und Spalten bleiben lesbar. Das lässt sich nicht rückgängig
+          machen.
+        </p>
+        @if (vault.status() !== 'unlocked') {
+          <app-vault-panel reason="Die Tabelle wird mit deinem Tresor verschlüsselt." />
+        }
+      }
+    }
+
     <div class="columns-heading">Spalten</div>
 
     @for (

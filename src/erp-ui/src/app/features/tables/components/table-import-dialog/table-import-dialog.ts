@@ -21,8 +21,11 @@ import {
   CustomTableColumnType,
   CustomTableDto,
   CustomTablesService,
+  ImportCustomTableRowsRequest,
 } from '../../../../../../projects/api/src/lib';
 import { COLUMN_TYPE_LABELS, formatValue } from '../../table-values';
+import { Vault } from '../../../../core/services/vault';
+import { VaultPanel } from '../../../../shared/components/vault-panel/vault-panel';
 import {
   convertCell,
   countValues,
@@ -98,6 +101,7 @@ const OTHER = 'other';
     MatCheckbox,
     MatProgressSpinner,
     NgTemplateOutlet,
+    VaultPanel,
   ],
   templateUrl: './table-import-dialog.html',
   styleUrl: './table-import-dialog.scss',
@@ -106,6 +110,7 @@ export class TableImportDialog {
   private readonly dialogRef = inject(MatDialogRef<TableImportDialog, TableImportDialogResult>);
   private readonly tablesController = inject(CustomTablesService);
   private readonly data = inject<TableImportDialogData>(MAT_DIALOG_DATA);
+  protected readonly vault = inject(Vault);
 
   public readonly table = this.data.table;
   public readonly existingRows = this.data.rowCount ?? 0;
@@ -131,6 +136,8 @@ export class TableImportDialog {
   /** Von Hand geänderte Werte-Zuordnungen je Spalten-Id und Wert; null = nicht zugeordnet. */
   private readonly valueOverrides = signal<Record<string, Record<string, unknown>>>({});
   public readonly replaceExisting = signal(false);
+  /** Neue Tabelle gleich vertraulich anlegen (Einträge werden im Browser verschlüsselt). */
+  public readonly confidential = signal(false);
   public readonly skipInvalid = signal(false);
 
   public readonly saving = signal(false);
@@ -308,6 +315,10 @@ export class TableImportDialog {
       return `„${label}“ hat zu viele verschiedene Werte (${tooMany.distinct}) zum Zuordnen. Wähle einen anderen Typ oder eine andere Spalte.`;
     }
 
+    if ((this.confidential() || this.table?.isConfidential) && this.vault.status() !== 'unlocked') {
+      return 'Entsperre deinen Tresor, um verschlüsselt zu importieren.';
+    }
+
     if (this.invalidRowCount() && !this.skipInvalid()) {
       return 'Einige Zeilen sind fehlerhaft. Korrigiere die Datei oder überspringe diese Zeilen.';
     }
@@ -407,7 +418,7 @@ export class TableImportDialog {
         const result = await lastValueFrom(
           this.tablesController.apiCustomTablesIdRowsImportPost({
             id: this.table.id,
-            importCustomTableRowsRequest: { rows, replaceExisting: this.replaceExisting() },
+            importCustomTableRowsRequest: await this.importRequest(this.table, rows),
           }),
         );
         this.dialogRef.close({
@@ -415,6 +426,9 @@ export class TableImportDialog {
           imported: result.imported,
           removed: result.removed,
         });
+      } else if (this.confidential()) {
+        const tableId = await this.importConfidential(rows);
+        this.dialogRef.close({ tableId, imported: rows.length, removed: 0 });
       } else {
         const table = await lastValueFrom(
           this.tablesController.apiCustomTablesImportPost({
@@ -441,6 +455,56 @@ export class TableImportDialog {
 
   public cancel() {
     this.dialogRef.close();
+  }
+
+  /** Bei vertraulichen Tabellen werden die Einträge vor dem Senden verschlüsselt. */
+  private async importRequest(
+    table: CustomTableDto,
+    rows: Record<string, unknown>[],
+  ): Promise<ImportCustomTableRowsRequest> {
+    const replaceExisting = this.replaceExisting();
+    if (!table.isConfidential) return { rows, replaceExisting };
+    return {
+      rows: [],
+      replaceExisting,
+      encryptedRows: await Promise.all(rows.map((r) => this.vault.encryptRow(table, r))),
+      keyVersion: table.keyVersion,
+    };
+  }
+
+  /**
+   * Neue vertrauliche Tabelle: erst der Aufbau (ohne Einträge), dann verschlüsseln, dann die
+   * Einträge verschlüsselt importieren. Klartext erreicht den Server so nie. Schlägt ein
+   * Schritt fehl, wird die angefangene Tabelle wieder gelöscht.
+   */
+  private async importConfidential(rows: Record<string, unknown>[]): Promise<string> {
+    const created = await lastValueFrom(
+      this.tablesController.apiCustomTablesPost({
+        upsertCustomTableRequest: {
+          name: this.tableName().trim(),
+          description: null,
+          columns: this.targets().map((t) => t.column),
+        },
+      }),
+    );
+    try {
+      await this.vault.makeConfidential(created.id, []);
+      const table = await lastValueFrom(
+        this.tablesController.apiCustomTablesIdGet({ id: created.id }),
+      );
+      await lastValueFrom(
+        this.tablesController.apiCustomTablesIdRowsImportPost({
+          id: table.id,
+          importCustomTableRowsRequest: await this.importRequest(table, rows),
+        }),
+      );
+      return table.id;
+    } catch (error) {
+      await lastValueFrom(this.tablesController.apiCustomTablesIdDelete({ id: created.id })).catch(
+        () => undefined,
+      );
+      throw error;
+    }
   }
 
   /** Spalten neu aus der Datei ableiten: Typen vorschlagen bzw. nach Namen zuordnen. */

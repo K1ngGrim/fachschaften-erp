@@ -15,5 +15,6 @@ export interface CustomTableRowDto {
     createdAt: string;
     updatedAt: string;
     updatedBy: string | null;
+    encryptedValues: string | null;
 }
 

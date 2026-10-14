@@ -21,6 +21,7 @@ import { Auth } from '../../../../core/services/auth';
 import { PasswordPolicy } from '../../../../core/services/password-policy';
 import { PasswordRequirements } from '../../../../shared/components/password-requirements/password-requirements';
 import { describePasswordChangeError } from '../../../../shared/models/password-errors';
+import { VaultCard } from '../vault-card/vault-card';
 
 const passwordsMatch = (group: AbstractControl): ValidationErrors | null =>
   group.get('newPassword')?.value === group.get('confirmPassword')?.value
@@ -42,6 +43,7 @@ const passwordsMatch = (group: AbstractControl): ValidationErrors | null =>
     MatProgressSpinner,
     PageHeader,
     PasswordRequirements,
+    VaultCard,
   ],
   templateUrl: './account-page.html',
   styleUrl: './account-page.scss',

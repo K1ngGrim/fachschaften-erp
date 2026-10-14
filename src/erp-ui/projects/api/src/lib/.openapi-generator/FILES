@@ -13,6 +13,8 @@ api/cash-books.service.ts
 api/cash-books.serviceInterface.ts
 api/custom-fields.service.ts
 api/custom-fields.serviceInterface.ts
+api/custom-table-access.service.ts
+api/custom-table-access.serviceInterface.ts
 api/custom-tables.service.ts
 api/custom-tables.serviceInterface.ts
 api/deliveries.service.ts
@@ -43,6 +45,8 @@ api/two-factor.service.ts
 api/two-factor.serviceInterface.ts
 api/users.service.ts
 api/users.serviceInterface.ts
+api/vault.service.ts
+api/vault.serviceInterface.ts
 api/wiki.service.ts
 api/wiki.serviceInterface.ts
 configuration.ts
@@ -51,6 +55,7 @@ git_push.sh
 index.ts
 model/accept-invite-request.ts
 model/accept-invite-result.ts
+model/add-recovery-key-request.ts
 model/annual-report-dto.ts
 model/booking-category-dto.ts
 model/booking-dto.ts
@@ -77,7 +82,10 @@ model/delivery-dto.ts
 model/delivery-overview-dto.ts
 model/delivery-position-dto.ts
 model/disable2-fa-request.ts
+model/encrypt-table-request.ts
+model/encrypted-row-dto.ts
 model/forgot-password-request.ts
+model/grant-table-access-request.ts
 model/import-custom-table-request.ts
 model/import-custom-table-rows-request.ts
 model/import-custom-table-rows-result-dto.ts
@@ -103,9 +111,14 @@ model/organization-settings-dto.ts
 model/password-policy-dto.ts
 model/product-detail-dto.ts
 model/product-dto.ts
+model/recovery-table-key-dto.ts
+model/recovery-vault-dto.ts
+model/recovery-vault-info-dto.ts
 model/reset-password-request.ts
 model/reset2-fa-request.ts
 model/role-dto.ts
+model/rotate-table-key-request.ts
+model/save-vault-request.ts
 model/setup2-fa-request.ts
 model/setup2-fa-result.ts
 model/simple-inventory-transaction-dto.ts
@@ -116,6 +129,8 @@ model/stock-take-summary-dto.ts
 model/stock-update-position-dto.ts
 model/stock-update-request.ts
 model/supplier-dto.ts
+model/table-access-dto.ts
+model/table-access-member-dto.ts
 model/tax-area-summary-dto.ts
 model/tax-area.ts
 model/update-user-request.ts
@@ -127,6 +142,8 @@ model/upsert-wiki-page-request.ts
 model/user-dto.ts
 model/user-role-dto.ts
 model/user-status.ts
+model/vault-dto.ts
+model/vault-key-dto.ts
 model/wiki-page-dto.ts
 model/wiki-page-summary-dto.ts
 param.ts

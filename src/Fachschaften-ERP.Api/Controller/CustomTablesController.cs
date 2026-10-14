@@ -21,6 +21,7 @@ public class CustomTablesController(CoreContext db) : ControllerBase
     private const int MaxColumns = 50;
     private const int MaxOptions = 100;
     private const int MaxImportRows = 10_000;
+    private const int MaxEncryptedLength = 200_000;
 
     [RequirePermission(PermissionType.TablesRead)]
     [HttpGet]
@@ -35,13 +36,15 @@ public class CustomTablesController(CoreContext db) : ControllerBase
                 t.Name,
                 t.Description,
                 t.Columns,
+                t.IsConfidential,
                 RowCount = t.Rows.Count(r => r.IsActive),
                 UpdatedAt = t.Modified ?? t.Created,
             })
             .ToListAsync();
 
         return Ok(tables
-            .Select(t => new CustomTableSummaryDto(t.Id, t.Name, t.Description, t.Columns.Count, t.RowCount, t.UpdatedAt))
+            .Select(t => new CustomTableSummaryDto(t.Id, t.Name, t.Description, t.Columns.Count, t.RowCount, t.UpdatedAt,
+                t.IsConfidential))
             .ToList());
     }
 
@@ -50,7 +53,7 @@ public class CustomTablesController(CoreContext db) : ControllerBase
     public async Task<ActionResult<CustomTableDto>> Get(Guid id)
     {
         var table = await db.CustomTables.FirstOrDefaultAsync(t => t.Id == id && t.IsActive);
-        return table is null ? NotFound() : Ok(ToDto(table));
+        return table is null ? NotFound() : Ok(await ToDtoAsync(table));
     }
 
     [RequirePermission(PermissionType.TableDesignWrite)]
@@ -73,7 +76,7 @@ public class CustomTablesController(CoreContext db) : ControllerBase
 
         db.CustomTables.Add(table);
         await db.SaveChangesAsync();
-        return CreatedAtAction(nameof(Get), new { id = table.Id }, ToDto(table));
+        return CreatedAtAction(nameof(Get), new { id = table.Id }, await ToDtoAsync(table));
     }
 
     /// <summary>
@@ -110,7 +113,7 @@ public class CustomTablesController(CoreContext db) : ControllerBase
         db.CustomTables.Add(table);
         db.CustomTableRows.AddRange(rows!);
         await db.SaveChangesAsync();
-        return CreatedAtAction(nameof(Get), new { id = table.Id }, ToDto(table));
+        return CreatedAtAction(nameof(Get), new { id = table.Id }, await ToDtoAsync(table));
     }
 
     /// <summary>Ändert Name und Spalten. Werte entfernter Spalten werden beim nächsten Speichern einer Zeile verworfen.</summary>
@@ -131,7 +134,7 @@ public class CustomTablesController(CoreContext db) : ControllerBase
         table.Modified = DateTimeOffset.UtcNow;
 
         await db.SaveChangesAsync();
-        return Ok(ToDto(table));
+        return Ok(await ToDtoAsync(table));
     }
 
     [RequirePermission(PermissionType.TableDesignWrite)]
@@ -153,7 +156,10 @@ public class CustomTablesController(CoreContext db) : ControllerBase
     [HttpGet("{id:guid}/rows")]
     public async Task<ActionResult<IList<CustomTableRowDto>>> GetRows(Guid id)
     {
-        if (!await db.CustomTables.AnyAsync(t => t.Id == id && t.IsActive)) return NotFound();
+        var table = await db.CustomTables.FirstOrDefaultAsync(t => t.Id == id && t.IsActive);
+        if (table is null) return NotFound();
+        // Chiffretext nur für Tresore mit Freigabe herausgeben.
+        if (table.IsConfidential && !await HasAccessAsync(table.Id)) return Forbid();
 
         var rows = await db.CustomTableRows
             .Where(r => r.TableId == id && r.IsActive)
@@ -171,14 +177,15 @@ public class CustomTablesController(CoreContext db) : ControllerBase
         var table = await db.CustomTables.FirstOrDefaultAsync(t => t.Id == id && t.IsActive);
         if (table is null) return NotFound();
 
-        var (values, error) = NormalizeValues(table.Columns, request.Values);
-        if (error is not null) return BadRequest(error);
+        var (values, encrypted, error) = await CheckRowAsync(table, request);
+        if (error is not null) return error;
 
         var row = new CustomTableRowEntity
         {
             Id = Guid.NewGuid(),
             TableId = table.Id,
             Values = values!,
+            EncryptedValues = encrypted,
             CreatorId = ((Invoker)User).UserId,
             Created = DateTimeOffset.UtcNow,
             IsActive = true,
@@ -202,8 +209,21 @@ public class CustomTablesController(CoreContext db) : ControllerBase
 
         var userId = ((Invoker)User).UserId;
         var now = DateTimeOffset.UtcNow;
-        var (rows, error) = BuildRows(table, request.Rows, userId, now);
-        if (error is not null) return BadRequest(error);
+        List<CustomTableRowEntity>? rows;
+        if (table.IsConfidential)
+        {
+            if (!await HasAccessAsync(table.Id)) return Forbid();
+            if (request.KeyVersion != table.KeyVersion) return KeyVersionConflict();
+            string? error;
+            (rows, error) = BuildEncryptedRows(table, request.EncryptedRows, userId, now);
+            if (error is not null) return BadRequest(error);
+        }
+        else
+        {
+            string? error;
+            (rows, error) = BuildRows(table, request.Rows, userId, now);
+            if (error is not null) return BadRequest(error);
+        }
 
         var removed = 0;
         if (request.ReplaceExisting)
@@ -233,10 +253,11 @@ public class CustomTablesController(CoreContext db) : ControllerBase
         var row = await db.CustomTableRows.FirstOrDefaultAsync(r => r.Id == rowId && r.TableId == id && r.IsActive);
         if (row is null) return NotFound();
 
-        var (values, error) = NormalizeValues(table.Columns, request.Values);
-        if (error is not null) return BadRequest(error);
+        var (values, encrypted, error) = await CheckRowAsync(table, request);
+        if (error is not null) return error;
 
         row.Values = values!;
+        row.EncryptedValues = encrypted;
         row.ModifierId = ((Invoker)User).UserId;
         row.Modified = DateTimeOffset.UtcNow;
         await db.SaveChangesAsync();
@@ -248,6 +269,10 @@ public class CustomTablesController(CoreContext db) : ControllerBase
     [HttpDelete("{id:guid}/rows/{rowId:guid}")]
     public async Task<IActionResult> DeleteRow(Guid id, Guid rowId)
     {
+        var table = await db.CustomTables.FirstOrDefaultAsync(t => t.Id == id && t.IsActive);
+        if (table is null) return NotFound();
+        if (table.IsConfidential && !await HasAccessAsync(table.Id)) return Forbid();
+
         var row = await db.CustomTableRows.FirstOrDefaultAsync(r => r.Id == rowId && r.TableId == id && r.IsActive);
         if (row is null) return NotFound();
 
@@ -256,6 +281,75 @@ public class CustomTablesController(CoreContext db) : ControllerBase
         row.Modified = DateTimeOffset.UtcNow;
         await db.SaveChangesAsync();
         return NoContent();
+    }
+
+    /// <summary>
+    /// Werte eines Eintrags: bei normalen Tabellen geprüft, bei vertraulichen nur Chiffretext
+    /// (der Server kann ihn nicht prüfen) mit dem aktuellen Schlüssel.
+    /// </summary>
+    private async Task<(JsonDocument? Values, string? Encrypted, ActionResult? Error)> CheckRowAsync(
+        CustomTableEntity table,
+        UpsertCustomTableRowRequest request)
+    {
+        if (!table.IsConfidential)
+        {
+            var (values, error) = NormalizeValues(table.Columns, request.Values);
+            return error is null ? (values, null, null) : (null, null, BadRequest(error));
+        }
+
+        if (!await HasAccessAsync(table.Id)) return (null, null, Forbid());
+        if (request.KeyVersion != table.KeyVersion) return (null, null, KeyVersionConflict());
+        if (!IsValidCiphertext(request.EncryptedValues)) return (null, null, BadRequest("Invalid encrypted values."));
+        return (JsonDocument.Parse("{}"), request.EncryptedValues, null);
+    }
+
+    private static (List<CustomTableRowEntity>? Rows, string? Error) BuildEncryptedRows(
+        CustomTableEntity table,
+        IList<string>? input,
+        Guid userId,
+        DateTimeOffset now)
+    {
+        if (input is not { Count: > 0 }) return ([], null);
+        if (input.Count > MaxImportRows) return (null, $"At most {MaxImportRows} rows can be imported at once.");
+
+        var rows = new List<CustomTableRowEntity>(input.Count);
+        for (var i = 0; i < input.Count; i++)
+        {
+            if (!IsValidCiphertext(input[i])) return (null, $"Row {i + 1}: Invalid encrypted values.");
+            rows.Add(new CustomTableRowEntity
+            {
+                Id = Guid.NewGuid(),
+                TableId = table.Id,
+                Values = JsonDocument.Parse("{}"),
+                EncryptedValues = input[i],
+                CreatorId = userId,
+                Created = now.AddMicroseconds(i),
+                IsActive = true,
+            });
+        }
+
+        return (rows, null);
+    }
+
+    private static bool IsValidCiphertext(string? value) =>
+        !string.IsNullOrEmpty(value) && value.Length <= MaxEncryptedLength &&
+        Convert.TryFromBase64String(value, new byte[value.Length], out var length) && length > 12;
+
+    private ObjectResult KeyVersionConflict() =>
+        Conflict("The table key has changed. Reload the table and try again.");
+
+    /// <summary>Tresor des angemeldeten Benutzers.</summary>
+    private async Task<VaultEntity?> OwnVaultAsync()
+    {
+        var userId = ((Invoker)User).UserId;
+        return await db.Vaults.FirstOrDefaultAsync(v => v.UserId == userId);
+    }
+
+    /// <summary>Hat der Tresor des angemeldeten Benutzers eine Freigabe für die Tabelle?</summary>
+    private async Task<bool> HasAccessAsync(Guid tableId)
+    {
+        var userId = ((Invoker)User).UserId;
+        return await db.CustomTableKeys.AnyAsync(k => k.TableId == tableId && k.Vault!.UserId == userId);
     }
 
     /// <summary>Prüft alle Zeilen eines Imports; Fehler nennen die Zeile (1-basiert).</summary>
@@ -392,12 +486,29 @@ public class CustomTablesController(CoreContext db) : ControllerBase
         return (JsonSerializer.SerializeToDocument(result), null);
     }
 
-    private static CustomTableDto ToDto(CustomTableEntity table) =>
-        new(table.Id, table.Name, table.Description, table.Columns);
+    /// <summary>Tabelle mit dem eigenen Tabellenschlüssel (bei vertraulichen Tabellen).</summary>
+    private async Task<CustomTableDto> ToDtoAsync(CustomTableEntity table)
+    {
+        string? wrappedKey = null;
+        var recoveryKeyMissing = false;
+        if (table.IsConfidential)
+        {
+            var userId = ((Invoker)User).UserId;
+            wrappedKey = await db.CustomTableKeys
+                .Where(k => k.TableId == table.Id && k.Vault!.UserId == userId)
+                .Select(k => k.WrappedKey)
+                .FirstOrDefaultAsync();
+            recoveryKeyMissing = await db.Vaults.AnyAsync(v => v.IsRecovery) &&
+                                 !await db.CustomTableKeys.AnyAsync(k => k.TableId == table.Id && k.Vault!.IsRecovery);
+        }
+
+        return new CustomTableDto(table.Id, table.Name, table.Description, table.Columns, table.IsConfidential,
+            table.KeyVersion, wrappedKey, recoveryKeyMissing);
+    }
 
     private static CustomTableRowDto ToRowDto(CustomTableRowEntity row, Dictionary<Guid, string> names) =>
         new(row.Id, row.Values.RootElement.Clone(), row.Created, row.Modified ?? row.Created,
-            names.GetValueOrDefault(row.ModifierId ?? row.CreatorId));
+            names.GetValueOrDefault(row.ModifierId ?? row.CreatorId), row.EncryptedValues);
 
     private async Task<Dictionary<Guid, string>> UserNamesAsync(IEnumerable<Guid> ids)
     {
@@ -414,9 +525,20 @@ public record CustomTableSummaryDto(
     string? Description,
     int ColumnCount,
     int RowCount,
-    DateTimeOffset UpdatedAt);
+    DateTimeOffset UpdatedAt,
+    bool IsConfidential);
 
-public record CustomTableDto(Guid Id, string Name, string? Description, IList<CustomTableColumn> Columns);
+/// <param name="WrappedKey">Bei vertraulichen Tabellen: Tabellenschlüssel für den eigenen Tresor; leer ohne Freigabe.</param>
+/// <param name="RecoveryKeyMissing">Der Wiederherstellungs-Tresor hat noch keinen Schlüssel für diese Tabelle.</param>
+public record CustomTableDto(
+    Guid Id,
+    string Name,
+    string? Description,
+    IList<CustomTableColumn> Columns,
+    bool IsConfidential,
+    int KeyVersion,
+    string? WrappedKey,
+    bool RecoveryKeyMissing);
 
 /// <param name="Columns">Spalten in Anzeigereihenfolge; neue Spalten ohne Id bekommen eine.</param>
 public record UpsertCustomTableRequest(string Name, string? Description, IList<CustomTableColumn> Columns);
@@ -427,9 +549,13 @@ public record CustomTableRowDto(
     JsonElement Values,
     DateTimeOffset CreatedAt,
     DateTimeOffset UpdatedAt,
-    string? UpdatedBy);
+    string? UpdatedBy,
+    string? EncryptedValues);
 
-public record UpsertCustomTableRowRequest(JsonElement Values);
+/// <param name="Values">Werte je Spalten-Id (normale Tabellen).</param>
+/// <param name="EncryptedValues">Chiffretext der Werte (vertrauliche Tabellen).</param>
+/// <param name="KeyVersion">Schlüsselversion, mit der verschlüsselt wurde (vertrauliche Tabellen).</param>
+public record UpsertCustomTableRowRequest(JsonElement Values, string? EncryptedValues = null, int? KeyVersion = null);
 
 /// <param name="Columns">Spalten mit vom Aufrufer vergebenen, eindeutigen Ids.</param>
 /// <param name="Rows">Objekte mit Werten je Spalten-Id.</param>
@@ -441,6 +567,11 @@ public record ImportCustomTableRequest(
 
 /// <param name="Rows">Objekte mit Werten je Spalten-Id.</param>
 /// <param name="ReplaceExisting">Bisherige Einträge vorher entfernen.</param>
-public record ImportCustomTableRowsRequest(IList<JsonElement> Rows, bool ReplaceExisting);
+/// <param name="EncryptedRows">Bei vertraulichen Tabellen: Chiffretexte statt <paramref name="Rows"/>.</param>
+public record ImportCustomTableRowsRequest(
+    IList<JsonElement> Rows,
+    bool ReplaceExisting,
+    IList<string>? EncryptedRows = null,
+    int? KeyVersion = null);
 
 public record ImportCustomTableRowsResultDto(int Imported, int Removed);

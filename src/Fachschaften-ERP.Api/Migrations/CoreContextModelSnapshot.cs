@@ -250,6 +250,12 @@ namespace Fachschaften_ERP.Api.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
+                    b.Property<bool>("IsConfidential")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("KeyVersion")
+                        .HasColumnType("integer");
+
                     b.Property<DateTimeOffset?>("Modified")
                         .HasColumnType("timestamp with time zone");
 
@@ -266,6 +272,32 @@ namespace Fachschaften_ERP.Api.Migrations
                     b.ToTable("CustomTables", "erp");
                 });
 
+            modelBuilder.Entity("Fachschaften_ERP.Models.Entities.CustomTableKeyEntity", b =>
+                {
+                    b.Property<Guid>("TableId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("VaultId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("Granted")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("GrantedById")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("WrappedKey")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.HasKey("TableId", "VaultId");
+
+                    b.HasIndex("VaultId");
+
+                    b.ToTable("CustomTableKeys", "erp");
+                });
+
             modelBuilder.Entity("Fachschaften_ERP.Models.Entities.CustomTableRowEntity", b =>
                 {
                     b.Property<Guid>("Id")
@@ -277,6 +309,9 @@ namespace Fachschaften_ERP.Api.Migrations
 
                     b.Property<Guid>("CreatorId")
                         .HasColumnType("uuid");
+
+                    b.Property<string>("EncryptedValues")
+                        .HasColumnType("text");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
@@ -778,6 +813,50 @@ namespace Fachschaften_ERP.Api.Migrations
                     b.ToTable("Suppliers", "erp");
                 });
 
+            modelBuilder.Entity("Fachschaften_ERP.Models.Entities.VaultEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("Created")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("EncryptedPrivateKey")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)");
+
+                    b.Property<bool>("IsRecovery")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("Iterations")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset?>("Modified")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("PublicKey")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<string>("Salt")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("Vaults", "erp");
+                });
+
             modelBuilder.Entity("Fachschaften_ERP.Models.Entities.WikiPageEntity", b =>
                 {
                     b.Property<Guid>("Id")
@@ -962,6 +1041,25 @@ namespace Fachschaften_ERP.Api.Migrations
                     b.Navigation("Parent");
                 });
 
+            modelBuilder.Entity("Fachschaften_ERP.Models.Entities.CustomTableKeyEntity", b =>
+                {
+                    b.HasOne("Fachschaften_ERP.Models.Entities.CustomTableEntity", "Table")
+                        .WithMany("Keys")
+                        .HasForeignKey("TableId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Fachschaften_ERP.Models.Entities.VaultEntity", "Vault")
+                        .WithMany()
+                        .HasForeignKey("VaultId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Table");
+
+                    b.Navigation("Vault");
+                });
+
             modelBuilder.Entity("Fachschaften_ERP.Models.Entities.CustomTableRowEntity", b =>
                 {
                     b.HasOne("Fachschaften_ERP.Models.Entities.CustomTableEntity", "Table")
@@ -1110,6 +1208,8 @@ namespace Fachschaften_ERP.Api.Migrations
 
             modelBuilder.Entity("Fachschaften_ERP.Models.Entities.CustomTableEntity", b =>
                 {
+                    b.Navigation("Keys");
+
                     b.Navigation("Rows");
                 });
 

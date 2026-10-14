@@ -17,3 +17,19 @@
 .back-link {
   margin-left: -0.75rem;
 }
+
+.confidential-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+  color: var(--app-text-muted);
+
+  mat-icon {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    color: var(--brand-accent);
+  }
+}

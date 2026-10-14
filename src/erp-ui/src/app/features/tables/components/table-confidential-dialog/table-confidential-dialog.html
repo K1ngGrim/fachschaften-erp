@@ -1,0 +1,50 @@
+<h2 mat-dialog-title>„{{ data.table.name }}“ vertraulich machen</h2>
+
+<mat-dialog-content>
+  <div class="d-flex flex-column gap-3 pt-1">
+    <ul class="mb-0 ps-3 small d-flex flex-column gap-1">
+      <li>
+        {{
+          data.rows.length === 1
+            ? 'Der Eintrag wird'
+            : 'Alle ' + data.rows.length + ' Einträge werden'
+        }}
+        in deinem Browser verschlüsselt. Auf dem Server liegen danach nur noch verschlüsselte Daten,
+        auch für Server-Admins nicht lesbar.
+      </li>
+      <li>
+        Zugriff hast zunächst nur du. Weitere Personen gibst du danach unter „Zugriff“ frei; sie
+        brauchen dafür einen eigenen Tresor.
+      </li>
+      <li>Name, Beschreibung und Spaltennamen der Tabelle bleiben lesbar.</li>
+      <li>Das lässt sich nicht rückgängig machen.</li>
+    </ul>
+
+    @if (hasRecoveryKey() === false) {
+      <div class="alert alert-warning small mb-0" role="alert">
+        Es ist noch kein Wiederherstellungsschlüssel eingerichtet. Vergessen alle Personen mit
+        Zugriff ihre Passphrase, sind die Daten verloren. Einrichten lässt er sich unter
+        Einstellungen; bestehende Tabellen werden dann automatisch ergänzt.
+      </div>
+    }
+
+    @if (vault.status() !== 'unlocked') {
+      <app-vault-panel reason="Zum Verschlüsseln brauchst du deinen Tresor." />
+    }
+
+    @if (error(); as message) {
+      <p class="text-negative small mb-0">{{ message }}</p>
+    }
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()">Abbrechen</button>
+  <button mat-flat-button (click)="confirm()" [disabled]="vault.status() !== 'unlocked' || busy()">
+    @if (busy()) {
+      <mat-progress-spinner mode="indeterminate" diameter="18" />
+    } @else {
+      Verschlüsseln
+    }
+  </button>
+</mat-dialog-actions>

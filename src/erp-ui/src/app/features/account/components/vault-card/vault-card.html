@@ -1,0 +1,105 @@
+<mat-card appearance="outlined" class="h-100">
+  <mat-card-header class="mb-2">
+    <mat-card-title class="fs-6">Tresor für vertrauliche Tabellen</mat-card-title>
+  </mat-card-header>
+  <mat-card-content class="d-flex flex-column gap-3">
+    @if (vault.status() === 'none' || vault.status() === 'unknown') {
+      <app-vault-panel
+        reason="Damit kannst du vertrauliche Tabellen lesen, sobald sie dir jemand freigibt."
+      />
+    } @else {
+      <p class="small mb-0">
+        Dein Tresor ist eingerichtet und gerade
+        <strong>{{ vault.status() === 'unlocked' ? 'entsperrt' : 'gesperrt' }}</strong
+        >. Entsperrt bleibt er, bis du die Seite neu lädst oder dich abmeldest.
+      </p>
+
+      @if (success(); as message) {
+        <div class="alert alert-success small mb-0" role="status">{{ message }}</div>
+      }
+
+      @switch (mode()) {
+        @case ('idle') {
+          <div class="d-flex flex-wrap gap-2">
+            @if (vault.status() === 'unlocked') {
+              <button mat-stroked-button (click)="vault.lock()">Sperren</button>
+            }
+            <button mat-stroked-button (click)="start('change')">Passphrase ändern</button>
+            <button mat-button (click)="start('reset')">Passphrase vergessen?</button>
+          </div>
+        }
+        @default {
+          <form class="d-flex flex-column gap-3" (ngSubmit)="submit()">
+            @if (mode() === 'change') {
+              <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                <mat-label>Bisherige Passphrase</mat-label>
+                <input
+                  matInput
+                  type="password"
+                  name="current"
+                  autocomplete="off"
+                  [ngModel]="current()"
+                  (ngModelChange)="current.set($event)"
+                />
+              </mat-form-field>
+            } @else {
+              <p class="small mb-0">
+                Ohne die alte Passphrase lässt sich dein Tresor nicht öffnen. Du kannst ihn aber neu
+                einrichten: Dann verlierst du den Zugriff auf alle vertraulichen Tabellen, bis ihn
+                dir jemand mit Zugriff (oder der Vorstand mit dem Wiederherstellungsschlüssel) neu
+                freigibt. Daten gehen dabei nicht verloren.
+              </p>
+            }
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+              <mat-label>Neue Passphrase</mat-label>
+              <input
+                matInput
+                type="password"
+                name="passphrase"
+                autocomplete="new-password"
+                [ngModel]="passphrase()"
+                (ngModelChange)="passphrase.set($event)"
+              />
+            </mat-form-field>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+              <mat-label>Neue Passphrase wiederholen</mat-label>
+              <input
+                matInput
+                type="password"
+                name="repeat"
+                autocomplete="new-password"
+                [ngModel]="repeat()"
+                (ngModelChange)="repeat.set($event)"
+              />
+            </mat-form-field>
+            @if (mode() === 'reset') {
+              <mat-checkbox
+                [checked]="resetConfirmed()"
+                (change)="resetConfirmed.set($event.checked)"
+              >
+                Ich verstehe, dass ich meine Freigaben verliere.
+              </mat-checkbox>
+            }
+            @if (error(); as message) {
+              <p class="text-negative small mb-0">{{ message }}</p>
+            } @else if (passphrase() && problem(); as message) {
+              <p class="text-hint small mb-0">{{ message }}</p>
+            }
+            <div class="d-flex justify-content-end gap-2">
+              <button mat-button type="button" (click)="start('idle')">Abbrechen</button>
+              <button mat-flat-button type="submit" [disabled]="!!problem() || busy()">
+                @if (busy()) {
+                  <mat-progress-spinner mode="indeterminate" diameter="18" />
+                } @else if (mode() === 'change') {
+                  Passphrase ändern
+                } @else {
+                  Tresor neu einrichten
+                }
+              </button>
+            </div>
+          </form>
+        }
+      }
+    }
+  </mat-card-content>
+</mat-card>

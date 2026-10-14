@@ -19,9 +19,17 @@ import {
   UpsertCustomTableRequest,
 } from '../../../../../../projects/api/src/lib';
 import { COLUMN_TYPE_LABELS } from '../../table-values';
+import { Vault } from '../../../../core/services/vault';
+import { VaultPanel } from '../../../../shared/components/vault-panel/vault-panel';
 
 export interface TableStructureDialogData {
   table: CustomTableDto | null;
+}
+
+/** Ergebnis: Aufbau und, nur bei neuen Tabellen, ob sie vertraulich sein soll. */
+export interface TableStructureResult {
+  request: UpsertCustomTableRequest;
+  confidential: boolean;
 }
 
 /** Bearbeitbare Spalte; Optionen als kommagetrennter Text. */
@@ -52,12 +60,14 @@ interface EditableColumn {
     MatOption,
     MatCheckbox,
     MatTooltip,
+    VaultPanel,
   ],
   templateUrl: './table-structure-dialog.html',
   styleUrl: './table-structure-dialog.scss',
 })
 export class TableStructureDialog {
-  private readonly dialogRef = inject(MatDialogRef<TableStructureDialog, UpsertCustomTableRequest>);
+  private readonly dialogRef = inject(MatDialogRef<TableStructureDialog, TableStructureResult>);
+  protected readonly vault = inject(Vault);
   private readonly table = inject<TableStructureDialogData>(MAT_DIALOG_DATA).table;
 
   public readonly isNew = !this.table;
@@ -66,6 +76,7 @@ export class TableStructureDialog {
 
   public readonly name = signal(this.table?.name ?? '');
   public readonly description = signal(this.table?.description ?? '');
+  public readonly confidential = signal(false);
   public readonly columns = signal<EditableColumn[]>(
     this.table?.columns.map((c) => ({
       id: c.id,
@@ -93,6 +104,9 @@ export class TableStructureDialog {
       )
     ) {
       return 'Auswahl-Spalten brauchen mindestens eine Option.';
+    }
+    if (this.confidential() && this.vault.status() !== 'unlocked') {
+      return 'Für eine vertrauliche Tabelle muss dein Tresor entsperrt sein.';
     }
     return null;
   });
@@ -123,16 +137,19 @@ export class TableStructureDialog {
     if (this.problem()) return;
 
     this.dialogRef.close({
-      name: this.name().trim(),
-      description: this.description().trim() || null,
-      columns: this.columns().map((c) => ({
-        // Neue Spalten bekommen ihre Id vom Server.
-        id: c.isNew ? '' : c.id,
-        label: c.label.trim(),
-        type: c.type,
-        required: c.required,
-        options: c.type === CustomTableColumnType.Select ? splitOptions(c.options) : null,
-      })),
+      request: {
+        name: this.name().trim(),
+        description: this.description().trim() || null,
+        columns: this.columns().map((c) => ({
+          // Neue Spalten bekommen ihre Id vom Server.
+          id: c.isNew ? '' : c.id,
+          label: c.label.trim(),
+          type: c.type,
+          required: c.required,
+          options: c.type === CustomTableColumnType.Select ? splitOptions(c.options) : null,
+        })),
+      },
+      confidential: this.isNew && this.confidential(),
     });
   }
 

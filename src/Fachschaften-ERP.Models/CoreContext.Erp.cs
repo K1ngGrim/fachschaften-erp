@@ -23,6 +23,8 @@ public partial class CoreContext
     public DbSet<OrganizationSettingsEntity> OrganizationSettings => Set<OrganizationSettingsEntity>();
     public DbSet<CustomTableEntity> CustomTables => Set<CustomTableEntity>();
     public DbSet<CustomTableRowEntity> CustomTableRows => Set<CustomTableRowEntity>();
+    public DbSet<CustomTableKeyEntity> CustomTableKeys => Set<CustomTableKeyEntity>();
+    public DbSet<VaultEntity> Vaults => Set<VaultEntity>();
     
     private static void OnErpCreating(ModelBuilder modelBuilder)
     {
@@ -61,6 +63,29 @@ public partial class CoreContext
                         (a, b) => a!.RootElement.GetRawText() == b!.RootElement.GetRawText(),
                         v => v.RootElement.GetRawText().GetHashCode(),
                         v => JsonDocument.Parse(v.RootElement.GetRawText(), default)));
+        });
+
+        modelBuilder.Entity<VaultEntity>(entity =>
+        {
+            entity.HasKey(v => v.Id);
+            entity.HasIndex(v => v.UserId).IsUnique();
+            entity.Property(v => v.PublicKey).IsRequired().HasMaxLength(1000);
+            entity.Property(v => v.EncryptedPrivateKey).IsRequired().HasMaxLength(4000);
+            entity.Property(v => v.Salt).IsRequired().HasMaxLength(100);
+        });
+
+        modelBuilder.Entity<CustomTableKeyEntity>(entity =>
+        {
+            entity.HasKey(k => new { k.TableId, k.VaultId });
+            entity.Property(k => k.WrappedKey).IsRequired().HasMaxLength(1000);
+            entity.HasOne(k => k.Table)
+                .WithMany(t => t.Keys)
+                .HasForeignKey(k => k.TableId)
+                .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(k => k.Vault)
+                .WithMany()
+                .HasForeignKey(k => k.VaultId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<OrganizationSettingsEntity>(entity =>

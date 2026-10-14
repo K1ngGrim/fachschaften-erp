@@ -1,0 +1,90 @@
+<mat-card appearance="outlined">
+  <mat-card-header class="mb-2">
+    <mat-card-title class="fs-6">Wiederherstellungsschlüssel</mat-card-title>
+  </mat-card-header>
+  <mat-card-content class="d-flex flex-column gap-3">
+    <p class="small mb-0">
+      Vertrauliche Tabellen sind so verschlüsselt, dass auch Server-Admins sie nicht lesen können.
+      Vergessen alle Personen mit Zugriff ihre Passphrase, hilft nur noch dieser Code. Bewahrt ihn
+      ausgedruckt und sicher auf, z. B. beim Vorstand.
+    </p>
+
+    @if (success(); as message) {
+      <div class="alert alert-success small mb-0" role="status">{{ message }}</div>
+    }
+
+    @switch (mode()) {
+      @case ('code') {
+        <div class="code-box">
+          <div class="small text-hint">Wird nur jetzt angezeigt:</div>
+          <code class="recovery-code">{{ code() }}</code>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+          <button mat-stroked-button (click)="download()">Als Textdatei herunterladen</button>
+        </div>
+        <mat-checkbox [checked]="stored()" (change)="stored.set($event.checked)">
+          Ich habe den Code sicher aufbewahrt.
+        </mat-checkbox>
+        <button mat-flat-button class="align-self-start" [disabled]="!stored()" (click)="finish()">
+          Fertig
+        </button>
+      }
+      @case ('restore') {
+        <p class="small mb-0">
+          Damit bekommst du Zugriff auf alle vertraulichen Tabellen, die mit diesem Code gesichert
+          sind. Dein eigener Tresor muss dafür entsperrt sein.
+        </p>
+        @if (vault.status() !== 'unlocked') {
+          <app-vault-panel reason="Die Tabellen werden für deinen Tresor freigegeben." />
+        } @else {
+          <form class="d-flex flex-column gap-3" (ngSubmit)="restore()">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+              <mat-label>Wiederherstellungsschlüssel</mat-label>
+              <input
+                matInput
+                name="code"
+                autocomplete="off"
+                placeholder="ABCD-EFGH-…"
+                [ngModel]="input()"
+                (ngModelChange)="input.set($event)"
+              />
+            </mat-form-field>
+            <div class="d-flex gap-2">
+              <button mat-button type="button" (click)="mode.set('idle')">Abbrechen</button>
+              <button mat-flat-button type="submit" [disabled]="!input().trim() || busy()">
+                @if (busy()) {
+                  <mat-progress-spinner mode="indeterminate" diameter="18" />
+                } @else {
+                  Zugriff wiederherstellen
+                }
+              </button>
+            </div>
+          </form>
+        }
+      }
+      @default {
+        @if (loaded()) {
+          <p class="small mb-0">
+            @if (info(); as recovery) {
+              Eingerichtet am {{ formatDate(recovery.createdAt) }}.
+            } @else {
+              <strong>Noch nicht eingerichtet.</strong>
+            }
+          </p>
+          <div class="d-flex flex-wrap gap-2">
+            <button mat-stroked-button (click)="create()" [disabled]="busy()">
+              {{ info() ? 'Neuen Code erzeugen' : 'Einrichten' }}
+            </button>
+            @if (info()) {
+              <button mat-button (click)="startRestore()">Zugriff wiederherstellen</button>
+            }
+          </div>
+        }
+      }
+    }
+
+    @if (error(); as message) {
+      <p class="text-negative small mb-0">{{ message }}</p>
+    }
+  </mat-card-content>
+</mat-card>

@@ -11,25 +11,39 @@
   } @else {
     <app-page-header [title]="table()!.name" [subtitle]="table()!.description ?? ''">
       <div class="d-flex flex-wrap gap-2">
-        <button mat-stroked-button class="d-flex" [matMenuTriggerFor]="exportMenu">
-          <mat-icon svgIcon="download-outline" class="d-flex" />
-          <span>Export</span>
-        </button>
-        <mat-menu #exportMenu="matMenu">
-          <button mat-menu-item (click)="downloadCsv(EXCEL_FORMAT)">
-            <mat-icon svgIcon="microsoft-excel" />
-            <span>CSV für Excel (Semikolon)</span>
+        @if (access() === 'plain' && canDesign && canWrite) {
+          <button mat-stroked-button class="d-flex" (click)="makeConfidential()">
+            <mat-icon svgIcon="lock-outline" class="d-flex" />
+            <span>Vertraulich machen</span>
           </button>
-          <button mat-menu-item (click)="downloadCsv(STANDARD_FORMAT)">
-            <mat-icon svgIcon="file-delimited-outline" />
-            <span>CSV Standard (Komma)</span>
+        }
+        @if (access() === 'ready' && canDesign) {
+          <button mat-stroked-button class="d-flex" (click)="manageAccess()">
+            <mat-icon svgIcon="account-key-outline" class="d-flex" />
+            <span>Zugriff</span>
           </button>
-        </mat-menu>
-        @if (canWrite) {
-          <button mat-stroked-button class="d-flex" (click)="importCsv()">
-            <mat-icon svgIcon="file-upload-outline" class="d-flex" />
-            <span>Import</span>
+        }
+        @if (canSeeRows()) {
+          <button mat-stroked-button class="d-flex" [matMenuTriggerFor]="exportMenu">
+            <mat-icon svgIcon="download-outline" class="d-flex" />
+            <span>Export</span>
           </button>
+          <mat-menu #exportMenu="matMenu">
+            <button mat-menu-item (click)="downloadCsv(EXCEL_FORMAT)">
+              <mat-icon svgIcon="microsoft-excel" />
+              <span>CSV für Excel (Semikolon)</span>
+            </button>
+            <button mat-menu-item (click)="downloadCsv(STANDARD_FORMAT)">
+              <mat-icon svgIcon="file-delimited-outline" />
+              <span>CSV Standard (Komma)</span>
+            </button>
+          </mat-menu>
+          @if (canWrite) {
+            <button mat-stroked-button class="d-flex" (click)="importCsv()">
+              <mat-icon svgIcon="file-upload-outline" class="d-flex" />
+              <span>Import</span>
+            </button>
+          }
         }
         @if (canDesign) {
           <button mat-stroked-button class="d-flex" (click)="editStructure()">
@@ -41,7 +55,7 @@
             <span>Löschen</span>
           </button>
         }
-        @if (canWrite) {
+        @if (canWrite && canSeeRows()) {
           <button mat-flat-button class="d-flex" (click)="addRow()">
             <mat-icon svgIcon="plus" class="d-flex" />
             <span>Neuer Eintrag</span>
@@ -56,24 +70,57 @@
       <div class="alert alert-success" role="status">{{ message }}</div>
     }
 
-    <app-data-grid
-      [title]="rows().length + (rows().length === 1 ? ' Eintrag' : ' Einträge')"
-      [columns]="columns()"
-      [data]="gridRows()"
-      [searchable]="true"
-    >
-      @if (canWrite) {
-        <ng-template gridActionCell let-entry>
-          <div class="d-flex gap-1 justify-content-end">
-            <button mat-icon-button matTooltip="Bearbeiten" (click)="editRow(entry.__row)">
-              <mat-icon svgIcon="pencil-outline" />
-            </button>
-            <button mat-icon-button matTooltip="Löschen" (click)="deleteRow(entry.__row)">
-              <mat-icon svgIcon="delete-outline" />
-            </button>
-          </div>
-        </ng-template>
+    @if (access() === 'locked') {
+      <app-vault-panel
+        [reason]="
+          '„' + table()!.name + '“ ist vertraulich. Die Einträge sind Ende-zu-Ende-verschlüsselt.'
+        "
+        (unlocked)="reload()"
+      />
+    } @else if (access() === 'no-access') {
+      <div class="confidential-info">
+        <mat-icon svgIcon="lock-outline" />
+        <span>
+          Du hast noch keinen Zugriff auf diese vertrauliche Tabelle. Bitte jemanden mit Zugriff,
+          ihn dir über „Zugriff“ freizugeben.
+        </span>
+      </div>
+    } @else {
+      @if (access() === 'ready') {
+        <div class="confidential-info">
+          <mat-icon svgIcon="lock-outline" />
+          <span>
+            Vertraulich: Die Einträge sind Ende-zu-Ende-verschlüsselt und nur für Personen mit
+            Freigabe lesbar.
+            @if (undecryptable(); as count) {
+              <strong class="text-negative">
+                {{ count }} {{ count === 1 ? 'Eintrag ließ' : 'Einträge ließen' }} sich nicht
+                entschlüsseln.
+              </strong>
+            }
+          </span>
+        </div>
       }
-    </app-data-grid>
+
+      <app-data-grid
+        [title]="rows().length + (rows().length === 1 ? ' Eintrag' : ' Einträge')"
+        [columns]="columns()"
+        [data]="gridRows()"
+        [searchable]="true"
+      >
+        @if (canWrite) {
+          <ng-template gridActionCell let-entry>
+            <div class="d-flex gap-1 justify-content-end">
+              <button mat-icon-button matTooltip="Bearbeiten" (click)="editRow(entry.__row)">
+                <mat-icon svgIcon="pencil-outline" />
+              </button>
+              <button mat-icon-button matTooltip="Löschen" (click)="deleteRow(entry.__row)">
+                <mat-icon svgIcon="delete-outline" />
+              </button>
+            </div>
+          </ng-template>
+        }
+      </app-data-grid>
+    }
   }
 </div>

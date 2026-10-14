@@ -1,0 +1,43 @@
+.member-list {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--app-border);
+  border-radius: 8px;
+}
+
+.member {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.9rem;
+  min-height: 3.25rem;
+
+  & + & {
+    border-top: 1px solid var(--app-border);
+  }
+}
+
+.member-name {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.member-action {
+  display: flex;
+  justify-content: flex-end;
+  min-width: 6.5rem;
+}
+
+.recovery {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--app-text-muted);
+
+  mat-icon {
+    width: 18px;
+    height: 18px;
+  }
+}

@@ -1,0 +1,96 @@
+@switch (vault.status()) {
+  @case ('locked') {
+    <form class="vault-panel" (ngSubmit)="unlock()">
+      <div class="vault-heading">
+        <mat-icon svgIcon="lock-outline" />
+        <div>
+          <div class="fw-medium">Tresor entsperren</div>
+          <small class="text-hint">{{ reason() }}</small>
+        </div>
+      </div>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Tresor-Passphrase</mat-label>
+        <input
+          matInput
+          type="password"
+          name="passphrase"
+          autocomplete="off"
+          [ngModel]="passphrase()"
+          (ngModelChange)="passphrase.set($event)"
+        />
+      </mat-form-field>
+      @if (error(); as message) {
+        <p class="text-negative small mb-0">{{ message }}</p>
+      }
+      <button mat-flat-button type="submit" class="align-self-start" [disabled]="busy()">
+        @if (busy()) {
+          <mat-progress-spinner mode="indeterminate" diameter="18" />
+        } @else {
+          Entsperren
+        }
+      </button>
+    </form>
+  }
+  @case ('none') {
+    <form class="vault-panel" (ngSubmit)="setup()">
+      <div class="vault-heading">
+        <mat-icon svgIcon="shield-key-outline" />
+        <div>
+          <div class="fw-medium">Tresor einrichten</div>
+          <small class="text-hint">{{ reason() }}</small>
+        </div>
+      </div>
+      <p class="small mb-0">
+        Vertrauliche Tabellen werden in deinem Browser verschlüsselt. Dafür brauchst du eine eigene
+        <strong>Tresor-Passphrase</strong>. Nimm nicht dein Login-Passwort: Die Passphrase verlässt
+        nie deinen Browser, auch der Server kennt sie nicht. Vergisst du sie, können andere mit
+        Zugriff dir neu freigeben.
+      </p>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Tresor-Passphrase</mat-label>
+        <input
+          matInput
+          type="password"
+          name="passphrase"
+          autocomplete="new-password"
+          [ngModel]="passphrase()"
+          (ngModelChange)="passphrase.set($event)"
+        />
+        <mat-hint>Mindestens {{ MIN_LENGTH }} Zeichen, gern ein ganzer Satz.</mat-hint>
+      </mat-form-field>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Passphrase wiederholen</mat-label>
+        <input
+          matInput
+          type="password"
+          name="repeat"
+          autocomplete="new-password"
+          [ngModel]="repeat()"
+          (ngModelChange)="repeat.set($event)"
+        />
+      </mat-form-field>
+      @if (error(); as message) {
+        <p class="text-negative small mb-0">{{ message }}</p>
+      } @else if (passphrase() && setupProblem(); as problem) {
+        <p class="text-hint small mb-0">{{ problem }}</p>
+      }
+      <button
+        mat-flat-button
+        type="submit"
+        class="align-self-start"
+        [disabled]="!!setupProblem() || busy()"
+      >
+        @if (busy()) {
+          <mat-progress-spinner mode="indeterminate" diameter="18" />
+        } @else {
+          Tresor einrichten
+        }
+      </button>
+    </form>
+  }
+  @case ('unknown') {
+    @if (error(); as message) {
+      <p class="text-negative small mb-0">{{ message }}</p>
+    }
+  }
+}

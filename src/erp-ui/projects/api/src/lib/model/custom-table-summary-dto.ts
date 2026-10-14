@@ -16,5 +16,6 @@ export interface CustomTableSummaryDto {
     columnCount: number;
     rowCount: number;
     updatedAt: string;
+    isConfidential: boolean;
 }
 

@@ -19,6 +19,10 @@
     </div>
   </app-page-header>
 
+  @if (error(); as message) {
+    <div class="alert alert-warning" role="alert">{{ message }}</div>
+  }
+
   <div class="row g-3">
     @for (table of tables(); track table.id) {
       <div class="col-12 col-md-6 col-xl-4">
@@ -29,7 +33,12 @@
                 <mat-icon svgIcon="table-large" />
               </span>
               <div class="min-w-0">
-                <div class="fw-medium">{{ table.name }}</div>
+                <div class="fw-medium d-flex align-items-center gap-1">
+                  {{ table.name }}
+                  @if (table.isConfidential) {
+                    <mat-icon svgIcon="lock-outline" class="lock-icon" aria-label="Vertraulich" />
+                  }
+                </div>
                 @if (table.description) {
                   <div class="text-hint small description">{{ table.description }}</div>
                 }

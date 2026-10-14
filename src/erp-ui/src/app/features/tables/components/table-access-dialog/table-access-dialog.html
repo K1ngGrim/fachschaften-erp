@@ -1,0 +1,81 @@
+<h2 mat-dialog-title>Zugriff auf „{{ data.table.name }}“</h2>
+
+<mat-dialog-content>
+  <div class="d-flex flex-column gap-3 pt-1">
+    <p class="small text-hint mb-0">
+      Nur Personen mit Freigabe können die Einträge entschlüsseln, unabhängig von ihren Rollen. Zum
+      Freigeben braucht die Person einen eigenen Tresor (unter „Mein Konto“).
+    </p>
+
+    @if (access(); as info) {
+      <div class="member-list">
+        @for (member of members(); track member.userId) {
+          <div class="member">
+            <div class="member-name">
+              <div class="fw-medium text-truncate">
+                {{ member.name }}
+                @if (member.userId === userId) {
+                  <span class="text-hint fw-normal">(du)</span>
+                }
+              </div>
+              <small class="text-hint text-truncate">{{ member.email }}</small>
+            </div>
+
+            @if (member.hasAccess) {
+              <span class="pill pill--positive">Zugriff</span>
+            } @else if (!member.vaultId) {
+              <span class="text-hint small">kein Tresor</span>
+            }
+
+            <div class="member-action">
+              @if (busyUser() === member.userId) {
+                <mat-progress-spinner mode="indeterminate" diameter="20" />
+              } @else if (member.userId === userId) {
+                <!-- Den eigenen Zugriff entzieht man nicht hier. -->
+              } @else if (member.hasAccess) {
+                <button
+                  mat-button
+                  (click)="revoke(member)"
+                  [disabled]="!data.complete || !!busyUser()"
+                >
+                  Entziehen
+                </button>
+              } @else if (member.vaultId) {
+                <button mat-stroked-button (click)="grant(member)" [disabled]="!!busyUser()">
+                  Freigeben
+                </button>
+              }
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="recovery small">
+        <mat-icon svgIcon="key-variant" />
+        @if (!info.recoveryVaultId) {
+          <span>Kein Wiederherstellungsschlüssel eingerichtet (Einstellungen).</span>
+        } @else if (info.recoveryHasAccess) {
+          <span>Der Wiederherstellungsschlüssel hat Zugriff.</span>
+        } @else {
+          <span>Der Wiederherstellungsschlüssel wird beim nächsten Öffnen ergänzt.</span>
+        }
+      </div>
+    } @else {
+      <p class="text-hint">Wird geladen …</p>
+    }
+
+    @if (!data.complete) {
+      <p class="text-negative small mb-0">
+        Nicht alle Einträge ließen sich entschlüsseln; Zugriff entziehen ist deshalb gerade nicht
+        möglich.
+      </p>
+    }
+    @if (error(); as message) {
+      <p class="text-negative small mb-0">{{ message }}</p>
+    }
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="close()">Schließen</button>
+</mat-dialog-actions>

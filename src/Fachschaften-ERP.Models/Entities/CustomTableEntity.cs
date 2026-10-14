@@ -14,6 +14,17 @@ public class CustomTableEntity : IBaseEntity
 
     public List<CustomTableRowEntity> Rows { get; set; } = [];
 
+    /// <summary>
+    /// Einträge sind Ende-zu-Ende-verschlüsselt (<see cref="CustomTableRowEntity.EncryptedValues"/>);
+    /// nur Tresore mit einem <see cref="CustomTableKeyEntity"/> können sie lesen.
+    /// </summary>
+    public bool IsConfidential { get; set; }
+
+    /// <summary>Wird bei jedem Schlüsselwechsel erhöht; alle Einträge nutzen den aktuellen Schlüssel.</summary>
+    public int KeyVersion { get; set; }
+
+    public List<CustomTableKeyEntity> Keys { get; set; } = [];
+
     public Guid CreatorId { get; set; }
     public DateTimeOffset Created { get; set; }
     public Guid? ModifierId { get; set; }
@@ -47,8 +58,11 @@ public class CustomTableRowEntity : IBaseEntity
     public Guid TableId { get; set; }
     public CustomTableEntity? Table { get; set; }
 
-    /// <summary>Werte je Spalten-Id.</summary>
+    /// <summary>Werte je Spalten-Id; bei vertraulichen Tabellen leer.</summary>
     public JsonDocument Values { get; set; } = JsonDocument.Parse("{}");
+
+    /// <summary>Bei vertraulichen Tabellen: Werte als AES-GCM-Chiffretext (Base64 aus IV und Chiffretext).</summary>
+    public string? EncryptedValues { get; set; }
 
     public Guid CreatorId { get; set; }
     public DateTimeOffset Created { get; set; }

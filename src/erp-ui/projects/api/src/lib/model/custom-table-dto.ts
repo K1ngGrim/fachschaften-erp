@@ -15,5 +15,9 @@ export interface CustomTableDto {
     name: string;
     description: string | null;
     columns: Array<CustomTableColumn>;
+    isConfidential: boolean;
+    keyVersion: number;
+    wrappedKey: string | null;
+    recoveryKeyMissing: boolean;
 }
 

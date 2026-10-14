@@ -1,0 +1,16 @@
+.code-box {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.9rem 1rem;
+  border: 1px dashed var(--app-border-strong);
+  border-radius: 8px;
+}
+
+.recovery-code {
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  word-break: break-all;
+  color: var(--app-text);
+}

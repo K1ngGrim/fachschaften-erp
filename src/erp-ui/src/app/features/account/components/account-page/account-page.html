@@ -1,5 +1,8 @@
 <div class="container-fluid p-4">
-  <app-page-header [title]="'Mein Konto'" [subtitle]="auth.displayName() + (auth.email() ? ' · ' + auth.email() : '')" />
+  <app-page-header
+    [title]="'Mein Konto'"
+    [subtitle]="auth.displayName() + (auth.email() ? ' · ' + auth.email() : '')"
+  />
 
   <div class="row g-4">
     <div class="col-12 col-lg-6">
@@ -135,6 +138,10 @@
           </form>
         </mat-card-content>
       </mat-card>
+    </div>
+
+    <div class="col-12 col-lg-6">
+      <app-vault-card />
     </div>
   </div>
 </div>

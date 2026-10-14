@@ -11,5 +11,7 @@
 
 export interface UpsertCustomTableRowRequest { 
     values: any | null;
+    encryptedValues?: string | null;
+    keyVersion?: number | null;
 }
 

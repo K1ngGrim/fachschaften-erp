@@ -115,6 +115,8 @@ public class UsersController(
 
         // Einladungen hängen ohne Fremdschlüssel am Benutzer und werden mit entfernt.
         await coreContext.Invites.Where(i => i.UserId == user.Id).ExecuteDeleteAsync();
+        // Tresor samt Freigaben für vertrauliche Tabellen (Freigaben hängen per Cascade daran).
+        await coreContext.Vaults.Where(v => v.UserId == user.Id).ExecuteDeleteAsync();
 
         var result = await userManager.DeleteAsync(user);
         if (!result.Succeeded) return BadRequest(result.Errors);

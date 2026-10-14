@@ -5,11 +5,7 @@ import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
 import { lastValueFrom } from 'rxjs';
-import {
-  CustomTablesService,
-  CustomTableSummaryDto,
-  UpsertCustomTableRequest,
-} from '../../../../../../projects/api/src/lib';
+import { CustomTablesService, CustomTableSummaryDto } from '../../../../../../projects/api/src/lib';
 import { PageHeader } from '../../../../shared/components/page-header/page-header';
 import { Auth } from '../../../../core/services/auth';
 import { PermissionType } from '../../../../shared/models/permission-type';
@@ -17,7 +13,9 @@ import { formatDate } from '../../../../shared/models/finance';
 import {
   TableStructureDialog,
   TableStructureDialogData,
+  TableStructureResult,
 } from '../table-structure-dialog/table-structure-dialog';
+import { Vault } from '../../../../core/services/vault';
 import {
   TableImportDialog,
   TableImportDialogData,
@@ -34,8 +32,10 @@ export class TablesPage implements OnInit {
   private readonly tablesController = inject(CustomTablesService);
   private readonly dialog = inject(MatDialog);
   private readonly router = inject(Router);
+  private readonly vault = inject(Vault);
 
   public readonly tables = signal<CustomTableSummaryDto[]>([]);
+  public readonly error = signal<string | null>(null);
   private readonly auth = inject(Auth);
   public readonly canDesign = this.auth.hasPermission(PermissionType.TableDesignCanWrite);
   /** Eine Tabelle aus CSV braucht auch das Recht, Einträge anzulegen. */
@@ -48,20 +48,30 @@ export class TablesPage implements OnInit {
   }
 
   public async create() {
-    const request = await lastValueFrom(
+    const result = await lastValueFrom(
       this.dialog
         .open<
           TableStructureDialog,
           TableStructureDialogData,
-          UpsertCustomTableRequest
+          TableStructureResult
         >(TableStructureDialog, { width: '720px', maxWidth: '95vw', maxHeight: '90vh', data: { table: null } })
         .afterClosed(),
     );
-    if (!request) return;
+    if (!result) return;
 
     const table = await lastValueFrom(
-      this.tablesController.apiCustomTablesPost({ upsertCustomTableRequest: request }),
+      this.tablesController.apiCustomTablesPost({ upsertCustomTableRequest: result.request }),
     );
+    if (result.confidential) {
+      try {
+        await this.vault.makeConfidential(table.id, []);
+      } catch {
+        // Lieber keine Tabelle als eine, die unbemerkt unverschlüsselt bleibt.
+        await lastValueFrom(this.tablesController.apiCustomTablesIdDelete({ id: table.id }));
+        this.error.set('Die vertrauliche Tabelle konnte nicht angelegt werden.');
+        return;
+      }
+    }
     await this.router.navigate(['/tables', table.id]);
   }
 
