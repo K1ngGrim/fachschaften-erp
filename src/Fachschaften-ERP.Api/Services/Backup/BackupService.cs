@@ -131,7 +131,7 @@ public class BackupService(
     private async Task DumpDatabaseAsync(string target, CancellationToken ct)
     {
         var connection = new NpgsqlConnectionStringBuilder(configuration.GetConnectionString("Database"));
-        var start = new ProcessStartInfo(configuration["Backup:PgDumpPath"] ?? "pg_dump")
+        var start = new ProcessStartInfo(ResolvePgDump())
         {
             RedirectStandardError = true,
             RedirectStandardOutput = true,
@@ -155,7 +155,8 @@ public class BackupService(
         catch (System.ComponentModel.Win32Exception e)
         {
             throw new InvalidOperationException(
-                "pg_dump wurde nicht gefunden. Im Docker-Image ist es enthalten; lokal den PostgreSQL-Client installieren oder Backup:PgDumpPath setzen.", e);
+                "pg_dump wurde nicht gefunden. Im Docker-Image ist es enthalten; lokal den PostgreSQL-Client " +
+                "installieren (macOS: brew install libpq) oder Backup:PgDumpPath setzen.", e);
         }
 
         using (process)
@@ -167,6 +168,30 @@ public class BackupService(
             if (process.ExitCode != 0)
                 throw new InvalidOperationException($"pg_dump ist fehlgeschlagen: {Truncate((await errors).Trim(), 1000)}");
         }
+    }
+
+    /// <summary>
+    /// Pfad zu pg_dump: Backup:PgDumpPath, sonst aus dem PATH, sonst übliche Installationsorte.
+    /// Homebrew installiert libpq "keg-only", also nicht im PATH; IDEs starten zudem oft mit kurzem PATH.
+    /// </summary>
+    private string ResolvePgDump()
+    {
+        var configured = configuration["Backup:PgDumpPath"];
+        if (!string.IsNullOrWhiteSpace(configured)) return configured;
+
+        var fromPath = (Environment.GetEnvironmentVariable("PATH") ?? string.Empty)
+            .Split(Path.PathSeparator, StringSplitOptions.RemoveEmptyEntries)
+            .Select(dir => Path.Combine(dir, "pg_dump"))
+            .FirstOrDefault(File.Exists);
+        if (fromPath is not null) return fromPath;
+
+        string[] candidates =
+        [
+            "/opt/homebrew/opt/libpq/bin/pg_dump",
+            "/usr/local/opt/libpq/bin/pg_dump",
+            "/Applications/Postgres.app/Contents/Versions/latest/bin/pg_dump",
+        ];
+        return candidates.FirstOrDefault(File.Exists) ?? "pg_dump";
     }
 
     private async Task WriteArchiveAsync(
