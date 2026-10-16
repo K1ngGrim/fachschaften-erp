@@ -2,6 +2,7 @@ using System.Text.RegularExpressions;
 using Fachschaften_ERP.Api.Models;
 using Fachschaften_ERP.Api.Models.Generic;
 using Fachschaften_ERP.Api.Services;
+using Fachschaften_ERP.Api.Services.Email;
 using Fachschaften_ERP.Models;
 using Fachschaften_ERP.Models.Entities;
 using Microsoft.AspNetCore.Authorization;
@@ -12,7 +13,8 @@ namespace Fachschaften_ERP.Api.Controller;
 
 [ApiController]
 [Route("/api/settings")]
-public partial class SettingsController(CoreContext db, OrganizationSettingsService settings) : ControllerBase
+public partial class SettingsController(CoreContext db, OrganizationSettingsService settings, MailLogo mailLogo)
+    : ControllerBase
 {
     /// <summary>Etwa 256 KB Bilddaten als Base64.</summary>
     private const int MaxLogoLength = 350_000;
@@ -22,6 +24,22 @@ public partial class SettingsController(CoreContext db, OrganizationSettingsServ
     [HttpGet("organization")]
     public async Task<ActionResult<OrganizationSettingsDto>> GetOrganization() =>
         Ok(ToDto(await settings.GetAsync(HttpContext.RequestAborted)));
+
+    /// <summary>
+    /// Logo als Bilddatei (PNG/JPEG; SVG und WebP umgewandelt) für E-Mails, die keine data:-Bilder anzeigen.
+    /// Öffentlich, weil Mail-Programme es ohne Anmeldung laden.
+    /// </summary>
+    [AllowAnonymous]
+    [ApiExplorerSettings(IgnoreApi = true)]
+    [HttpGet("organization/logo")]
+    public async Task<IActionResult> GetLogo(CancellationToken ct)
+    {
+        var logo = await mailLogo.GetAsync((await settings.GetAsync(ct)).LogoDataUrl, ct);
+        if (logo is null) return NotFound();
+        // Die Mail hängt ?v=<Fingerabdruck> an; ändert sich das Logo, ändert sich die URL.
+        Response.Headers.CacheControl = "public, max-age=604800";
+        return File(logo.Value.Data, logo.Value.ContentType);
+    }
 
     [RequirePermission(PermissionType.SettingsWrite)]
     [HttpPut("organization")]

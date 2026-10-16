@@ -27,11 +27,27 @@ public partial class TypstCompiler(IConfiguration configuration, ILogger<TypstCo
     private static readonly UTF8Encoding Utf8 = new(encoderShouldEmitUTF8Identifier: false);
     private const long MaxPdfBytes = 20 * 1024 * 1024;
 
-    public async Task<byte[]> CompileAsync(
+    public Task<byte[]> CompileAsync(
         string source,
         IEnumerable<(string FileName, byte[] Data)> assets,
         string dataJson,
         string? publicDirectory,
+        CancellationToken ct) =>
+        CompileCoreAsync(source, assets, dataJson, publicDirectory, "output.pdf", ct);
+
+    /// <summary>Erste Seite als PNG, z. B. um ein SVG-Logo für E-Mails umzuwandeln.</summary>
+    public Task<byte[]> RenderPngAsync(
+        string source,
+        IEnumerable<(string FileName, byte[] Data)> assets,
+        CancellationToken ct) =>
+        CompileCoreAsync(source, assets, "{}", null, "output.png", ct);
+
+    private async Task<byte[]> CompileCoreAsync(
+        string source,
+        IEnumerable<(string FileName, byte[] Data)> assets,
+        string dataJson,
+        string? publicDirectory,
+        string outputName,
         CancellationToken ct)
     {
         if (!await Gate.WaitAsync(TimeSpan.FromSeconds(30), ct))
@@ -47,11 +63,11 @@ public partial class TypstCompiler(IConfiguration configuration, ILogger<TypstCo
             await File.WriteAllTextAsync(Path.Combine(work, "main.typ"), source, Utf8, ct);
             if (publicDirectory is not null) CopyDirectory(publicDirectory, Path.Combine(dir.FullName, "template"));
 
-            var output = Path.Combine(dir.FullName, "output.pdf");
+            var output = Path.Combine(dir.FullName, outputName);
             await RunAsync(dir.FullName, output, ct);
 
             var info = new FileInfo(output);
-            if (!info.Exists) throw new TypstException("Typst hat kein PDF erzeugt.");
+            if (!info.Exists) throw new TypstException("Typst hat keine Ausgabe erzeugt.");
             if (info.Length > MaxPdfBytes) throw new TypstException("Das erzeugte PDF ist größer als 20 MB.");
             return await File.ReadAllBytesAsync(output, ct);
         }

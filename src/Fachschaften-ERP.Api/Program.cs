@@ -169,6 +169,7 @@ builder.Services.AddMemoryCache();
 builder.Services.AddScoped<ModuleService>();
 builder.Services.AddSingleton<TypstCompiler>();
 builder.Services.AddSingleton<PublicFilesCache>();
+builder.Services.AddSingleton<MailLogo>();
 builder.Services.AddScoped<BackupCsvExporter>();
 // Große Backups brauchen beim Hochladen länger als die Standard-Zeitüberschreitung von 100 s.
 builder.Services.AddHttpClient(nameof(BackupService), client => client.Timeout = TimeSpan.FromMinutes(30));

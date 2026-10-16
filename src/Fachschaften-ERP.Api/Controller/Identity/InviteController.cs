@@ -120,7 +120,7 @@ public class InviteController(
         var token = await userManager.GenerateUserTokenAsync(user, "InviteTokenProvider", "Invite");
         try
         {
-            await accountMails.SendInviteAsync(user, invite.Id, token, HttpContext.RequestAborted);
+            await accountMails.SendInviteAsync(user, invite.Id, token, invite.Require2Fa, HttpContext.RequestAborted);
             return true;
         }
         catch (EmailSendException)
