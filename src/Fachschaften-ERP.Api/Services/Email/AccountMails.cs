@@ -33,27 +33,28 @@ public class AccountMails(
         if (require2Fa) steps.Add("Die Zwei-Faktor-Anmeldung mit einer Authenticator-App einrichten.");
         steps.Add($"Fertig: Ab dann meldest du dich mit {login} an.");
 
+        // Der Name aus den Einstellungen ist der Name der Anwendung bzw. ihres Betreibers (z. B. eines
+        // Fördervereins); die Mail lädt zu einem Zugang ein, nicht zum Beitritt in eine Gruppe.
         var html = MailLayout.Render(brand, new MailContent(
-            Preheader: $"{organization.Name} hat dich eingeladen. Der Link ist 7 Tage gültig.",
-            Heading: "Du bist eingeladen",
-            Lead: $"Willkommen bei {organization.Name}! Aktiviere deinen Zugang, dann kann es losgehen.",
+            Preheader: $"Aktiviere deinen Zugang zu {organization.Name}. Der Link ist 7 Tage gültig.",
+            Heading: "Dein Zugang ist bereit",
+            Lead: $"Für dich wurde ein Zugang zu {organization.Name} angelegt. Aktiviere ihn, dann kannst du loslegen.",
             BodyHtml: $"""
                 <p style="margin:0 0 16px;">Hallo {e(name)},</p>
-                <p style="margin:0 0 16px;">du wurdest eingeladen, bei <strong>{e(organization.Name)}</strong> mitzumachen.
-                Hier organisiert die Fachschaft gemeinsam Lager und Verkauf, Kasse und Finanzen, Dokumente
-                und alles, was sonst so anfällt.</p>
+                <p style="margin:0 0 16px;">für dich wurde ein Zugang zu <strong>{e(organization.Name)}</strong> eingerichtet.
+                Darüber werden zum Beispiel Lager und Verkauf, Kasse und Finanzen sowie Dokumente verwaltet.</p>
                 <p style="margin:0 0 8px;"><strong>So geht’s:</strong></p>
                 {Steps(steps, brand.AccentColor)}
                 """,
             ButtonText: "Zugang aktivieren",
             ButtonUrl: link,
-            Notice: "Der Link ist 7 Tage gültig. Ist er abgelaufen, kann dir die Person, die dich eingeladen hat, eine neue Einladung schicken.",
-            FooterNote: $"Du bekommst diese Mail, weil dich jemand aus {organization.Name} eingeladen hat. Kannst du damit nichts anfangen, ignoriere sie einfach; ohne Aktivierung passiert nichts weiter."));
+            Notice: "Der Link ist 7 Tage gültig. Ist er abgelaufen, kann dir die Person, die deinen Zugang angelegt hat, eine neue Einladung schicken.",
+            FooterNote: $"Du bekommst diese Mail, weil dir jemand einen Zugang zu {organization.Name} eingerichtet hat. Kannst du damit nichts anfangen, ignoriere sie einfach; ohne Aktivierung passiert nichts weiter."));
 
         var text = $"""
             Hallo {name},
 
-            du wurdest eingeladen, bei {organization.Name} mitzumachen.
+            für dich wurde ein Zugang zu {organization.Name} eingerichtet.
 
             So geht's:
             {string.Join("\n", steps.Select((s, i) => $"{i + 1}. {s}"))}
@@ -61,8 +62,8 @@ public class AccountMails(
             Zugang aktivieren:
             {link}
 
-            Der Link ist 7 Tage gültig. Ist er abgelaufen, kann dir die Person, die dich eingeladen hat,
-            eine neue Einladung schicken.
+            Der Link ist 7 Tage gültig. Ist er abgelaufen, kann dir die Person, die deinen Zugang
+            angelegt hat, eine neue Einladung schicken.
 
             --
             {organization.Name}
@@ -71,7 +72,7 @@ public class AccountMails(
 
         await emailSender.SendAsync(new EmailMessage(
             new EmailAddress(user.Email!, user.DisplayName),
-            $"Einladung zu {organization.Name}",
+            $"Dein Zugang zu {organization.Name}",
             html,
             text,
             organization.Name), cancellationToken);
@@ -87,7 +88,7 @@ public class AccountMails(
         var html = MailLayout.Render(brand, new MailContent(
             Preheader: "Lege ein neues Passwort fest. Der Link ist 2 Stunden gültig.",
             Heading: "Neues Passwort",
-            Lead: $"Für dein Konto bei {organization.Name} wurde ein neues Passwort angefordert.",
+            Lead: $"Für deinen Zugang zu {organization.Name} wurde ein neues Passwort angefordert.",
             BodyHtml: $"""
                 <p style="margin:0 0 16px;">Hallo {WebUtility.HtmlEncode(name)},</p>
                 <p style="margin:0;">über den Button legst du ein neues Passwort fest. Danach meldest du
@@ -96,12 +97,12 @@ public class AccountMails(
             ButtonText: "Neues Passwort festlegen",
             ButtonUrl: link,
             Notice: "Der Link ist 2 Stunden gültig. Warst du das nicht, ignoriere diese Mail einfach; dein bisheriges Passwort bleibt bestehen.",
-            FooterNote: $"Du bekommst diese Mail, weil für dein Konto bei {organization.Name} ein neues Passwort angefordert wurde."));
+            FooterNote: $"Du bekommst diese Mail, weil für deinen Zugang zu {organization.Name} ein neues Passwort angefordert wurde."));
 
         var text = $"""
             Hallo {name},
 
-            für dein Konto bei {organization.Name} wurde ein neues Passwort angefordert.
+            für deinen Zugang zu {organization.Name} wurde ein neues Passwort angefordert.
             Neues Passwort festlegen:
             {link}
 
