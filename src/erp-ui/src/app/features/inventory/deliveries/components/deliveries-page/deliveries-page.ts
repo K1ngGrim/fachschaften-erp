@@ -48,7 +48,7 @@ export class DeliveriesPage {
         label: 'Datum',
         value: (row) => new Date(row.deliveryDate).toLocaleDateString('de-DE'),
       },
-      { key: 'supplierName', label: 'Lieferant' },
+      { key: 'supplierName', label: 'Lieferant', filterType: 'select' },
       { key: 'documentNumber', label: 'Beleg' },
       { key: 'positionCount', label: 'Positionen', align: 'end' },
       { key: 'totalQuantity', label: 'Menge', align: 'end' },

@@ -6,6 +6,9 @@
 }
 
 .data-grid {
+  // Höhe der Kopfzeile: die Filterzeile klebt genau darunter.
+  --grid-header-height: 2.6rem;
+
   display: flex;
   flex-direction: column;
   flex: 1;
@@ -14,6 +17,12 @@
   border: 1px solid var(--app-border);
   border-radius: 0.75rem;
   overflow: hidden;
+}
+
+// Während des Ziehens nichts markieren und überall den Spaltencursor zeigen.
+.data-grid--resizing {
+  user-select: none;
+  cursor: col-resize;
 }
 
 .data-grid__head {
@@ -48,46 +57,154 @@
     margin-right: 0.5rem;
     color: var(--app-text-muted);
   }
-}
 
-.data-grid__wrapper {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-height: 0;
-}
-
-.data-grid__header {
-  flex-shrink: 0;
-  overflow: hidden;
-  border-bottom: 1px solid var(--app-border);
+  button[matSuffix] {
+    --mat-icon-button-icon-size: 18px;
+    --mat-icon-button-state-layer-size: 32px;
+  }
 }
 
 .data-grid__body {
   flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
+  min-height: 0;
+  overflow: auto;
 }
 
 .grid-table {
   width: 100%;
-  border-collapse: collapse;
+  // Getrennte Rahmen, sonst verschwindet die Linie unter dem klebenden Kopf.
+  border-collapse: separate;
+  border-spacing: 0;
   table-layout: fixed;
 }
 
 .grid-th {
-  padding: 0.7rem 1.25rem;
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  height: var(--grid-header-height);
+  padding: 0 1.25rem;
+  background: var(--app-card);
+  border-bottom: 1px solid var(--app-border);
   text-align: left;
   font-size: 0.8rem;
   font-weight: 500;
   color: var(--app-text-muted);
   white-space: nowrap;
   overflow: hidden;
+}
+
+.grid-th__label {
+  display: block;
+  overflow: hidden;
   text-overflow: ellipsis;
 }
 
+.grid-th__resize {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 0.5rem;
+  height: 100%;
+  cursor: col-resize;
+  touch-action: none;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 25%;
+    right: 0.1875rem;
+    width: 2px;
+    height: 50%;
+    border-radius: 1px;
+    background: var(--app-border-strong);
+    opacity: 0;
+  }
+
+  &:hover::after {
+    opacity: 1;
+  }
+}
+
+// ── Filterzeile ─────────────────────────────────────────────────────────────
+.grid-filter-cell {
+  position: sticky;
+  top: var(--grid-header-height);
+  z-index: 2;
+  padding: 0.3rem 0.75rem;
+  background: var(--app-card);
+  border-bottom: 1px solid var(--app-border);
+  font-weight: 400;
+}
+
+.grid-filter {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.grid-filter__op,
+.grid-filter__clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
+  border: none;
+  border-radius: 0.375rem;
+  background: none;
+  color: var(--app-text-muted);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--app-hover);
+    color: var(--app-text);
+  }
+
+  mat-icon {
+    width: 1rem;
+    height: 1rem;
+    font-size: 1rem;
+  }
+}
+
+.grid-filter--active .grid-filter__op {
+  color: var(--brand-accent-strong);
+}
+
+.grid-filter__input {
+  flex: 1;
+  min-width: 0;
+  height: 1.75rem;
+  padding: 0 0.4rem;
+  border: 1px solid var(--app-border-strong);
+  border-radius: 0.375rem;
+  background: var(--app-card);
+  color: var(--app-text);
+  font: inherit;
+  font-size: 0.8rem;
+
+  &:focus {
+    outline: none;
+    border-color: var(--brand-accent);
+  }
+}
+
+// Der aktive Operator im Menü.
+.grid-operator--active {
+  font-weight: 600;
+  color: var(--brand-accent-strong);
+}
+
+// ── Zeilen ──────────────────────────────────────────────────────────────────
 .grid-td {
-  padding: 0.85rem 1.25rem;
+  padding: 0.6rem 1.25rem;
+  // Ohne das richten sich Zellen mit Buttons an der Schriftlinie aus und
+  // sitzen dadurch höher als der Text der Nachbarzellen.
+  vertical-align: middle;
   font-size: 0.875rem;
   color: var(--app-text);
   border-bottom: 1px solid var(--app-border);
@@ -112,6 +229,26 @@
   text-align: right;
 }
 
+td.col-actions {
+  padding: 0.35rem 0.75rem 0.35rem 0.35rem;
+  // Der Inhalt soll nicht beschnitten werden, wenn die Spalte knapp ist.
+  overflow: visible;
+
+  .mat-mdc-icon-button {
+    --mat-icon-button-icon-size: 18px;
+    --mat-icon-button-state-layer-size: 32px;
+    // Gleich groß wie der Button, sonst überlappen die unsichtbaren
+    // Klickflächen benachbarter Buttons.
+    --mat-icon-button-touch-target-size: 32px;
+
+    color: var(--app-text-muted);
+
+    &:hover {
+      color: var(--app-text);
+    }
+  }
+}
+
 .grid-empty {
   display: flex;
   flex-direction: column;
@@ -128,6 +265,15 @@
     height: 2.5rem;
     opacity: 0.35;
   }
+}
+
+.grid-empty__reset {
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--brand-accent-strong);
+  font: inherit;
+  cursor: pointer;
 }
 
 .text-end {

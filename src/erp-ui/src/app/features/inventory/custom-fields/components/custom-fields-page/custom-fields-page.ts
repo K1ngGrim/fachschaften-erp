@@ -43,9 +43,19 @@ export class CustomFieldsPage {
     this.columns.set([
       { key: 'label', label: 'Label' },
       { key: 'name', label: 'Key', value: (f) => f.name },
-      { key: 'type', label: 'Type', cellTemplate: this.typeTpl() },
-      { key: 'itemTypes', label: 'Item Types', cellTemplate: this.itemTypesTpl() },
-      { key: 'required', label: 'Required', value: (f) => (f.required ? 'Required' : 'Optional') },
+      { key: 'type', label: 'Type', cellTemplate: this.typeTpl(), filterType: 'select' },
+      {
+        key: 'itemTypes',
+        label: 'Item Types',
+        cellTemplate: this.itemTypesTpl(),
+        value: (f) => f.itemTypes.map((type) => type.name).join(', ') || '—',
+      },
+      {
+        key: 'required',
+        label: 'Required',
+        filterType: 'select',
+        value: (f) => (f.required ? 'Required' : 'Optional'),
+      },
     ]);
     await this.fetchItems();
   }

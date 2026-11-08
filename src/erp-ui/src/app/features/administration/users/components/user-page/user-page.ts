@@ -70,8 +70,19 @@ export class UserPage implements OnInit {
   async ngOnInit() {
     this.columns.set([
       { key: 'displayName', label: 'Name', cellTemplate: this.nameTemplate() },
-      { key: 'roles', label: 'Rollen', cellTemplate: this.roleTemplate() },
-      { key: 'status', label: 'Status', cellTemplate: this.statusTemplate() },
+      {
+        key: 'roles',
+        label: 'Rollen',
+        cellTemplate: this.roleTemplate(),
+        value: (user) => user.roles.map((role) => role.name).join(', ') || '—',
+      },
+      {
+        key: 'status',
+        label: 'Status',
+        cellTemplate: this.statusTemplate(),
+        filterType: 'select',
+        value: (user) => this.statusLabel(user.status),
+      },
     ]);
 
     await this.loadUsers();

@@ -47,6 +47,7 @@ export class BookingCategoriesPage {
       {
         key: 'taxArea',
         label: 'Steuerbereich',
+        filterType: 'select',
         value: (row) => TAX_AREA_LABELS[row.taxArea],
       },
     ]);

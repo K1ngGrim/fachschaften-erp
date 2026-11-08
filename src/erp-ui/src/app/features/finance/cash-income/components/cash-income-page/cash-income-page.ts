@@ -110,10 +110,29 @@ export class CashIncomePage {
   public async ngOnInit() {
     this.columns.set([
       { key: 'date', label: 'Datum', width: '9rem', value: (row) => formatDate(row.date) },
-      { key: 'source', label: 'Typ', width: '11rem', cellTemplate: this.sourceTemplate() },
+      {
+        key: 'source',
+        label: 'Typ',
+        width: '11rem',
+        cellTemplate: this.sourceTemplate(),
+        filterType: 'select',
+        // Die Zelle rendert das Kürzel selbst, gefiltert und gesucht wird aber
+        // über die Beschriftung.
+        filterValue: (row) => (row.source ? this.sourceLabel(row.source) : '—'),
+      },
       { key: 'description', label: 'Beschreibung' },
-      { key: 'cashBookName', label: 'Kasse', value: (row) => row.cashBookName ?? '—' },
-      { key: 'categoryName', label: 'Kategorie', value: (row) => row.categoryName ?? '—' },
+      {
+        key: 'cashBookName',
+        label: 'Kasse',
+        filterType: 'select',
+        value: (row) => row.cashBookName ?? '—',
+      },
+      {
+        key: 'categoryName',
+        label: 'Kategorie',
+        filterType: 'select',
+        value: (row) => row.categoryName ?? '—',
+      },
       {
         key: 'amount',
         label: 'Betrag',

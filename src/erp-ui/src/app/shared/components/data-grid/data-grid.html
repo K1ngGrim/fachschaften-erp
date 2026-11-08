@@ -1,5 +1,5 @@
-<div class="data-grid">
-  @if (title() || searchable() || toolbarTemplate()) {
+<div class="data-grid" [class.data-grid--resizing]="resizingKey()">
+  @if (title() || searchable() || toolbarTemplate() || filterToggleVisible()) {
     <div class="data-grid__head">
       @if (title()) {
         <span class="data-grid__title">{{ title() }}</span>
@@ -7,6 +7,36 @@
 
       <div class="data-grid__head-actions">
         <ng-container *ngTemplateOutlet="toolbarTemplate()"></ng-container>
+
+        @if (activeFilterCount() > 0) {
+          <button
+            mat-icon-button
+            type="button"
+            class="grid-head-btn"
+            matTooltip="Alle Filter entfernen"
+            (click)="clearAllFilters()"
+          >
+            <mat-icon svgIcon="filter-off-outline"></mat-icon>
+          </button>
+        }
+
+        @if (filterToggleVisible()) {
+          <button
+            mat-icon-button
+            type="button"
+            class="grid-head-btn"
+            [class.grid-head-btn--active]="filtersVisible()"
+            [matTooltip]="
+              filtersVisible() ? 'Spaltenfilter ausblenden' : 'Nach Spalten filtern'
+            "
+            (click)="toggleFilters()"
+          >
+            <mat-icon svgIcon="filter-variant"></mat-icon>
+            @if (activeFilterCount() > 0) {
+              <span class="grid-head-btn__badge">{{ activeFilterCount() }}</span>
+            }
+          </button>
+        }
 
         @if (searchable()) {
           <mat-form-field appearance="outline" class="search-field" subscriptSizing="dynamic">
@@ -23,81 +53,179 @@
     </div>
   }
 
-  <div class="data-grid__wrapper">
-    <div class="data-grid__header">
-      <table class="grid-table">
-        <colgroup>
+  <div class="data-grid__body">
+    <table class="grid-table" [style.min-width.px]="frozen() ? totalWidth() : null">
+      <colgroup>
+        @for (col of columns(); track col.key) {
+          <col [style.width]="columnWidth(col)" />
+        }
+        @if (actionCellDirective) {
+          <col class="col-actions" [style.width]="actionsColumnWidth()" />
+        }
+        @if (frozen()) {
+          <col class="col-filler" />
+        }
+      </colgroup>
+
+      <thead>
+        <tr #headerRow>
           @for (col of columns(); track col.key) {
-            <col [style.width]="col.width ?? 'auto'" />
+            <th [attr.data-key]="col.key" [class]="'grid-th ' + headerClass(col)">
+              <span class="grid-th__label">{{ col.label }}</span>
+              @if (isResizable(col)) {
+                <span
+                  class="grid-th__resize"
+                  title="Breite ziehen – Doppelklick setzt zurück"
+                  (pointerdown)="startResize($event, col.key)"
+                  (dblclick)="resetWidth(col.key)"
+                ></span>
+              }
+            </th>
           }
           @if (actionCellDirective) {
-            <col class="col-actions" />
+            <th class="grid-th col-actions" [attr.data-key]="actionsKey"></th>
           }
-        </colgroup>
-        <thead>
-          <tr>
+          @if (frozen()) {
+            <th class="grid-th grid-th--filler"></th>
+          }
+        </tr>
+
+        @if (filtersVisible()) {
+          <tr class="grid-filter-row">
             @for (col of columns(); track col.key) {
-              <th [class]="'grid-th ' + headerClass(col)">{{ col.label }}</th>
+              <th class="grid-filter-cell">
+                @if (isFilterable(col)) {
+                  <div class="grid-filter" [class.grid-filter--active]="isFilterActive(col.key)">
+                    <button
+                      type="button"
+                      class="grid-filter__op"
+                      [matMenuTriggerFor]="operatorMenu"
+                      [matTooltip]="col.label + ': ' + operatorLabel(col.key)"
+                    >
+                      <mat-icon svgIcon="filter-variant"></mat-icon>
+                    </button>
+
+                    <mat-menu #operatorMenu="matMenu">
+                      @for (operator of operatorsFor(col.key); track operator.value) {
+                        <button
+                          mat-menu-item
+                          type="button"
+                          [class.grid-operator--active]="
+                            operator.value === filterState(col.key).operator
+                          "
+                          (click)="setOperator(col.key, operator.value)"
+                        >
+                          <span>{{ operator.label }}</span>
+                        </button>
+                      }
+                    </mat-menu>
+
+                    @if (operatorValueCount(col.key) > 0) {
+                      @if (usesOptionList(col.key)) {
+                        <select
+                          class="grid-filter__input"
+                          [value]="filterState(col.key).value"
+                          [attr.aria-label]="col.label + ' filtern'"
+                          (change)="setFilterValue(col.key, $event)"
+                        >
+                          <option value="">Alle</option>
+                          @for (option of optionsFor(col.key); track option.value) {
+                            <option [value]="option.value">{{ option.label }}</option>
+                          }
+                        </select>
+                      } @else {
+                        <input
+                          class="grid-filter__input"
+                          [type]="inputType(col.key)"
+                          [value]="filterState(col.key).value"
+                          [placeholder]="operatorLabel(col.key)"
+                          [attr.aria-label]="col.label + ' filtern'"
+                          (input)="setFilterValue(col.key, $event)"
+                        />
+                        @if (operatorValueCount(col.key) === 2) {
+                          <input
+                            class="grid-filter__input"
+                            [type]="inputType(col.key)"
+                            [value]="filterState(col.key).value2"
+                            placeholder="bis"
+                            [attr.aria-label]="col.label + ' bis'"
+                            (input)="setFilterValue(col.key, $event, true)"
+                          />
+                        }
+                      }
+                    }
+
+                    @if (isFilterActive(col.key)) {
+                      <button
+                        type="button"
+                        class="grid-filter__clear"
+                        matTooltip="Filter entfernen"
+                        (click)="clearFilter(col.key)"
+                      >
+                        <mat-icon svgIcon="close"></mat-icon>
+                      </button>
+                    }
+                  </div>
+                }
+              </th>
             }
             @if (actionCellDirective) {
-              <th class="grid-th col-actions"></th>
+              <th class="grid-filter-cell col-actions"></th>
+            }
+            @if (frozen()) {
+              <th class="grid-filter-cell"></th>
             }
           </tr>
-        </thead>
-      </table>
-    </div>
+        }
+      </thead>
 
-    <div class="data-grid__body">
-      @if (filteredData().length === 0) {
-        <div class="grid-empty">
-          <mat-icon svgIcon="tray"></mat-icon>
-          <span>Keine Einträge</span>
-        </div>
-      } @else {
-        <table class="grid-table">
-          <colgroup>
+      <tbody>
+        @for (row of filteredData(); track row) {
+          <tr class="grid-row">
             @for (col of columns(); track col.key) {
-              <col [style.width]="col.width ?? 'auto'" />
+              <td [class]="'grid-td ' + cellClass(col)">
+                @if (col.cellTemplate) {
+                  <ng-container
+                    *ngTemplateOutlet="
+                      col.cellTemplate;
+                      context: {
+                        $implicit: row,
+                        value: col.value ? col.value(row) : row[col.key],
+                      }
+                    "
+                  />
+                } @else {
+                  {{ col.value ? col.value(row) : row[col.key] }}
+                }
+              </td>
             }
             @if (actionCellDirective) {
-              <col class="col-actions" />
+              <td class="grid-td col-actions">
+                <ng-container
+                  *ngTemplateOutlet="actionCellDirective.templateRef; context: { $implicit: row }"
+                />
+              </td>
             }
-          </colgroup>
-          <tbody>
-            @for (row of filteredData(); track row) {
-              <tr class="grid-row">
-                @for (col of columns(); track col.key) {
-                  <td [class]="'grid-td ' + cellClass(col)">
-                    @if (col.cellTemplate) {
-                      <ng-container
-                        *ngTemplateOutlet="
-                          col.cellTemplate;
-                          context: {
-                            $implicit: row,
-                            value: col.value ? col.value(row) : row[col.key],
-                          }
-                        "
-                      />
-                    } @else {
-                      {{ col.value ? col.value(row) : row[col.key] }}
-                    }
-                  </td>
-                }
-                @if (actionCellDirective) {
-                  <td class="grid-td col-actions">
-                    <ng-container
-                      *ngTemplateOutlet="
-                        actionCellDirective.templateRef;
-                        context: { $implicit: row }
-                      "
-                    />
-                  </td>
-                }
-              </tr>
+            @if (frozen()) {
+              <td class="grid-td grid-td--filler"></td>
             }
-          </tbody>
-        </table>
-      }
-    </div>
+          </tr>
+        }
+      </tbody>
+    </table>
+
+    @if (filteredData().length === 0) {
+      <div class="grid-empty">
+        <mat-icon svgIcon="tray"></mat-icon>
+        @if (data().length > 0) {
+          <span>Keine Einträge passen zu Suche und Filtern</span>
+          <button type="button" class="grid-empty__reset" (click)="resetView()">
+            Filter zurücksetzen
+          </button>
+        } @else {
+          <span>Keine Einträge</span>
+        }
+      </div>
+    }
   </div>
 </div>

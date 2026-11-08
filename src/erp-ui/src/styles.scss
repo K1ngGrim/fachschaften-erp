@@ -194,6 +194,25 @@ body {
   }
 }
 
+// ── Icons ───────────────────────────────────────────────────────────────────
+// SVG-Icons als Block zeichnen: als Inline-Element sitzt das SVG auf der
+// Schriftlinie, wird dadurch nach unten geschoben und von `overflow: hidden`
+// der mat-icon unten abgeschnitten.
+.mat-icon svg {
+  display: block;
+}
+
+// Verkleinert eine Stelle die Icongröße eines Icon-Buttons über das Token, muss
+// die Box der mat-icon mitgehen. Sonst bleibt sie 24px groß, ragt aus dem
+// Inhaltsbereich des Buttons heraus und das Icon sitzt oben links statt mittig.
+.mat-mdc-icon-button .mat-icon {
+  display: block;
+  width: var(--mat-icon-button-icon-size, 24px);
+  height: var(--mat-icon-button-icon-size, 24px);
+  font-size: var(--mat-icon-button-icon-size, 24px);
+  line-height: var(--mat-icon-button-icon-size, 24px);
+}
+
 // ── Aktionsbuttons oben rechts: dunkel wie im Entwurf ───────────────────────
 .page-header__actions,
 .data-grid__head-actions {
@@ -224,6 +243,37 @@ body {
     width: 1.05rem;
     height: 1.05rem;
   }
+}
+
+// Icon-Buttons in der Kopfzeile der Tabelle (Filter ein-/ausblenden, zurücksetzen).
+.grid-head-btn {
+  --mat-icon-button-icon-size: 20px;
+  --mat-icon-button-state-layer-size: 36px;
+  --mat-icon-button-touch-target-size: 36px;
+
+  position: relative;
+  color: var(--app-text-muted);
+
+  &--active,
+  &:hover {
+    color: var(--app-text);
+  }
+}
+
+.grid-head-btn__badge {
+  position: absolute;
+  top: -0.1rem;
+  right: -0.1rem;
+  min-width: 1rem;
+  height: 1rem;
+  padding: 0 0.2rem;
+  border-radius: 999px;
+  background: var(--brand-accent);
+  color: #ffffff;
+  font-size: 0.65rem;
+  font-weight: 600;
+  line-height: 1rem;
+  text-align: center;
 }
 
 html.dark {
@@ -260,6 +310,7 @@ html.dark {
     padding: 0.85rem 1.25rem;
     font-size: 0.875rem;
     border-bottom: 1px solid var(--app-border);
+    vertical-align: middle;
   }
 
   tbody tr:last-child td {

@@ -1,4 +1,5 @@
 import { CustomTableColumn, CustomTableColumnType } from '../../../../projects/api/src/lib';
+import { GridFilterType } from '../../shared/components/data-grid/data-grid';
 import { formatCurrency } from '../../shared/models/finance';
 
 export const COLUMN_TYPE_LABELS: Record<CustomTableColumnType, string> = {
@@ -9,6 +10,17 @@ export const COLUMN_TYPE_LABELS: Record<CustomTableColumnType, string> = {
   [CustomTableColumnType.Date]: 'Datum',
   [CustomTableColumnType.Boolean]: 'Ja/Nein',
   [CustomTableColumnType.Select]: 'Auswahl',
+};
+
+/** Passender Spaltenfilter in der Tabellenansicht. */
+export const COLUMN_FILTER_TYPES: Record<CustomTableColumnType, GridFilterType> = {
+  [CustomTableColumnType.Text]: 'text',
+  [CustomTableColumnType.LongText]: 'text',
+  [CustomTableColumnType.Number]: 'number',
+  [CustomTableColumnType.Currency]: 'number',
+  [CustomTableColumnType.Date]: 'date',
+  [CustomTableColumnType.Boolean]: 'boolean',
+  [CustomTableColumnType.Select]: 'select',
 };
 
 const numberFormat = new Intl.NumberFormat('de-DE', { maximumFractionDigits: 6 });

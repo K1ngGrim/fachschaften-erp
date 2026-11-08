@@ -25,7 +25,7 @@ import { PlainRow, Vault } from '../../../../core/services/vault';
 import { VaultPanel } from '../../../../shared/components/vault-panel/vault-panel';
 import { PermissionType } from '../../../../shared/models/permission-type';
 import { downloadText, toFileName } from '../../../../shared/models/download';
-import { formatValue } from '../../table-values';
+import { COLUMN_FILTER_TYPES, formatValue } from '../../table-values';
 import { CsvFormat, EXCEL_FORMAT, STANDARD_FORMAT, toCsv } from '../../csv';
 import {
   TableStructureDialog,
@@ -106,7 +106,12 @@ export class TablePage implements OnInit {
   public readonly canSeeRows = computed(() => ['plain', 'ready'].includes(this.access()));
 
   public readonly columns = computed<GridColumn<GridRow>[]>(() =>
-    (this.table()?.columns ?? []).map((c) => ({ key: c.id, label: c.label })),
+    (this.table()?.columns ?? []).map((c) => ({
+      key: c.id,
+      label: c.label,
+      filterType: COLUMN_FILTER_TYPES[c.type],
+      filterOptions: c.options?.map((option) => ({ value: option, label: option })),
+    })),
   );
 
   public readonly gridRows = computed<GridRow[]>(() => {

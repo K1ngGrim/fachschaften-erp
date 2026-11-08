@@ -65,6 +65,7 @@ export class ItemsPage {
         key: 'itemTypeId',
         label: 'Typ',
         width: '10rem',
+        filterType: 'select',
         cellTemplate: this.typeTemplate(),
         value: (row) => this.itemTypes().find((t) => t.id === row.itemTypeId)?.name ?? '—',
       },
@@ -72,6 +73,7 @@ export class ItemsPage {
         key: 'unit',
         label: 'Einheit',
         width: '11rem',
+        filterType: 'select',
         value: (row) =>
           hasSeparatePriceUnit(row)
             ? `${stockUnit(row)} · VK pro ${priceUnit(row)}`
@@ -101,6 +103,7 @@ export class ItemsPage {
       {
         key: 'supplierId',
         label: 'Lieferant',
+        filterType: 'select',
         value: (row) => this.suppliers().find((s) => s.id === row.supplierId)?.name ?? '—',
       },
     ]);

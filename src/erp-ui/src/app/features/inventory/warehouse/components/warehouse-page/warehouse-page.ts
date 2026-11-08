@@ -38,7 +38,7 @@ export class WarehousePage {
   public async ngOnInit() {
     this.columns.set([
       { key: 'name', label: 'Artikel' },
-      { key: 'unit', label: 'Einheit' },
+      { key: 'unit', label: 'Einheit', filterType: 'select' },
       { key: 'stock', label: 'Bestand', cellTemplate: this.stockTemplate() },
       { key: 'purchasePrice', label: 'EK', align: 'end', value: (row) => formatCurrency(row.purchasePrice) },
       {

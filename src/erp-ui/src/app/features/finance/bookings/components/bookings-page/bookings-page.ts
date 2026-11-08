@@ -142,10 +142,21 @@ export class BookingsPage {
       {
         key: 'taxArea',
         label: 'Bereich',
+        filterType: 'select',
         value: (row) => (row.taxArea ? TAX_AREA_LABELS[row.taxArea] : 'Umbuchung'),
       },
-      { key: 'categoryName', label: 'Kategorie', value: (row) => row.categoryName ?? '—' },
-      { key: 'cashBookName', label: 'Kasse', value: (row) => row.cashBookName ?? '—' },
+      {
+        key: 'categoryName',
+        label: 'Kategorie',
+        filterType: 'select',
+        value: (row) => row.categoryName ?? '—',
+      },
+      {
+        key: 'cashBookName',
+        label: 'Kasse',
+        filterType: 'select',
+        value: (row) => row.cashBookName ?? '—',
+      },
       {
         key: 'amount',
         label: 'Betrag',
