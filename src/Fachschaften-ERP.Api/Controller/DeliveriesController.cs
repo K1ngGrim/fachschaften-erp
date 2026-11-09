@@ -123,7 +123,7 @@ public class DeliveriesController(CoreContext db) : ControllerBase
                 ProductId = product.Id,
                 Quantity = position.Quantity,
                 UnitPurchasePrice = position.UnitPurchasePrice,
-                UnitSellingPrice = product.InternalSellingPrice,
+                UnitSellingPrice = product.PerStockUnit(product.InternalSellingPrice),
                 Type = InventoryTransactionType.Delivery,
                 ReferenceId = entity.Id,
                 Note = entity.DocumentNumber,

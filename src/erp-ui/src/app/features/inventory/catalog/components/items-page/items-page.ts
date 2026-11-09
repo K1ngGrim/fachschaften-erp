@@ -25,6 +25,7 @@ import { formatCurrency } from '../../../../../shared/models/finance';
 import {
   hasSeparatePriceUnit,
   priceUnit,
+  priceUnitsPerStockUnit,
   stockUnit,
 } from '../../../../../shared/models/product-unit';
 
@@ -76,7 +77,7 @@ export class ItemsPage {
         filterType: 'select',
         value: (row) =>
           hasSeparatePriceUnit(row)
-            ? `${stockUnit(row)} · VK pro ${priceUnit(row)}`
+            ? `${stockUnit(row)} à ${priceUnitsPerStockUnit(row).toLocaleString('de-DE')} ${priceUnit(row)}`
             : stockUnit(row),
       },
       {
@@ -84,21 +85,21 @@ export class ItemsPage {
         label: 'EK',
         align: 'end',
         width: '8rem',
-        value: (row) => formatCurrency(row.purchasePrice),
+        value: (row) => formatCurrency(row.purchasePrice) + perPriceUnit(row),
       },
       {
         key: 'internalSellingPrice',
         label: 'VK Mitglieder',
         align: 'end',
         width: '9rem',
-        value: (row) => formatCurrency(row.internalSellingPrice),
+        value: (row) => formatCurrency(row.internalSellingPrice) + perPriceUnit(row),
       },
       {
         key: 'externalSellingPrice',
         label: 'VK Gäste',
         align: 'end',
         width: '9rem',
-        value: (row) => formatCurrency(row.externalSellingPrice),
+        value: (row) => formatCurrency(row.externalSellingPrice) + perPriceUnit(row),
       },
       {
         key: 'supplierId',
@@ -161,4 +162,9 @@ export class ItemsPage {
   public async viewDetail(id: string) {
     await this.router.navigate(['/catalog/item', id]);
   }
+}
+
+/** Hängt die Preiseinheit an Preise an, wenn sie von der Bestandseinheit abweicht. */
+function perPriceUnit(row: ProductDto): string {
+  return hasSeparatePriceUnit(row) ? ` / ${priceUnit(row)}` : '';
 }

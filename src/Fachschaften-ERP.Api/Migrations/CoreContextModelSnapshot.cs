@@ -1039,6 +1039,11 @@ namespace Fachschaften_ERP.Api.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
+                    b.Property<decimal>("PriceUnitsPerStockUnit")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("numeric(10,3)")
+                        .HasDefaultValue(1m);
+
                     b.Property<decimal>("PurchasePrice")
                         .HasColumnType("numeric(10,2)");
 

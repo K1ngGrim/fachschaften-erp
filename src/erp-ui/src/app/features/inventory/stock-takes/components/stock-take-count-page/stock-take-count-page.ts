@@ -15,6 +15,7 @@ interface CountRow {
   productId: string;
   name: string;
   expected: number;
+  /** EK pro Bestandseinheit, also umgerechnet aus dem EK pro Preiseinheit. */
   purchasePrice: number;
   /** null = nicht gezählt, bleibt unverändert. */
   counted: number | null;
@@ -74,7 +75,7 @@ export class StockTakeCountPage implements OnInit {
           productId: s.productId,
           name: s.name,
           expected: s.stock,
-          purchasePrice: s.purchasePrice,
+          purchasePrice: s.purchasePrice * s.priceUnitsPerStockUnit,
           counted: null,
         })),
     );

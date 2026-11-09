@@ -21,6 +21,7 @@ import {
   SuppliersService,
 } from '../../../../../../../projects/api/src/lib';
 import { EMPTY_GUID } from '../../../../../shared/models/guid';
+import { perStockUnit, stockUnit } from '../../../../../shared/models/product-unit';
 
 export interface DeliveryDialogData {
   delivery: DeliveryDto | null;
@@ -120,8 +121,14 @@ export class DeliveryDialog {
     const product = this.products().find((entry) => entry.id === productId);
     this.patchPosition(key, {
       productId,
-      unitPurchasePrice: product?.purchasePrice ?? 0,
+      // Geliefert wird in Bestandseinheiten (z. B. Kisten), der EK gilt pro Preiseinheit.
+      unitPurchasePrice: product ? perStockUnit(product.purchasePrice, product) : 0,
     });
+  }
+
+  /** Bestandseinheit des gewählten Artikels für die Beschriftung von Menge und EK. */
+  public unitOf(productId: string): string {
+    return stockUnit(this.products().find((entry) => entry.id === productId));
   }
 
   public setQuantity(key: number, value: unknown) {

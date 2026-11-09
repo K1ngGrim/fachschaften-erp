@@ -40,7 +40,12 @@ export class WarehousePage {
       { key: 'name', label: 'Artikel' },
       { key: 'unit', label: 'Einheit', filterType: 'select' },
       { key: 'stock', label: 'Bestand', cellTemplate: this.stockTemplate() },
-      { key: 'purchasePrice', label: 'EK', align: 'end', value: (row) => formatCurrency(row.purchasePrice) },
+      {
+        key: 'purchasePrice',
+        label: 'EK',
+        align: 'end',
+        value: (row) => formatCurrency(row.purchasePrice) + perPriceUnit(row),
+      },
       {
         key: 'sellingPriceInternal',
         label: 'VK Mitglieder',
@@ -52,6 +57,12 @@ export class WarehousePage {
         label: 'VK Gäste',
         align: 'end',
         value: (row) => formatCurrency(row.sellingPriceExternal) + perPriceUnit(row),
+      },
+      {
+        key: 'stockValue',
+        label: 'Warenwert (EK)',
+        align: 'end',
+        value: (row) => formatCurrency(row.stockValue),
       },
     ]);
     await this.fetchItems();
@@ -86,7 +97,7 @@ export class WarehousePage {
   }
 }
 
-/** Hängt die Einheit an Verkaufspreise an, wenn sie von der Bestandseinheit abweicht. */
+/** Hängt die Preiseinheit an Preise an, wenn sie von der Bestandseinheit abweicht. */
 function perPriceUnit(row: StockOverviewDto): string {
   return row.priceUnit.toLowerCase() !== row.unit.toLowerCase() ? ` / ${row.priceUnit}` : '';
 }

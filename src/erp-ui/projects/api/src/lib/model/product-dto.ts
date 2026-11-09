@@ -18,6 +18,7 @@ export interface ProductDto {
     externalSellingPrice: number;
     unit?: string | null;
     priceUnit?: string | null;
+    priceUnitsPerStockUnit: number;
     lowStockThreshold: number;
     trackStock: boolean;
     customFieldValues: any | null;
