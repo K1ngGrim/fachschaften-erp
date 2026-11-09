@@ -19,9 +19,10 @@ import { formatCurrency, formatDate } from '../../../../../shared/models/finance
 import { Auth } from '../../../../../core/services/auth';
 import { PermissionType } from '../../../../../shared/models/permission-type';
 import {
-  hasSeparatePriceUnit,
   priceUnit,
   stockUnit,
+  stockValue,
+  unitConversionLabel,
 } from '../../../../../shared/models/product-unit';
 import { ItemDialog, ItemDialogData } from '../item-dialog/item-dialog';
 
@@ -69,8 +70,13 @@ export class ItemDetail implements OnInit {
 
   public readonly stockUnit = computed(() => stockUnit(this.product()));
   public readonly priceUnit = computed(() => priceUnit(this.product()));
-  /** Bei verschiedenen Einheiten von EK und VK lässt sich keine Marge berechnen. */
-  public readonly separatePriceUnit = computed(() => hasSeparatePriceUnit(this.product()));
+  /** Z. B. "1 Kiste = 20 Flasche"; leer, wenn Preise und Bestand dieselbe Einheit haben. */
+  public readonly unitConversion = computed(() => unitConversionLabel(this.product()));
+  /** Warenwert des Bestands zum EK, mit Umrechnung von Preis- in Bestandseinheiten. */
+  public readonly stockValue = computed(() => {
+    const p = this.product();
+    return p ? stockValue(p.stock, p) : 0;
+  });
 
   public readonly isLowStock = computed(() => {
     const p = this.product();

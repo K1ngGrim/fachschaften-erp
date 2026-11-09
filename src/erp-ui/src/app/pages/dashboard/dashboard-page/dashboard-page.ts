@@ -57,7 +57,8 @@ export class DashboardPage {
   public readonly formatDate = formatDate;
 
   public readonly inventoryValue = computed(() =>
-    this.stock().reduce((sum, entry) => sum + entry.stock * entry.purchasePrice, 0),
+    // stockValue rechnet den EK pro Preiseinheit (z. B. Flasche) auf den Bestand (z. B. Kisten) um.
+    this.stock().reduce((sum, entry) => sum + entry.stockValue, 0),
   );
 
   public readonly totalUnits = computed(() =>

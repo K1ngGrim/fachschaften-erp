@@ -97,7 +97,7 @@ public class StockTakesController(CoreContext db) : ControllerBase
                 ProductId = product.Id,
                 ExpectedStock = expected,
                 CountedStock = position.CountedStock,
-                UnitPurchasePrice = product.PurchasePrice,
+                UnitPurchasePrice = product.PerStockUnit(product.PurchasePrice),
             });
 
             var difference = position.CountedStock - expected;
@@ -108,8 +108,8 @@ public class StockTakesController(CoreContext db) : ControllerBase
                 Id = Guid.NewGuid(),
                 ProductId = product.Id,
                 Quantity = difference,
-                UnitPurchasePrice = product.PurchasePrice,
-                UnitSellingPrice = product.InternalSellingPrice,
+                UnitPurchasePrice = product.PerStockUnit(product.PurchasePrice),
+                UnitSellingPrice = product.PerStockUnit(product.InternalSellingPrice),
                 Type = InventoryTransactionType.StockTake,
                 ReferenceId = stockTake.Id,
                 Note = movementNote,
@@ -171,6 +171,7 @@ public record StockTakeSummaryDto(
     int DifferenceCount,
     decimal DifferenceValue);
 
+/// <param name="UnitPurchasePrice">Einkaufspreis pro Bestandseinheit zum Zeitpunkt der Inventur.</param>
 public record StockTakePositionDto(
     Guid ProductId,
     string ProductName,

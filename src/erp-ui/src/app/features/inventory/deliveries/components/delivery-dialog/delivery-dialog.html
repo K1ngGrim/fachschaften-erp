@@ -95,7 +95,7 @@
 
         <div class="col-5 col-md-3">
           <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
-            <mat-label>EK / Stück</mat-label>
+            <mat-label>EK / {{ unitOf(position.productId) }}</mat-label>
             <input
               matInput
               type="number"

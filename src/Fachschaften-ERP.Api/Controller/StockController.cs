@@ -55,8 +55,8 @@ public class StockController(
                 Id = Guid.NewGuid(),
                 ProductId = product.Id,
                 Quantity = difference,
-                UnitPurchasePrice = product.PurchasePrice,
-                UnitSellingPrice = product.InternalSellingPrice,
+                UnitPurchasePrice = product.PerStockUnit(product.PurchasePrice),
+                UnitSellingPrice = product.PerStockUnit(product.InternalSellingPrice),
                 Type = position.Type,
                 ReferenceId = referenceId,
                 Note = position.Note ?? request.Note,
@@ -90,7 +90,9 @@ public class StockController(
                 x.InternalSellingPrice,
                 x.ExternalSellingPrice,
                 x.TrackStock,
-                x.PriceUnit ?? x.Unit ?? ProductBase.DefaultUnit
+                x.PriceUnit ?? x.Unit ?? ProductBase.DefaultUnit,
+                x.PriceUnitsPerStockUnit,
+                x.StockValue(stock.GetValueOrDefault(x.Id))
             ))
             .ToList();
     }
@@ -111,6 +113,10 @@ public class StockController(
     }
 }
 
-public record StockOverviewDto(Guid ProductId, string Name, int Stock, int Threshold, string Unit, decimal PurchasePrice, decimal SellingPriceInternal, decimal SellingPriceExternal, bool TrackStock, string PriceUnit);
+/// <param name="Stock">Bestand in <paramref name="Unit"/>.</param>
+/// <param name="PurchasePrice">Einkaufspreis pro <paramref name="PriceUnit"/>; ebenso die Verkaufspreise.</param>
+/// <param name="PriceUnitsPerStockUnit">Preiseinheiten pro Bestandseinheit, z. B. 20 Flaschen pro Kiste.</param>
+/// <param name="StockValue">Warenwert des Bestands zum Einkaufspreis.</param>
+public record StockOverviewDto(Guid ProductId, string Name, int Stock, int Threshold, string Unit, decimal PurchasePrice, decimal SellingPriceInternal, decimal SellingPriceExternal, bool TrackStock, string PriceUnit, decimal PriceUnitsPerStockUnit, decimal StockValue);
 public record StockUpdatePositionDto(Guid ProductId, int NewStock, InventoryTransactionType Type, string? Note);
 public record StockUpdateRequest(string? Note, IList<StockUpdatePositionDto> Positions);

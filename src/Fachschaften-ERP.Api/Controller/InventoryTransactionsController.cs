@@ -29,7 +29,7 @@ public class InventoryTransactionsController(
     {
         var productPrice = await db.Products
             .Where(x => x.IsActive && x.Id == productId)
-            .Select(x => x.InternalSellingPrice)
+            .Select(x => x.InternalSellingPrice * x.PriceUnitsPerStockUnit)
             .FirstOrDefaultAsync();
 
         var entries = await db.InventoryTransactions
@@ -65,8 +65,8 @@ public class InventoryTransactionsController(
             .Where(x => x.IsActive && x.Id == request.Value.ProductId)
             .Select(x => new
             {
-                SellingPrice = x.InternalSellingPrice,
-                x.PurchasePrice
+                SellingPrice = x.InternalSellingPrice * x.PriceUnitsPerStockUnit,
+                PurchasePrice = x.PurchasePrice * x.PriceUnitsPerStockUnit
             })
             .FirstOrDefaultAsync();
 

@@ -29,30 +29,51 @@
         </mat-select>
       </mat-form-field>
     </div>
-    <div class="col-12 col-sm-6">
+    <div class="col-12" [class.col-sm-6]="!separatePriceUnit()" [class.col-sm-4]="separatePriceUnit()">
       <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
         <mat-label>Bestand in</mat-label>
         <input matInput formControlName="unit" placeholder="Stück" maxlength="50" />
-        <mat-hint>Z. B. Kiste; gilt auch für den EK.</mat-hint>
+        <mat-hint>Z. B. Kiste; für Bestand und Lieferungen.</mat-hint>
       </mat-form-field>
     </div>
-    <div class="col-12 col-sm-6">
+    <div class="col-12" [class.col-sm-6]="!separatePriceUnit()" [class.col-sm-4]="separatePriceUnit()">
       <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
-        <mat-label>Verkaufspreis pro</mat-label>
+        <mat-label>Preise pro</mat-label>
         <input
           matInput
           formControlName="priceUnit"
           [placeholder]="stockUnitLabel()"
           maxlength="50"
         />
-        <mat-hint>Z. B. Flasche. Leer = wie Bestand.</mat-hint>
+        <mat-hint>Z. B. Flasche; gilt für EK und VK. Leer = wie Bestand.</mat-hint>
       </mat-form-field>
     </div>
+    @if (separatePriceUnit()) {
+      <div class="col-12 col-sm-4">
+        <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
+          <mat-label>{{ priceUnitLabel() }} pro {{ stockUnitLabel() }}</mat-label>
+          <input
+            matInput
+            type="number"
+            step="1"
+            min="0.001"
+            formControlName="priceUnitsPerStockUnit"
+            required
+          />
+          <mat-hint>Umrechnung für Lagerwert und Inventur.</mat-hint>
+        </mat-form-field>
+      </div>
+    }
     <div class="col-12 col-sm-4">
       <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
         <mat-label>Einkaufspreis (€)</mat-label>
         <input matInput type="number" step="0.01" min="0" formControlName="purchasePrice" />
-        <mat-hint>pro {{ stockUnitLabel() }}</mat-hint>
+        <mat-hint
+          >pro {{ priceUnitLabel() }}
+          @if (separatePriceUnit()) {
+            · {{ purchasePricePerStockUnit() }} pro {{ stockUnitLabel() }}
+          }
+        </mat-hint>
       </mat-form-field>
     </div>
     <div class="col-12 col-sm-4">

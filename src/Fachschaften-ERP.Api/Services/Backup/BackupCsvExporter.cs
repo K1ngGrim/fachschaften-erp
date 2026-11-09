@@ -35,14 +35,15 @@ public class BackupCsvExporter(CoreContext db)
             .Select(g => new { g.Key, Sum = g.Sum(t => t.Quantity) })
             .ToDictionaryAsync(x => x.Key, x => x.Sum, ct);
 
-        var csv = new Csv("Name", "Typ", "Lieferant", "Bestand in", "Verkaufspreis pro", "Einkaufspreis",
-            "VK Mitglieder", "VK Gäste", "Bestand", "Mindestbestand", "Bestand geführt", "Zusatzfelder", "Aktiv");
+        var csv = new Csv("Name", "Typ", "Lieferant", "Bestand in", "Verkaufspreis pro",
+            "Preiseinheiten pro Bestandseinheit", "Einkaufspreis", "VK Mitglieder", "VK Gäste", "Bestand",
+            "Warenwert (EK)", "Mindestbestand", "Bestand geführt", "Zusatzfelder", "Aktiv");
         foreach (var p in products.OrderBy(p => p.Name))
         {
             csv.Add(p.Name, itemTypes.GetValueOrDefault(p.ItemTypeId), p.SupplierId is { } s ? suppliers.GetValueOrDefault(s) : null,
                 p.Unit ?? ProductBase.DefaultUnit, p.PriceUnit ?? p.Unit ?? ProductBase.DefaultUnit,
-                p.PurchasePrice, p.InternalSellingPrice, p.ExternalSellingPrice,
-                stock.GetValueOrDefault(p.Id), p.LowStockThreshold, p.TrackStock,
+                p.PriceUnitsPerStockUnit, p.PurchasePrice, p.InternalSellingPrice, p.ExternalSellingPrice,
+                stock.GetValueOrDefault(p.Id), p.StockValue(stock.GetValueOrDefault(p.Id)), p.LowStockThreshold, p.TrackStock,
                 p.CustomFieldValues.RootElement.GetRawText() is "{}" ? null : p.CustomFieldValues.RootElement.GetRawText(),
                 p.IsActive);
         }

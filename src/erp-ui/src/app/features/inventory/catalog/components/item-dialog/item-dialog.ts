@@ -30,7 +30,12 @@ import {
 } from '../../../../../../../projects/api/src/lib';
 import { lastValueFrom, map } from 'rxjs';
 import { MatDivider } from '@angular/material/list';
-import { priceUnit, stockUnit } from '../../../../../shared/models/product-unit';
+import {
+  hasSeparatePriceUnit,
+  priceUnit,
+  stockUnit,
+} from '../../../../../shared/models/product-unit';
+import { formatCurrency } from '../../../../../shared/models/finance';
 import { MatCheckbox } from '@angular/material/checkbox';
 
 export interface ItemDialogData {
@@ -95,6 +100,11 @@ export class ItemDialog implements OnInit {
       nonNullable: true,
       validators: Validators.maxLength(50),
     }),
+    // Wie viele Preiseinheiten eine Bestandseinheit enthält, z. B. 20 Flaschen pro Kiste.
+    priceUnitsPerStockUnit: new FormControl(this.product?.priceUnitsPerStockUnit ?? 1, {
+      nonNullable: true,
+      validators: [Validators.required, Validators.min(0.001), Validators.max(9_999_999)],
+    }),
     purchasePrice: new FormControl(this.product?.purchasePrice ?? 0, {
       nonNullable: true,
       validators: [Validators.required, Validators.min(0)],
@@ -116,18 +126,34 @@ export class ItemDialog implements OnInit {
     trackStock: new FormControl(this.product?.trackStock ?? true, { nonNullable: true }),
   });
 
-  /** Einheiten für die Hinweise an den Preisen, wie sie nach dem Speichern gelten. */
+  /** Einheiten und EK für die Hinweise an den Preisen, wie sie nach dem Speichern gelten. */
   private readonly units = toSignal(
     this.form.valueChanges.pipe(
       map(() => ({
         unit: this.form.controls.unit.value,
         priceUnit: this.form.controls.priceUnit.value,
+        factor: this.form.controls.priceUnitsPerStockUnit.value,
+        purchasePrice: this.form.controls.purchasePrice.value,
       })),
     ),
-    { initialValue: { unit: this.product?.unit ?? '', priceUnit: this.product?.priceUnit ?? '' } },
+    {
+      initialValue: {
+        unit: this.product?.unit ?? '',
+        priceUnit: this.product?.priceUnit ?? '',
+        factor: this.product?.priceUnitsPerStockUnit ?? 1,
+        purchasePrice: this.product?.purchasePrice ?? 0,
+      },
+    },
   );
   public readonly stockUnitLabel = computed(() => stockUnit(this.units()));
   public readonly priceUnitLabel = computed(() => priceUnit(this.units()));
+  /** Preise gelten pro Preiseinheit; dann braucht es die Umrechnung in Bestandseinheiten. */
+  public readonly separatePriceUnit = computed(() => hasSeparatePriceUnit(this.units()));
+  /** EK umgerechnet auf eine Bestandseinheit, z. B. Kistenpreis bei EK pro Flasche. */
+  public readonly purchasePricePerStockUnit = computed(() => {
+    const { purchasePrice, factor } = this.units();
+    return formatCurrency((Number(purchasePrice) || 0) * (Number(factor) || 0));
+  });
 
   protected readonly CustomFieldType = CustomFieldType;
 
@@ -155,6 +181,8 @@ export class ItemDialog implements OnInit {
   }
 
   public async save() {
+    // Ohne eigene Preiseinheit ist der Faktor bedeutungslos und wird auf 1 gesetzt.
+    if (!this.separatePriceUnit()) this.form.controls.priceUnitsPerStockUnit.setValue(1);
     if (this.form.invalid) return;
 
     const value = this.form.getRawValue();
@@ -168,6 +196,7 @@ export class ItemDialog implements OnInit {
       externalSellingPrice: value.externalSellingPrice,
       unit: value.unit.trim() || null,
       priceUnit: value.priceUnit.trim() || null,
+      priceUnitsPerStockUnit: this.separatePriceUnit() ? value.priceUnitsPerStockUnit : 1,
       stock: this.isEdit ? (this.product?.stock ?? 0) : value.initialStock,
       lowStockThreshold: value.lowStockThreshold,
       trackStock: value.trackStock,
