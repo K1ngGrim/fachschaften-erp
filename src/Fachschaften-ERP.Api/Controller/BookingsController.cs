@@ -19,8 +19,7 @@ public class BookingsController(CoreContext db) : ControllerBase
         [FromQuery] int? year,
         [FromQuery] int? month,
         [FromQuery] TaxArea? taxArea,
-        [FromQuery] Guid? cashBookId,
-        [FromQuery] CashIncomeSource? source)
+        [FromQuery] Guid? cashBookId)
     {
         var bookings = await db.Bookings
             .Where(x => x.IsActive)
@@ -28,7 +27,6 @@ public class BookingsController(CoreContext db) : ControllerBase
             .Where(x => month == null || x.Date.Month == month)
             .Where(x => taxArea == null || x.TaxArea == taxArea)
             .Where(x => cashBookId == null || x.CashBookId == cashBookId)
-            .Where(x => source == null || x.Source == source)
             .OrderByDescending(x => x.Date)
             .ThenByDescending(x => x.Created)
             .Select(Projection)
@@ -140,7 +138,6 @@ public class BookingsController(CoreContext db) : ControllerBase
         entity.CategoryId = request.Value.CategoryId;
         entity.CashBookId = request.Value.CashBookId;
         entity.ReceiptUrl = request.Value.ReceiptUrl;
-        entity.Source = request.Value.Source;
 
         await db.SaveChangesAsync();
 
@@ -152,82 +149,6 @@ public class BookingsController(CoreContext db) : ControllerBase
         return request.Id is null
             ? CreatedAtAction(nameof(Get), new { id = saved.Id }, saved)
             : Ok(saved);
-    }
-
-    [RequirePermission(PermissionType.FinanceWrite)]
-    [HttpPost("cash-income")]
-    public async Task<ActionResult<IList<BookingDto>>> CashIncome(CashIncomeRequest request)
-    {
-        var invoker = (Invoker)User;
-        var now = DateTimeOffset.UtcNow;
-
-        if (request.CashAmount < 0 || request.TallyListAmount < 0 || request.SumUpAmount < 0)
-            return BadRequest("Amounts must not be negative.");
-
-        if (request.CashAmount == 0 && request.TallyListAmount == 0 && request.SumUpAmount == 0)
-            return BadRequest("At least one amount is required.");
-
-        if (request.CashAmount > 0 && request.CashBookId is null)
-            return BadRequest("Cash income needs a cash book.");
-
-        if (request.CashBookId is { } cashBookId)
-        {
-            var cashBook = await db.CashBooks.FirstOrDefaultAsync(x => x.Id == cashBookId && x.IsActive);
-            if (cashBook is null) return BadRequest("Invalid CashBookId.");
-            if (cashBook.IsClosed) return BadRequest("The cash book is closed.");
-        }
-
-        if (request.CategoryId is { } categoryId)
-        {
-            var categoryExists = await db.BookingCategories
-                .AnyAsync(x => x.Id == categoryId && x.IsActive && x.TaxArea == request.TaxArea);
-
-            if (!categoryExists) return BadRequest("Invalid CategoryId for the given tax area.");
-        }
-
-        var label = request.Description?.Trim();
-        if (string.IsNullOrEmpty(label)) label = "Kasseneinnahmen " + request.Date.ToString("dd.MM.yyyy");
-
-        var sources = new (CashIncomeSource Source, decimal Amount, string Label, Guid? CashBookId)[]
-        {
-            (CashIncomeSource.Cash, request.CashAmount, "Bar", request.CashBookId),
-            (CashIncomeSource.TallyList, request.TallyListAmount, "Strichliste", null),
-            (CashIncomeSource.SumUp, request.SumUpAmount, "SumUp", null),
-        };
-
-        var created = new List<Guid>();
-
-        foreach (var entry in sources)
-        {
-            if (entry.Amount <= 0) continue;
-
-            var booking = new BookingEntity
-            {
-                Id = Guid.NewGuid(),
-                Date = request.Date,
-                Amount = entry.Amount,
-                Description = label + " – " + entry.Label,
-                TaxArea = request.TaxArea,
-                CategoryId = request.CategoryId,
-                CashBookId = entry.CashBookId,
-                Source = entry.Source,
-                CreatorId = invoker.UserId,
-                Created = now,
-                IsActive = true,
-            };
-
-            db.Bookings.Add(booking);
-            created.Add(booking.Id);
-        }
-
-        await db.SaveChangesAsync();
-
-        var bookings = await db.Bookings
-            .Where(x => created.Contains(x.Id))
-            .Select(Projection)
-            .ToListAsync();
-
-        return Ok(bookings);
     }
 
     [RequirePermission(PermissionType.FinanceWrite)]
@@ -304,7 +225,6 @@ public class BookingsController(CoreContext db) : ControllerBase
         CashBookId = entity.CashBookId,
         CashBookName = entity.CashBook != null ? entity.CashBook.Name : null,
         ReceiptUrl = entity.ReceiptUrl,
-        Source = entity.Source,
         TransferGroupId = entity.TransferGroupId,
     };
 }
@@ -314,16 +234,6 @@ public class BookingDto : BookingBase
     public string? CategoryName { get; set; }
     public string? CashBookName { get; set; }
 }
-
-public record CashIncomeRequest(
-    DateTimeOffset Date,
-    decimal CashAmount,
-    decimal TallyListAmount,
-    decimal SumUpAmount,
-    TaxArea TaxArea,
-    Guid? CashBookId,
-    Guid? CategoryId,
-    string? Description);
 
 public record TaxAreaSummaryDto(TaxArea TaxArea, decimal Income, decimal Expense, decimal Balance);
 

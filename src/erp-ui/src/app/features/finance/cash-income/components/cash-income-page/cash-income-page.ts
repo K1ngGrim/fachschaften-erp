@@ -15,9 +15,9 @@ import {
 import { PageHeader } from '../../../../../shared/components/page-header/page-header';
 import { DialogService } from '../../../../../core/services/dialog-service';
 import {
-  BookingDto,
-  BookingsService,
+  CashIncomeDto,
   CashIncomeRequest,
+  CashIncomeService,
   CashIncomeSource,
 } from '../../../../../../../projects/api/src/lib';
 import {
@@ -60,14 +60,14 @@ interface MonthSummary {
   styleUrl: './cash-income-page.scss',
 })
 export class CashIncomePage {
-  private readonly bookingController = inject(BookingsService);
+  private readonly cashIncomeController = inject(CashIncomeService);
   private readonly dialog = inject(MatDialog);
   private readonly dialogService = inject(DialogService);
 
   public readonly sourceTemplate = viewChild<TemplateRef<any>>('sourceTemplate');
 
-  public readonly entries = signal<BookingDto[]>([]);
-  public readonly columns = signal<GridColumn<BookingDto>[]>([]);
+  public readonly entries = signal<CashIncomeDto[]>([]);
+  public readonly columns = signal<GridColumn<CashIncomeDto>[]>([]);
   public readonly error = signal<string | null>(null);
 
   public readonly year = signal<number>(new Date().getFullYear());
@@ -98,9 +98,7 @@ export class CashIncomePage {
         sources: Object.values(CashIncomeSource).map((source) => ({
           source,
           label: CASH_INCOME_SOURCE_LABELS[source],
-          amount: entries
-            .filter((e) => e.source === source)
-            .reduce((sum, e) => sum + e.amount, 0),
+          amount: entries.filter((e) => e.source === source).reduce((sum, e) => sum + e.amount, 0),
         })),
         total: entries.reduce((sum, e) => sum + e.amount, 0),
       };
@@ -118,21 +116,9 @@ export class CashIncomePage {
         filterType: 'select',
         // Die Zelle rendert das Kürzel selbst, gefiltert und gesucht wird aber
         // über die Beschriftung.
-        filterValue: (row) => (row.source ? this.sourceLabel(row.source) : '—'),
+        filterValue: (row) => this.sourceLabel(row.source),
       },
       { key: 'description', label: 'Beschreibung' },
-      {
-        key: 'cashBookName',
-        label: 'Kasse',
-        filterType: 'select',
-        value: (row) => row.cashBookName ?? '—',
-      },
-      {
-        key: 'categoryName',
-        label: 'Kategorie',
-        filterType: 'select',
-        value: (row) => row.categoryName ?? '—',
-      },
       {
         key: 'amount',
         label: 'Betrag',
@@ -146,11 +132,11 @@ export class CashIncomePage {
   }
 
   public async fetchItems() {
-    const bookings = await lastValueFrom(
-      this.bookingController.apiBookingsGet({ year: this.year() }),
+    const entries = await lastValueFrom(
+      this.cashIncomeController.apiCashIncomeGet({ year: this.year() }),
     );
 
-    this.entries.set(bookings.filter((booking) => booking.source));
+    this.entries.set(entries);
   }
 
   public async openAdd() {
@@ -166,7 +152,7 @@ export class CashIncomePage {
 
     try {
       await lastValueFrom(
-        this.bookingController.apiBookingsCashIncomePost({
+        this.cashIncomeController.apiCashIncomePost({
           cashIncomeRequest: request as CashIncomeRequest,
         }),
       );
@@ -182,16 +168,16 @@ export class CashIncomePage {
     await this.fetchItems();
   }
 
-  public async openDelete(booking: BookingDto) {
+  public async openDelete(entry: CashIncomeDto) {
     const confirmed = await this.dialogService.openDeleteDialog({
       title: 'Einnahme löschen',
-      message: `„${booking.description}" wirklich löschen?`,
+      message: `„${entry.description}" wirklich löschen?`,
       confirmLabel: 'Löschen',
     });
 
     if (!confirmed) return;
 
-    await lastValueFrom(this.bookingController.apiBookingsIdDelete({ id: booking.id }));
+    await lastValueFrom(this.cashIncomeController.apiCashIncomeIdDelete({ id: entry.id }));
     await this.fetchItems();
   }
 }

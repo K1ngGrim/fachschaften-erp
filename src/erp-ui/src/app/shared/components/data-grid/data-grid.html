@@ -26,9 +26,7 @@
             type="button"
             class="grid-head-btn"
             [class.grid-head-btn--active]="filtersVisible()"
-            [matTooltip]="
-              filtersVisible() ? 'Spaltenfilter ausblenden' : 'Nach Spalten filtern'
-            "
+            [matTooltip]="filtersVisible() ? 'Spaltenfilter ausblenden' : 'Nach Spalten filtern'"
             (click)="toggleFilters()"
           >
             <mat-icon svgIcon="filter-variant"></mat-icon>
@@ -70,8 +68,35 @@
       <thead>
         <tr #headerRow>
           @for (col of columns(); track col.key) {
-            <th [attr.data-key]="col.key" [class]="'grid-th ' + headerClass(col)">
-              <span class="grid-th__label">{{ col.label }}</span>
+            <th
+              [attr.data-key]="col.key"
+              [attr.aria-sort]="ariaSort(col.key)"
+              [class]="'grid-th ' + headerClass(col)"
+            >
+              @if (isSortable(col)) {
+                <button
+                  type="button"
+                  class="grid-th__sort"
+                  [class.grid-th__sort--active]="sortDirection(col.key)"
+                  [matTooltip]="sortTooltip(col)"
+                  matTooltipShowDelay="600"
+                  (click)="toggleSort(col.key)"
+                >
+                  <span class="grid-th__label">{{ col.label }}</span>
+                  <mat-icon
+                    class="grid-th__sort-icon"
+                    [svgIcon]="
+                      sortDirection(col.key) === 'desc'
+                        ? 'arrow-down'
+                        : sortDirection(col.key) === 'asc'
+                          ? 'arrow-up'
+                          : 'arrow-up-down'
+                    "
+                  ></mat-icon>
+                </button>
+              } @else {
+                <span class="grid-th__label">{{ col.label }}</span>
+              }
               @if (isResizable(col)) {
                 <span
                   class="grid-th__resize"
@@ -180,7 +205,7 @@
       </thead>
 
       <tbody>
-        @for (row of filteredData(); track row) {
+        @for (row of rows(); track row) {
           <tr class="grid-row">
             @for (col of columns(); track col.key) {
               <td [class]="'grid-td ' + cellClass(col)">

@@ -64,6 +64,13 @@ export interface GridColumnFilter {
   value2: string;
 }
 
+export type GridSortDirection = 'asc' | 'desc';
+
+export interface GridSort {
+  key: string;
+  direction: GridSortDirection;
+}
+
 export interface GridFilterOption {
   value: string;
   label: string;
@@ -144,6 +151,12 @@ const FALSE_WORDS = ['false', 'nein', 'no', '0', '–', '-'];
 /** Zellen ohne Wert werden in vielen Spalten als „—“ dargestellt. */
 const EMPTY_PLACEHOLDERS = ['', '—', '-', '–'];
 
+/** ISO-Zeitstempel wie „2026-11-08T12:00:00Z“ – beim Sortieren zählt auch die Uhrzeit. */
+const ISO_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}/;
+
+/** Deutsche Sortierung, Zahlen im Text („Kasten 10“ nach „Kasten 9“) natürlich geordnet. */
+const TEXT_COLLATOR = new Intl.Collator('de', { numeric: true, sensitivity: 'base' });
+
 @Component({
   selector: 'app-data-grid',
   imports: [
@@ -173,6 +186,9 @@ export class DataGrid<T extends Record<string, any>> implements AfterContentInit
   /** Spaltenfilter anbieten (Filterzeile unter den Spaltenköpfen). */
   public columnFilters = input(true);
 
+  /** Spalten per Klick auf den Kopf sortierbar. */
+  public sortableColumns = input(true);
+
   /** Spaltenbreiten per Ziehen änderbar. */
   public resizableColumns = input(true);
 
@@ -200,6 +216,9 @@ export class DataGrid<T extends Record<string, any>> implements AfterContentInit
 
   /** Gesetzte Filter je Spaltenschlüssel. */
   private readonly filters = signal<Record<string, GridColumnFilter>>({});
+
+  /** Aktuelle Sortierung; ohne Angabe bleibt die Reihenfolge der Daten. */
+  protected readonly sort = signal<GridSort | null>(null);
 
   /** Gezogene Spaltenbreiten in Pixeln je Spaltenschlüssel. */
   protected readonly widths = signal<Record<string, number>>({});
@@ -428,6 +447,37 @@ export class DataGrid<T extends Record<string, any>> implements AfterContentInit
     this.searchQuery.set('');
   }
 
+  // ── Sortierung ─────────────────────────────────────────────────────────────
+
+  protected isSortable(column: GridColumn<T>) {
+    return this.sortableColumns() && (column.sortable ?? true);
+  }
+
+  protected sortDirection(key: string): GridSortDirection | null {
+    const sort = this.sort();
+    return sort?.key === key ? sort.direction : null;
+  }
+
+  protected ariaSort(key: string) {
+    const direction = this.sortDirection(key);
+    return direction === 'asc' ? 'ascending' : direction === 'desc' ? 'descending' : null;
+  }
+
+  protected sortTooltip(column: GridColumn<T>) {
+    const direction = this.sortDirection(column.key);
+    if (direction === 'asc') return `${column.label} absteigend sortieren`;
+    if (direction === 'desc') return 'Sortierung aufheben';
+    return `${column.label} aufsteigend sortieren`;
+  }
+
+  /** Klick auf den Spaltenkopf: aufsteigend → absteigend → unsortiert. */
+  protected toggleSort(key: string) {
+    const direction = this.sortDirection(key);
+    if (direction === 'asc') this.sort.set({ key, direction: 'desc' });
+    else if (direction === 'desc') this.sort.set(null);
+    else this.sort.set({ key, direction: 'asc' });
+  }
+
   // ── Daten ──────────────────────────────────────────────────────────────────
 
   filteredData = computed(() => {
@@ -442,6 +492,63 @@ export class DataGrid<T extends Record<string, any>> implements AfterContentInit
       return active.every((entry) => this.matches(entry.column, entry.filter, row));
     });
   });
+
+  /** Gefilterte und sortierte Zeilen, so wie sie angezeigt werden. */
+  rows = computed(() => {
+    const rows = this.filteredData();
+    const sort = this.sort();
+    const column = sort ? this.columnMap().get(sort.key) : undefined;
+    if (!sort || !column || !this.isSortable(column)) return rows;
+
+    const type = this.filterTypes()[column.key] ?? 'text';
+    const keyed = rows.map((row) => ({ row, key: this.sortKey(column, row, type) }));
+    const factor = sort.direction === 'asc' ? 1 : -1;
+
+    keyed.sort((a, b) => {
+      // Leere Werte stehen immer am Ende, egal in welche Richtung sortiert wird.
+      if (a.key === null || b.key === null) {
+        return a.key === b.key ? 0 : a.key === null ? 1 : -1;
+      }
+      return factor * this.compareKeys(a.key, b.key);
+    });
+
+    return keyed.map((entry) => entry.row);
+  });
+
+  private sortKey(column: GridColumn<T>, row: T, type: GridFilterType): number | string | null {
+    const source = column.sortValue ? column.sortValue(row) : this.filterSource(column, row);
+    if (source === null || source === undefined) return null;
+
+    switch (type) {
+      case 'number':
+        return this.toNumber(source);
+      case 'date':
+        return this.toTime(column.sortValue ? source : row[column.key]) ?? this.toDay(source);
+      case 'boolean': {
+        const value = this.toBoolean(source);
+        return value === null ? null : Number(value);
+      }
+      default: {
+        if (typeof source === 'number') return Number.isFinite(source) ? source : null;
+        const text = String(source).trim();
+        return EMPTY_PLACEHOLDERS.includes(text.toLowerCase()) ? null : text;
+      }
+    }
+  }
+
+  private compareKeys(a: number | string, b: number | string) {
+    if (typeof a === 'number' && typeof b === 'number') return a - b;
+    return TEXT_COLLATOR.compare(String(a), String(b));
+  }
+
+  /** Zeitstempel mit Uhrzeit aus einem Datum oder ISO-Text, sonst `null`. */
+  private toTime(value: unknown): number | null {
+    if (value instanceof Date) return Number.isNaN(value.getTime()) ? null : value.getTime();
+    if (typeof value !== 'string' || !ISO_DATE_PATTERN.test(value.trim())) return null;
+
+    const time = Date.parse(value);
+    return Number.isNaN(time) ? null : time;
+  }
 
   private searchText(row: T, key: string) {
     const column = this.columnMap().get(key);
@@ -648,7 +755,11 @@ export class DataGrid<T extends Record<string, any>> implements AfterContentInit
   // ── Spaltenbreiten ─────────────────────────────────────────────────────────
 
   private readonly resolvedStorageKey = computed(
-    () => this.storageKey() ?? this.columns().map((column) => column.key).join('|'),
+    () =>
+      this.storageKey() ??
+      this.columns()
+        .map((column) => column.key)
+        .join('|'),
   );
 
   /** Sobald eine Breite gesetzt ist, liegen alle Spalten in Pixeln fest. */
@@ -785,6 +896,15 @@ export interface GridColumn<T = any> {
 
   /** Spalte lässt sich per Ziehen in der Breite ändern (Standard: ja). */
   resizable?: boolean;
+
+  /** Spalte lässt sich per Klick auf den Kopf sortieren (Standard: ja). */
+  sortable?: boolean;
+
+  /**
+   * Wert, nach dem sortiert wird – sonst wie beim Filtern das Datenfeld bzw.
+   * der angezeigte Wert, verglichen passend zum Filtertyp der Spalte.
+   */
+  sortValue?: (row: T) => unknown;
 
   /** Spalte bietet einen Filter an (Standard: ja). */
   filterable?: boolean;

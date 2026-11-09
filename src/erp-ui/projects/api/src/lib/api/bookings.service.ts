@@ -21,10 +21,6 @@ import { BookingDto } from '../model/booking-dto';
 // @ts-ignore
 import { BookingSummaryDto } from '../model/booking-summary-dto';
 // @ts-ignore
-import { CashIncomeRequest } from '../model/cash-income-request';
-// @ts-ignore
-import { CashIncomeSource } from '../model/cash-income-source';
-// @ts-ignore
 import { ItemUpsertRequestOfBookingDto } from '../model/item-upsert-request-of-booking-dto';
 // @ts-ignore
 import { TaxArea } from '../model/tax-area';
@@ -34,7 +30,6 @@ import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables'
 import { Configuration }                                     from '../configuration';
 import {
     BookingsServiceInterface,
-    ApiBookingsCashIncomePostRequestParams,
     ApiBookingsGetRequestParams,
     ApiBookingsIdDeleteRequestParams,
     ApiBookingsIdGetRequestParams,
@@ -114,84 +109,6 @@ export class BookingsService implements BookingsServiceInterface {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public apiBookingsCashIncomePost(requestParameters: ApiBookingsCashIncomePostRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<BookingDto>>;
-    public apiBookingsCashIncomePost(requestParameters: ApiBookingsCashIncomePostRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<BookingDto>>>;
-    public apiBookingsCashIncomePost(requestParameters: ApiBookingsCashIncomePostRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<BookingDto>>>;
-    public apiBookingsCashIncomePost(requestParameters: ApiBookingsCashIncomePostRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        const cashIncomeRequest = requestParameters?.cashIncomeRequest;
-        if (cashIncomeRequest === null || cashIncomeRequest === undefined) {
-            throw new Error('Required parameter cashIncomeRequest was null or undefined when calling apiBookingsCashIncomePost.');
-        }
-
-        let localVarHeaders = this.defaultHeaders;
-
-        let localVarHttpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
-        if (localVarHttpHeaderAcceptSelected === undefined) {
-            // to determine the Accept header
-            const httpHeaderAccepts: string[] = [
-                'text/plain',
-                'application/json',
-                'text/json'
-            ];
-            localVarHttpHeaderAcceptSelected = this.configuration.selectHeaderAccept(httpHeaderAccepts);
-        }
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        let localVarHttpContext: HttpContext | undefined = options && options.context;
-        if (localVarHttpContext === undefined) {
-            localVarHttpContext = new HttpContext();
-        }
-
-        let localVarTransferCache: boolean | undefined = options && options.transferCache;
-        if (localVarTransferCache === undefined) {
-            localVarTransferCache = true;
-        }
-
-
-        // to determine the Content-Type header
-        const consumes: string[] = [
-            'application/json',
-            'text/json',
-            'application/*+json'
-        ];
-        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
-        if (httpContentTypeSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
-        }
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/api/bookings/cash-income`;
-        return this.httpClient.request<Array<BookingDto>>('post', `${this.configuration.basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                body: cashIncomeRequest,
-                responseType: <any>responseType_,
-                withCredentials: this.configuration.withCredentials,
-                headers: localVarHeaders,
-                observe: observe,
-                transferCache: localVarTransferCache,
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
-     * @param requestParameters
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     */
     public apiBookingsGet(requestParameters?: ApiBookingsGetRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<BookingDto>>;
     public apiBookingsGet(requestParameters?: ApiBookingsGetRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<BookingDto>>>;
     public apiBookingsGet(requestParameters?: ApiBookingsGetRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<BookingDto>>>;
@@ -200,7 +117,6 @@ export class BookingsService implements BookingsServiceInterface {
         const month = requestParameters?.month;
         const taxArea = requestParameters?.taxArea;
         const cashBookId = requestParameters?.cashBookId;
-        const source = requestParameters?.source;
 
         let localVarQueryParameters = new HttpParams({encoder: this.encoder});
         if (year !== undefined && year !== null) {
@@ -218,10 +134,6 @@ export class BookingsService implements BookingsServiceInterface {
         if (cashBookId !== undefined && cashBookId !== null) {
           localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
             <any>cashBookId, 'cashBookId');
-        }
-        if (source !== undefined && source !== null) {
-          localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
-            <any>source, 'source');
         }
 
         let localVarHeaders = this.defaultHeaders;

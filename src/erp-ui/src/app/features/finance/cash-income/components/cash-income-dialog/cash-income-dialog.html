@@ -2,7 +2,8 @@
 
 <mat-dialog-content>
   <p class="text-hint mb-3">
-    Abrechnung eines Zeitraums. Jeder Betrag über null wird als eigene Einnahme gebucht.
+    Abrechnung eines Zeitraums. Jeder Betrag über null wird als eigene Einnahme erfasst. Die
+    Einnahmen laufen getrennt von den Finanzen und erscheinen nicht in den Buchungen.
   </p>
 
   <div class="row g-3">
@@ -22,29 +23,6 @@
           (ngModelChange)="description.set($event)"
           placeholder="z. B. Abrechnung KW 35"
         />
-      </mat-form-field>
-    </div>
-
-    <div class="col-12 col-md-6">
-      <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
-        <mat-label>Steuerbereich</mat-label>
-        <mat-select [ngModel]="taxArea()" (ngModelChange)="setTaxArea($event)">
-          @for (area of taxAreas; track area.value) {
-            <mat-option [value]="area.value">{{ area.label }}</mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
-    </div>
-
-    <div class="col-12 col-md-6">
-      <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
-        <mat-label>Kategorie</mat-label>
-        <mat-select [ngModel]="categoryId()" (ngModelChange)="categoryId.set($event)">
-          <mat-option [value]="null">Ohne Kategorie</mat-option>
-          @for (category of availableCategories(); track category.id) {
-            <mat-option [value]="category.id">{{ category.name }}</mat-option>
-          }
-        </mat-select>
       </mat-form-field>
     </div>
   </div>
@@ -90,27 +68,6 @@
         />
       </mat-form-field>
     </div>
-
-    <div class="col-12">
-      <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
-        <mat-label>Bargeldkasse</mat-label>
-        <mat-select [ngModel]="cashBookId()" (ngModelChange)="cashBookId.set($event)">
-          <mat-option [value]="null">Keine</mat-option>
-          @for (book of cashBooks(); track book.id) {
-            <mat-option [value]="book.id">{{ book.name }}</mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
-      @if (needsCashBook()) {
-        <small class="text-danger d-block mt-1">
-          Für Bargeld muss eine Kasse ausgewählt sein.
-        </small>
-      } @else {
-        <small class="text-hint d-block mt-1">
-          Strichliste und SumUp laufen über die Bank und berühren keine Bargeldkasse.
-        </small>
-      }
-    </div>
   </div>
 
   <div class="d-flex justify-content-between fw-bold fs-6 mt-4">
@@ -121,5 +78,5 @@
 
 <mat-dialog-actions align="end">
   <button mat-stroked-button (click)="cancel()">Abbrechen</button>
-  <button mat-flat-button [disabled]="!isValid()" (click)="save()">Buchen</button>
+  <button mat-flat-button [disabled]="!isValid()" (click)="save()">Speichern</button>
 </mat-dialog-actions>

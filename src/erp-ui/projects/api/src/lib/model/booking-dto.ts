@@ -7,7 +7,6 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { CashIncomeSource } from './cash-income-source';
 import { TaxArea } from './tax-area';
 
 
@@ -22,7 +21,6 @@ export interface BookingDto {
     categoryId?: string | null;
     cashBookId?: string | null;
     receiptUrl?: string | null;
-    source?: CashIncomeSource | null;
     transferGroupId?: string | null;
 }
 

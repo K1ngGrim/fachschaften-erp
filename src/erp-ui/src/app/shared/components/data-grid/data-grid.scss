@@ -100,6 +100,66 @@
   text-overflow: ellipsis;
 }
 
+.grid-th__sort {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  width: 100%;
+  min-width: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: inherit;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--app-text);
+  }
+
+  &:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+    border-radius: 0.25rem;
+  }
+
+  .grid-th__label {
+    min-width: 0;
+  }
+}
+
+.grid-th__sort-icon {
+  flex-shrink: 0;
+  width: 0.95rem;
+  height: 0.95rem;
+  font-size: 0.95rem;
+  opacity: 0;
+  transition: opacity 120ms ease;
+
+  .grid-th__sort:hover &,
+  .grid-th__sort:focus-visible & {
+    opacity: 0.6;
+  }
+
+  .grid-th__sort--active & {
+    opacity: 1;
+  }
+}
+
+.grid-th__sort--active {
+  color: var(--app-text);
+}
+
+// Bei rechtsbündigen Spalten steht der Pfeil links vom Text, damit Zahlen bündig bleiben.
+.grid-th.text-end .grid-th__sort {
+  flex-direction: row-reverse;
+}
+
+.grid-th.text-center .grid-th__sort {
+  justify-content: center;
+}
+
 .grid-th__resize {
   position: absolute;
   top: 0;

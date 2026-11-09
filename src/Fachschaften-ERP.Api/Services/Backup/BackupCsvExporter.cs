@@ -86,17 +86,21 @@ public class BackupCsvExporter(CoreContext db)
 
         var categories = await db.BookingCategories.ToListAsync(ct);
         var cashBooks = await db.CashBooks.ToListAsync(ct);
-        csv = new Csv("Datum", "Betrag", "Beschreibung", "Kategorie", "Steuerbereich", "Kasse", "Quelle", "Beleg", "Umbuchung");
+        csv = new Csv("Datum", "Betrag", "Beschreibung", "Kategorie", "Steuerbereich", "Kasse", "Beleg", "Umbuchung");
         foreach (var b in await db.Bookings.Where(b => b.IsActive).OrderBy(b => b.Date).ToListAsync(ct))
         {
             csv.Add(Date(b.Date), b.Amount, b.Description,
                 categories.FirstOrDefault(c => c.Id == b.CategoryId)?.Name,
                 b.TaxArea is { } area ? TaxAreaLabel(area) : null,
                 cashBooks.FirstOrDefault(c => c.Id == b.CashBookId)?.Name,
-                b.Source is { } source ? SourceLabel(source) : null,
                 b.ReceiptUrl, b.TransferGroupId is null ? null : "Ja");
         }
         yield return ("csv/buchungen.csv", csv.ToString());
+
+        csv = new Csv("Datum", "Betrag", "Quelle", "Beschreibung");
+        foreach (var i in await db.CashIncomes.Where(i => i.IsActive).OrderBy(i => i.Date).ToListAsync(ct))
+            csv.Add(Date(i.Date), i.Amount, SourceLabel(i.Source), i.Description);
+        yield return ("csv/kasseneinnahmen.csv", csv.ToString());
 
         csv = new Csv("Name", "Steuerbereich", "Aktiv");
         foreach (var c in categories.OrderBy(c => c.Name)) csv.Add(c.Name, TaxAreaLabel(c.TaxArea), c.IsActive);

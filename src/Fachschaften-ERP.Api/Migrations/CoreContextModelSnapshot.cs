@@ -203,10 +203,6 @@ namespace Fachschaften_ERP.Api.Migrations
                         .HasMaxLength(2048)
                         .HasColumnType("character varying(2048)");
 
-                    b.Property<string>("Source")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
                     b.Property<string>("TaxArea")
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
@@ -263,6 +259,50 @@ namespace Fachschaften_ERP.Api.Migrations
                     b.HasIndex("ParentId");
 
                     b.ToTable("CashBooks", "erp");
+                });
+
+            modelBuilder.Entity("Fachschaften_ERP.Models.Entities.CashIncomeEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("numeric(10,2)");
+
+                    b.Property<DateTimeOffset>("Created")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("CreatorId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("Date")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTimeOffset?>("Modified")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("ModifierId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Date");
+
+                    b.ToTable("CashIncomes", "erp");
                 });
 
             modelBuilder.Entity("Fachschaften_ERP.Models.Entities.CustomFieldEntity", b =>

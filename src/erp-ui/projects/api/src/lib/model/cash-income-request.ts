@@ -7,7 +7,6 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { TaxArea } from './tax-area';
 
 
 export interface CashIncomeRequest { 
@@ -15,11 +14,6 @@ export interface CashIncomeRequest {
     cashAmount: number;
     tallyListAmount: number;
     sumUpAmount: number;
-    taxArea: TaxArea;
-    cashBookId: string | null;
-    categoryId: string | null;
     description: string | null;
 }
-
-
 

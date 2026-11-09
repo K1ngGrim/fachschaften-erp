@@ -72,7 +72,9 @@ export class BookingDialog {
   public readonly amount = signal<number>(Math.abs(this.data.booking?.amount ?? 0));
   public readonly date = signal<string>(toDateInput(this.data.booking?.date));
   public readonly description = signal<string>(this.data.booking?.description ?? '');
-  public readonly taxArea = signal<TaxArea>(this.data.booking?.taxArea ?? TaxArea.Wirtschaftsbetrieb);
+  public readonly taxArea = signal<TaxArea>(
+    this.data.booking?.taxArea ?? TaxArea.Wirtschaftsbetrieb,
+  );
   public readonly categoryId = signal<string | null>(this.data.booking?.categoryId ?? null);
   public readonly cashBookId = signal<string | null>(this.data.booking?.cashBookId ?? null);
   public readonly receiptUrl = signal<string>(this.data.booking?.receiptUrl ?? '');
@@ -128,7 +130,6 @@ export class BookingDialog {
       categoryId: this.categoryId(),
       cashBookId: this.cashBookId(),
       receiptUrl: this.receiptUrl().trim() || null,
-      source: this.data.booking?.source ?? null,
       transferGroupId: null,
     };
 

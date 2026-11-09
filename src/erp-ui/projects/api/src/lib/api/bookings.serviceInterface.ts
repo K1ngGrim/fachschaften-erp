@@ -13,8 +13,6 @@ import { Observable }                                        from 'rxjs';
 
 import { BookingDto } from '../model/models';
 import { BookingSummaryDto } from '../model/models';
-import { CashIncomeRequest } from '../model/models';
-import { CashIncomeSource } from '../model/models';
 import { ItemUpsertRequestOfBookingDto } from '../model/models';
 import { TaxArea } from '../model/models';
 
@@ -22,16 +20,11 @@ import { TaxArea } from '../model/models';
 import { Configuration }                                     from '../configuration';
 
 
-export interface ApiBookingsCashIncomePostRequestParams {
-    cashIncomeRequest: CashIncomeRequest;
-}
-
 export interface ApiBookingsGetRequestParams {
     year?: number;
     month?: number;
     taxArea?: TaxArea;
     cashBookId?: string;
-    source?: CashIncomeSource;
 }
 
 export interface ApiBookingsIdDeleteRequestParams {
@@ -54,13 +47,6 @@ export interface ApiBookingsSummaryGetRequestParams {
 export interface BookingsServiceInterface {
     defaultHeaders: HttpHeaders;
     configuration: Configuration;
-
-    /**
-     * 
-     * 
-* @param requestParameters
-     */
-    apiBookingsCashIncomePost(requestParameters: ApiBookingsCashIncomePostRequestParams, extraHttpRequestParams?: any): Observable<Array<BookingDto>>;
 
     /**
      * 

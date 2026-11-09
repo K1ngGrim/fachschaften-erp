@@ -14,6 +14,7 @@ export * from './cash-book-dto';
 export * from './cash-book-summary-dto';
 export * from './cash-book-transfer-request';
 export * from './cash-book-upsert-dto';
+export * from './cash-income-dto';
 export * from './cash-income-request';
 export * from './cash-income-source';
 export * from './category-summary-dto';

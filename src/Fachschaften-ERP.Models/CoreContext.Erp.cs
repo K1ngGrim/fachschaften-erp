@@ -17,6 +17,7 @@ public partial class CoreContext
     public DbSet<BookingEntity> Bookings => Set<BookingEntity>();
     public DbSet<BookingCategoryEntity> BookingCategories => Set<BookingCategoryEntity>();
     public DbSet<CashBookEntity> CashBooks => Set<CashBookEntity>();
+    public DbSet<CashIncomeEntity> CashIncomes => Set<CashIncomeEntity>();
     public DbSet<WikiPageEntity> WikiPages => Set<WikiPageEntity>();
     public DbSet<StockTakeEntity> StockTakes => Set<StockTakeEntity>();
     public DbSet<StockTakePositionEntity> StockTakePositions => Set<StockTakePositionEntity>();
@@ -408,10 +409,6 @@ public partial class CoreContext
                 .HasConversion<string>()
                 .HasMaxLength(50);
 
-            entity.Property(b => b.Source)
-                .HasConversion<string>()
-                .HasMaxLength(50);
-
             entity.Property(b => b.ReceiptUrl)
                 .HasMaxLength(2048);
 
@@ -424,6 +421,24 @@ public partial class CoreContext
                 .WithMany(c => c.Bookings)
                 .HasForeignKey(b => b.CashBookId)
                 .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<CashIncomeEntity>(entity =>
+        {
+            entity.HasKey(c => c.Id);
+
+            entity.Property(c => c.Description)
+                .IsRequired()
+                .HasMaxLength(255);
+
+            entity.Property(c => c.Amount)
+                .HasColumnType("numeric(10,2)");
+
+            entity.Property(c => c.Source)
+                .HasConversion<string>()
+                .HasMaxLength(50);
+
+            entity.HasIndex(c => c.Date);
         });
 
         //modelBuilder.Ignore<ProductBase>();

@@ -13,6 +13,8 @@ api/bookings.service.ts
 api/bookings.serviceInterface.ts
 api/cash-books.service.ts
 api/cash-books.serviceInterface.ts
+api/cash-income.service.ts
+api/cash-income.serviceInterface.ts
 api/custom-fields.service.ts
 api/custom-fields.serviceInterface.ts
 api/custom-table-access.service.ts
@@ -77,6 +79,7 @@ model/cash-book-dto.ts
 model/cash-book-summary-dto.ts
 model/cash-book-transfer-request.ts
 model/cash-book-upsert-dto.ts
+model/cash-income-dto.ts
 model/cash-income-request.ts
 model/cash-income-source.ts
 model/category-summary-dto.ts

@@ -22,7 +22,6 @@ public class BookingBase
     public Guid? CashBookId { get; set; }
 
     public string? ReceiptUrl { get; set; }
-    public CashIncomeSource? Source { get; set; }
     public Guid? TransferGroupId { get; set; }
 }
 
@@ -44,12 +43,4 @@ public enum TaxArea
     Ideell,
     Zweckbetrieb,
     Wirtschaftsbetrieb,
-}
-
-[JsonConverter(typeof(JsonStringEnumConverter))]
-public enum CashIncomeSource
-{
-    Cash,
-    TallyList,
-    SumUp,
 }
