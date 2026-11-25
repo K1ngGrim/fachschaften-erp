@@ -118,6 +118,23 @@
         </div>
       }
 
+      @if (canSeeMovements && p.trackStock) {
+        <div class="col-12">
+          <mat-card appearance="outlined">
+            <mat-card-header class="mb-2">
+              <mat-card-title class="fs-6">Bestandsverlauf</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <app-stock-history
+                [productId]="id"
+                [unit]="stockUnit()"
+                [lowStockThreshold]="p.lowStockThreshold"
+              />
+            </mat-card-content>
+          </mat-card>
+        </div>
+      }
+
       @if (canSeeMovements) {
         <div class="col-12">
           <mat-card appearance="outlined">

@@ -84,6 +84,8 @@ export * from './set-module-enabled-request';
 export * from './setup2-fa-request';
 export * from './setup2-fa-result';
 export * from './simple-inventory-transaction-dto';
+export * from './stock-history-dto';
+export * from './stock-history-point-dto';
 export * from './stock-overview-dto';
 export * from './stock-take-dto';
 export * from './stock-take-position-dto';

@@ -1,0 +1,72 @@
+<div class="d-flex flex-wrap align-items-center gap-3 mb-3">
+  <mat-button-toggle-group
+    [value]="preset()"
+    (change)="setPreset($event.value)"
+    class="filter-toggle"
+    hideSingleSelectionIndicator
+    aria-label="Zeitraum"
+  >
+    <mat-button-toggle value="30">30 Tage</mat-button-toggle>
+    <mat-button-toggle value="90">90 Tage</mat-button-toggle>
+    <mat-button-toggle value="365">12 Monate</mat-button-toggle>
+    <mat-button-toggle value="custom">Zeitraum</mat-button-toggle>
+  </mat-button-toggle-group>
+
+  @if (preset() === 'custom') {
+    <div class="d-flex flex-wrap gap-2">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="date-field">
+        <mat-label>Von</mat-label>
+        <input
+          matInput
+          type="date"
+          [max]="customTo()"
+          [ngModel]="customFrom()"
+          (ngModelChange)="customFrom.set($event)"
+        />
+      </mat-form-field>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="date-field">
+        <mat-label>Bis</mat-label>
+        <input
+          matInput
+          type="date"
+          [min]="customFrom()"
+          [ngModel]="customTo()"
+          (ngModelChange)="customTo.set($event)"
+        />
+      </mat-form-field>
+    </div>
+  }
+</div>
+
+@if (!range()) {
+  <p class="text-hint text-center py-4 mb-0">Bitte einen gültigen Zeitraum wählen.</p>
+} @else if (error()) {
+  <p class="text-hint text-center py-4 mb-0">
+    Der Verlauf konnte nicht geladen werden. Zeiträume dürfen höchstens drei Jahre umfassen.
+  </p>
+} @else if (history(); as h) {
+  <dl class="row g-3 mb-3">
+    <div class="col-6 col-md-3">
+      <dt class="text-hint small">Anfangsbestand</dt>
+      <dd class="fs-5 fw-semibold mb-0">{{ h.openingStock }}</dd>
+    </div>
+    <div class="col-6 col-md-3">
+      <dt class="text-hint small">Zugänge</dt>
+      <dd class="fs-5 fw-semibold mb-0 text-positive">+{{ h.incoming }}</dd>
+    </div>
+    <div class="col-6 col-md-3">
+      <dt class="text-hint small">Abgänge</dt>
+      <dd class="fs-5 fw-semibold mb-0 text-negative">−{{ h.outgoing }}</dd>
+    </div>
+    <div class="col-6 col-md-3">
+      <dt class="text-hint small">Endbestand</dt>
+      <dd class="fs-5 fw-semibold mb-0">{{ h.closingStock }}</dd>
+    </div>
+  </dl>
+
+  <div class="chart-wrapper" [class.is-loading]="loading()">
+    <canvas baseChart type="line" [data]="chartData()" [options]="chartOptions"></canvas>
+  </div>
+} @else {
+  <p class="text-hint text-center py-4 mb-0">Wird geladen …</p>
+}

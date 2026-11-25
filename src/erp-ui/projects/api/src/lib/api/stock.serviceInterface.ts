@@ -11,12 +11,19 @@ import { HttpHeaders }                                       from '@angular/comm
 
 import { Observable }                                        from 'rxjs';
 
+import { StockHistoryDto } from '../model/models';
 import { StockOverviewDto } from '../model/models';
 import { StockUpdateRequest } from '../model/models';
 
 
 import { Configuration }                                     from '../configuration';
 
+
+export interface ApiStockProductIdHistoryGetRequestParams {
+    productId: string;
+    from?: string;
+    to?: string;
+}
 
 export interface ApiStockUpdatePostRequestParams {
     stockUpdateRequest: StockUpdateRequest;
@@ -32,6 +39,13 @@ export interface StockServiceInterface {
      * 
 */
     apiStockGet(extraHttpRequestParams?: any): Observable<Array<StockOverviewDto>>;
+
+    /**
+     * 
+     * 
+* @param requestParameters
+     */
+    apiStockProductIdHistoryGet(requestParameters: ApiStockProductIdHistoryGetRequestParams, extraHttpRequestParams?: any): Observable<StockHistoryDto>;
 
     /**
      * 

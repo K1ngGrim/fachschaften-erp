@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "erp-ui",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "src/erp-ui", "start", "--", "--port", "4200"],
+      "port": 4200
+    }
+  ]
+}

@@ -25,6 +25,7 @@ import {
   unitConversionLabel,
 } from '../../../../../shared/models/product-unit';
 import { ItemDialog, ItemDialogData } from '../item-dialog/item-dialog';
+import { StockHistory } from '../stock-history/stock-history';
 
 const MOVEMENT_LABELS: Record<InventoryTransactionType, string> = {
   [InventoryTransactionType.Delivery]: 'Lieferung',
@@ -42,7 +43,16 @@ interface CustomValue {
 
 @Component({
   selector: 'app-item-detail',
-  imports: [MatCard, MatCardContent, MatCardHeader, MatCardTitle, MatButton, MatIcon, RouterLink],
+  imports: [
+    MatCard,
+    MatCardContent,
+    MatCardHeader,
+    MatCardTitle,
+    MatButton,
+    MatIcon,
+    RouterLink,
+    StockHistory,
+  ],
   templateUrl: './item-detail.html',
   styleUrl: './item-detail.scss',
 })
@@ -54,7 +64,7 @@ export class ItemDetail implements OnInit {
   private readonly dialog = inject(MatDialog);
   private readonly auth = inject(Auth);
 
-  private readonly id = this.route.snapshot.paramMap.get('id') ?? '';
+  public readonly id = this.route.snapshot.paramMap.get('id') ?? '';
 
   public readonly loading = signal(true);
   public readonly product = signal<ProductDetailDto | null>(null);

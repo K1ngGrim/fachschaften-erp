@@ -1,0 +1,24 @@
+.chart-wrapper {
+  position: relative;
+  height: 300px;
+  transition: opacity 150ms ease;
+
+  &.is-loading {
+    opacity: 0.5;
+  }
+}
+
+.filter-toggle {
+  --mat-standard-button-toggle-height: 2.5rem;
+  border-radius: 0.6rem;
+  overflow: hidden;
+
+  .mat-button-toggle-checked {
+    background: var(--brand-accent);
+    color: #fff;
+  }
+}
+
+.date-field {
+  width: 10.5rem;
+}

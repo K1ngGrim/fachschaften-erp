@@ -11,15 +11,80 @@ namespace Fachschaften_ERP.Api.Controller;
 [ApiController]
 [Route("/api/stock")]
 public class StockController(
-    CoreContext db
+    CoreContext db,
+    IConfiguration configuration
     ): ControllerBase
 {
+    /// <summary>Längster abfragbarer Zeitraum für den Bestandsverlauf, in Tagen.</summary>
+    private const int MaxHistoryDays = 3 * 366;
 
     [RequirePermission(PermissionType.InventoryRead)]
     [HttpGet]
     public async Task<ActionResult<IList<StockOverviewDto>>> GetAll()
     {
         return Ok(await GetOverviewAsync());
+    }
+
+    /// <summary>
+    /// Bestandsverlauf eines Artikels: Bestand am Ende jedes Tages im Zeitraum, berechnet aus den
+    /// Lagerbewegungen. Tage zählen in der Zeitzone der Fachschaft; <paramref name="to"/> ist inklusive.
+    /// </summary>
+    [RequirePermission(PermissionType.InventoryRead)]
+    [HttpGet("{productId:guid}/history")]
+    public async Task<ActionResult<StockHistoryDto>> History(Guid productId, [FromQuery] DateOnly from, [FromQuery] DateOnly to)
+    {
+        if (to < from) return BadRequest("'to' must not be before 'from'.");
+        if (to.DayNumber - from.DayNumber >= MaxHistoryDays) return BadRequest($"The range may span at most {MaxHistoryDays} days.");
+
+        var exists = await db.Products.AnyAsync(x => x.IsActive && x.Id == productId);
+        if (!exists) return NotFound();
+
+        var zone = AppTimeZone.From(configuration);
+        var start = StartOfDay(from, zone);
+        var end = StartOfDay(to.AddDays(1), zone);
+
+        var transactions = db.InventoryTransactions
+            .Where(x => x.IsActive && x.ProductId == productId);
+
+        var openingStock = await transactions
+            .Where(x => x.Created < start)
+            .SumAsync(x => x.Quantity);
+
+        var movements = await transactions
+            .Where(x => x.Created >= start && x.Created < end)
+            .Select(x => new { x.Created, x.Quantity })
+            .ToListAsync();
+
+        var changeByDay = movements
+            .GroupBy(x => DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(x.Created, zone).DateTime))
+            .ToDictionary(g => g.Key, g => (
+                Incoming: g.Where(x => x.Quantity > 0).Sum(x => x.Quantity),
+                Outgoing: g.Where(x => x.Quantity < 0).Sum(x => -x.Quantity)));
+
+        var points = new List<StockHistoryPointDto>();
+        var stock = openingStock;
+        for (var day = from; day <= to; day = day.AddDays(1))
+        {
+            var (incoming, outgoing) = changeByDay.GetValueOrDefault(day);
+            stock += incoming - outgoing;
+            points.Add(new StockHistoryPointDto(day, stock, incoming, outgoing));
+        }
+
+        return Ok(new StockHistoryDto(
+            productId,
+            from,
+            to,
+            openingStock,
+            stock,
+            points.Sum(x => x.Incoming),
+            points.Sum(x => x.Outgoing),
+            points));
+    }
+
+    private static DateTimeOffset StartOfDay(DateOnly day, TimeZoneInfo zone)
+    {
+        var local = day.ToDateTime(TimeOnly.MinValue, DateTimeKind.Unspecified);
+        return new DateTimeOffset(TimeZoneInfo.ConvertTimeToUtc(local, zone), TimeSpan.Zero);
     }
 
     [RequirePermission(PermissionType.InventoryWrite)]
@@ -118,5 +183,14 @@ public class StockController(
 /// <param name="PriceUnitsPerStockUnit">Preiseinheiten pro Bestandseinheit, z. B. 20 Flaschen pro Kiste.</param>
 /// <param name="StockValue">Warenwert des Bestands zum Einkaufspreis.</param>
 public record StockOverviewDto(Guid ProductId, string Name, int Stock, int Threshold, string Unit, decimal PurchasePrice, decimal SellingPriceInternal, decimal SellingPriceExternal, bool TrackStock, string PriceUnit, decimal PriceUnitsPerStockUnit, decimal StockValue);
+/// <param name="Stock">Bestand am Ende des Tages.</param>
+/// <param name="Incoming">Summe der Zugänge an diesem Tag.</param>
+/// <param name="Outgoing">Summe der Abgänge an diesem Tag, als positive Zahl.</param>
+public record StockHistoryPointDto(DateOnly Date, int Stock, int Incoming, int Outgoing);
+
+/// <param name="OpeningStock">Bestand zu Beginn von <paramref name="From"/>.</param>
+/// <param name="ClosingStock">Bestand am Ende von <paramref name="To"/>.</param>
+/// <param name="Points">Ein Eintrag pro Tag von <paramref name="From"/> bis <paramref name="To"/>.</param>
+public record StockHistoryDto(Guid ProductId, DateOnly From, DateOnly To, int OpeningStock, int ClosingStock, int Incoming, int Outgoing, IList<StockHistoryPointDto> Points);
 public record StockUpdatePositionDto(Guid ProductId, int NewStock, InventoryTransactionType Type, string? Note);
 public record StockUpdateRequest(string? Note, IList<StockUpdatePositionDto> Positions);

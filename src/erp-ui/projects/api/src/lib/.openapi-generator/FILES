@@ -150,6 +150,8 @@ model/set-module-enabled-request.ts
 model/setup2-fa-request.ts
 model/setup2-fa-result.ts
 model/simple-inventory-transaction-dto.ts
+model/stock-history-dto.ts
+model/stock-history-point-dto.ts
 model/stock-overview-dto.ts
 model/stock-take-dto.ts
 model/stock-take-position-dto.ts
